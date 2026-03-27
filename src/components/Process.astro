@@ -1,0 +1,71 @@
+---
+const steps = [
+  {
+    number: '01',
+    title: 'Diagnóstico',
+    description: 'Analizo tu funnel, stack, métricas y equipo. Identifico los cuellos de botella y las oportunidades de mayor impacto.',
+    duration: 'Semana 1'
+  },
+  {
+    number: '02',
+    title: 'Estrategia & Roadmap',
+    description: 'Diseño el plan de growth con prioridades claras, KPIs y los sistemas de automatización necesarios.',
+    duration: 'Semana 2'
+  },
+  {
+    number: '03',
+    title: 'Build & Automate',
+    description: 'Construyo los sistemas: automatizaciones con IA, workflows, integraciones CRM y campañas listas para lanzar.',
+    duration: 'Semanas 3-4'
+  },
+  {
+    number: '04',
+    title: 'Launch & Optimize',
+    description: 'Lanzamos, medimos y optimizamos. Iteración continua basada en datos para escalar lo que funciona.',
+    duration: 'Ongoing'
+  }
+];
+---
+
+<section id="proceso" class="relative py-32">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">Proceso</p>
+      <h2 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        De cero a <span class="gradient-text">máquina de growth</span>
+      </h2>
+      <p class="mx-auto mt-4 max-w-2xl text-gray-400">
+        Un proceso probado que transforma tu operación de crecimiento en semanas, no meses.
+      </p>
+    </div>
+
+    <div class="relative mt-20">
+      <!-- Connecting line -->
+      <div class="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-purple via-cyan to-transparent hidden lg:block"></div>
+
+      <div class="space-y-12 lg:space-y-16">
+        {steps.map((step, i) => (
+          <div class={`relative flex flex-col lg:flex-row gap-6 lg:gap-12 items-start animate-fade-in-up delay-${(i + 1) * 100}`}>
+            <!-- Step number -->
+            <div class="relative z-10 flex-shrink-0">
+              <div class="flex h-16 w-16 items-center justify-center rounded-2xl bg-dark-2 border border-purple/30 glow">
+                <span class="text-lg font-bold gradient-text">{step.number}</span>
+              </div>
+            </div>
+
+            <!-- Content -->
+            <div class="gradient-border flex-1 p-6">
+              <div class="relative z-10">
+                <div class="flex items-center justify-between mb-2">
+                  <h3 class="text-xl font-semibold text-white">{step.title}</h3>
+                  <span class="rounded-full bg-cyan/10 border border-cyan/20 px-3 py-1 text-xs text-cyan">{step.duration}</span>
+                </div>
+                <p class="text-gray-400 leading-relaxed">{step.description}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>

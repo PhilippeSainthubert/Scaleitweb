@@ -1,0 +1,48 @@
+---
+const tools = [
+  { name: 'Claude AI', category: 'AI', description: 'Automatización inteligente y generación de contenido' },
+  { name: 'GoHighLevel', category: 'CRM', description: 'CRM, funnels, email marketing y automaciones' },
+  { name: 'Make / n8n', category: 'Automation', description: 'Workflows y integraciones entre herramientas' },
+  { name: 'Google Ads', category: 'Paid', description: 'Campañas de búsqueda y display optimizadas' },
+  { name: 'Meta Ads', category: 'Paid', description: 'Campañas en Facebook e Instagram' },
+  { name: 'LinkedIn Ads', category: 'Paid', description: 'Campañas B2B targeted' },
+  { name: 'GA4 + GTM', category: 'Analytics', description: 'Tracking y medición completa' },
+  { name: 'Astro', category: 'Web', description: 'Websites rápidos y optimizados para SEO' },
+  { name: 'Vercel', category: 'Infra', description: 'Deploy y hosting de alto rendimiento' },
+  { name: 'Notion', category: 'Ops', description: 'Documentación y gestión de proyectos' },
+  { name: 'Slack', category: 'Comms', description: 'Comunicación y alertas automatizadas' },
+  { name: 'Zapier', category: 'Automation', description: 'Integraciones rápidas entre apps' },
+];
+
+const categories = [...new Set(tools.map(t => t.category))];
+---
+
+<section id="stack" class="relative py-32">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">Stack</p>
+      <h2 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        Las herramientas que <span class="gradient-text">potencian el growth</span>
+      </h2>
+      <p class="mx-auto mt-4 max-w-2xl text-gray-400">
+        Un stack moderno que conecta IA, automatización, analytics y ejecución.
+      </p>
+    </div>
+
+    <div class="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {tools.map((tool, i) => (
+        <div class="group gradient-border card-hover p-5">
+          <div class="relative z-10 flex items-start gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-1">
+                <h3 class="font-semibold text-white group-hover:text-purple-light transition-colors">{tool.name}</h3>
+                <span class="rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[10px] uppercase tracking-wider text-gray-500">{tool.category}</span>
+              </div>
+              <p class="text-sm text-gray-400">{tool.description}</p>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

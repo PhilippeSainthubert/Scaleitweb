@@ -1,0 +1,31 @@
+---
+const links = [
+  { label: 'Servicios', href: '#servicios' },
+  { label: 'Proceso', href: '#proceso' },
+  { label: 'Sobre Mi', href: '#sobre-mi' },
+  { label: 'Stack', href: '#stack' },
+];
+---
+
+<nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-xl bg-dark/80">
+  <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
+    <a href="/" class="text-xl font-bold tracking-tight">
+      <span class="gradient-text">Scale</span><span class="text-white"> It</span>
+    </a>
+
+    <div class="hidden md:flex items-center gap-8">
+      {links.map(link => (
+        <a href={link.href} class="text-sm text-gray-400 hover:text-white transition-colors duration-200">
+          {link.label}
+        </a>
+      ))}
+    </div>
+
+    <a
+      href="#contacto"
+      class="rounded-full bg-gradient-to-r from-purple to-cyan px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg hover:shadow-purple/25"
+    >
+      Hablemos
+    </a>
+  </div>
+</nav>
