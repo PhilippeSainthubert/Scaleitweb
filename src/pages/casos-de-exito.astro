@@ -1,0 +1,111 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const cases = [
+  {
+    title: 'Fintech SaaS — Sistema de Lead Generation Automatizado',
+    industry: 'Fintech',
+    challenge: 'Equipo pequeño sin capacidad para generar leads cualificados de forma consistente. Dependencia total del boca a boca.',
+    solution: 'Diseño e implementación de un sistema automatizado de prospección con IA: scraping de leads, scoring automático, secuencias de email personalizadas y CRM integrado.',
+    results: [
+      { metric: '3x', label: 'Pipeline en 3 meses' },
+      { metric: '200+', label: 'Leads cualificados/mes' },
+      { metric: '-80%', label: 'Tiempo en prospección' }
+    ],
+    stack: ['Claude AI', 'GoHighLevel', 'Make', 'LinkedIn Ads']
+  },
+  {
+    title: 'B2B Platform — Revenue Operations desde Cero',
+    industry: 'B2B SaaS',
+    challenge: 'Sin CRM, sin tracking, sin proceso de ventas definido. Los leads se perdían entre spreadsheets y emails.',
+    solution: 'Implementación completa de revenue ops: CRM con pipeline customizado, lead scoring, atribución multi-touch, dashboards de métricas y automatización de follow-ups.',
+    results: [
+      { metric: '2.5x', label: 'Conversión de leads' },
+      { metric: '0→100%', label: 'Visibilidad del pipeline' },
+      { metric: '-60%', label: 'Tiempo de cierre' }
+    ],
+    stack: ['GoHighLevel', 'GA4', 'Make', 'Slack']
+  },
+  {
+    title: 'MarTech Startup — Automatización con IA',
+    industry: 'MarTech',
+    challenge: 'El founder dedicaba 20+ horas semanales a tareas operativas repetitivas: reporting, clasificación de leads, emails de seguimiento.',
+    solution: 'Construcción de workflows de IA para automatizar: generación de reportes, clasificación y asignación de leads, respuestas a prospects, y dashboards de campañas.',
+    results: [
+      { metric: '20h', label: 'Ahorradas por semana' },
+      { metric: '95%', label: 'Tareas automatizadas' },
+      { metric: '4x', label: 'Capacidad operativa' }
+    ],
+    stack: ['Claude AI', 'n8n', 'Notion', 'Slack']
+  }
+];
+---
+
+<Layout title="Casos de Éxito | Scale It">
+  <Navbar />
+  <main class="pt-32 pb-20">
+    <div class="mx-auto max-w-5xl px-6">
+      <div class="text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">Casos de Éxito</p>
+        <h1 class="mt-3 text-4xl font-bold text-white sm:text-5xl">Resultados <span class="gradient-text">reales</span></h1>
+        <p class="mx-auto mt-4 max-w-xl text-gray-400">
+          Así es como empresas tech han escalado con Scale It.
+        </p>
+      </div>
+
+      <div class="mt-16 space-y-12">
+        {cases.map((c) => (
+          <div class="gradient-border p-8">
+            <div class="relative z-10">
+              <div class="flex items-center gap-3 mb-4">
+                <span class="rounded-full bg-purple/10 border border-purple/20 px-3 py-1 text-xs text-purple-light">{c.industry}</span>
+              </div>
+              <h2 class="text-2xl font-bold text-white">{c.title}</h2>
+
+              <div class="mt-6 grid gap-6 lg:grid-cols-2">
+                <div>
+                  <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-2">Desafío</h3>
+                  <p class="text-gray-400 leading-relaxed">{c.challenge}</p>
+                </div>
+                <div>
+                  <h3 class="text-sm font-semibold uppercase tracking-wider text-gray-500 mb-2">Solución</h3>
+                  <p class="text-gray-400 leading-relaxed">{c.solution}</p>
+                </div>
+              </div>
+
+              <!-- Results -->
+              <div class="mt-8 grid grid-cols-3 gap-4">
+                {c.results.map((r) => (
+                  <div class="rounded-xl bg-dark/50 border border-white/5 p-4 text-center">
+                    <div class="text-2xl font-bold gradient-text">{r.metric}</div>
+                    <div class="mt-1 text-xs text-gray-500">{r.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <!-- Stack used -->
+              <div class="mt-6 flex flex-wrap gap-2">
+                {c.stack.map((tool) => (
+                  <span class="rounded-full bg-white/5 border border-white/10 px-3 py-1 text-xs text-gray-400">{tool}</span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div class="mt-16 text-center">
+        <p class="text-gray-400 mb-4">¿Quieres ser el próximo caso de éxito?</p>
+        <a
+          href="/#contacto"
+          class="inline-flex rounded-full bg-gradient-to-r from-purple to-cyan px-8 py-3.5 text-base font-semibold text-white transition-all hover:shadow-xl hover:shadow-purple/25 hover:scale-105"
+        >
+          Hablemos &rarr;
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>

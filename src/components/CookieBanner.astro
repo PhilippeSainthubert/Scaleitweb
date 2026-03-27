@@ -1,0 +1,51 @@
+---
+---
+
+<div id="cookie-banner" class="fixed bottom-0 left-0 right-0 z-50 hidden">
+  <div class="mx-auto max-w-4xl p-4">
+    <div class="rounded-2xl border border-white/10 bg-dark-2/95 backdrop-blur-xl p-6 shadow-2xl">
+      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div class="flex-1">
+          <p class="text-sm text-gray-300">
+            Usamos cookies para analizar el tráfico y mejorar tu experiencia.
+            <a href="/cookies" class="text-purple-light hover:underline">Más info</a>
+          </p>
+        </div>
+        <div class="flex gap-3 flex-shrink-0">
+          <button
+            id="cookie-reject"
+            class="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm text-gray-300 transition-all hover:bg-white/10"
+          >
+            Rechazar
+          </button>
+          <button
+            id="cookie-accept"
+            class="rounded-full bg-gradient-to-r from-purple to-cyan px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90"
+          >
+            Aceptar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const banner = document.getElementById('cookie-banner');
+  const acceptBtn = document.getElementById('cookie-accept');
+  const rejectBtn = document.getElementById('cookie-reject');
+
+  if (!localStorage.getItem('cookie_consent')) {
+    banner?.classList.remove('hidden');
+  }
+
+  acceptBtn?.addEventListener('click', () => {
+    localStorage.setItem('cookie_consent', 'accepted');
+    banner?.classList.add('hidden');
+  });
+
+  rejectBtn?.addEventListener('click', () => {
+    localStorage.setItem('cookie_consent', 'rejected');
+    banner?.classList.add('hidden');
+  });
+</script>

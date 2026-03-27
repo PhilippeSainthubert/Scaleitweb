@@ -1,0 +1,86 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+
+const faqs = [
+  {
+    q: '¿Qué tipo de empresas trabajan contigo?',
+    a: 'Trabajo principalmente con empresas tech, SaaS, fintechs y startups que ya tienen producto-mercado fit y quieren escalar su crecimiento de forma sistemática.'
+  },
+  {
+    q: '¿Necesito tener un equipo de marketing?',
+    a: 'No. Precisamente Scale It existe para que no necesites contratar un equipo completo. Diseño los sistemas y automatizaciones para que puedas crecer con el equipo que tienes.'
+  },
+  {
+    q: '¿Qué incluye la llamada de diagnóstico gratuita?',
+    a: 'En 30 minutos analizamos tu situación actual: funnel, métricas, stack, y equipo. Te doy recomendaciones accionables y te explico exactamente cómo puedo ayudarte. Sin compromiso.'
+  },
+  {
+    q: '¿En cuánto tiempo veré resultados?',
+    a: 'Depende del proyecto, pero normalmente los primeros sistemas están operativos en 2-4 semanas. Los resultados medibles suelen verse entre el primer y segundo mes.'
+  },
+  {
+    q: '¿Qué herramientas utilizas?',
+    a: 'Mi stack incluye Claude AI para automatización inteligente, GoHighLevel como CRM, Make/n8n para workflows, Google Ads y Meta Ads para paid, y GA4 + GTM para analytics. Adapto el stack a las necesidades de cada cliente.'
+  },
+  {
+    q: '¿Cómo funciona el pricing?',
+    a: 'Trabajo con proyectos a medida. Después de la llamada de diagnóstico, te envío una propuesta con alcance, plazos y precio cerrado. Sin sorpresas.'
+  },
+  {
+    q: '¿Trabajas en remoto?',
+    a: 'Sí. Trabajo 100% en remoto con clientes de toda España y Latinoamérica. Nos coordinamos por Slack, email y videollamadas semanales.'
+  },
+  {
+    q: '¿Qué diferencia a Scale It de una agencia?',
+    a: 'No soy una agencia con juniors ejecutando plantillas. Soy un consultor senior que diseña e implementa sistemas personalizados con IA. Trabajo directamente contigo, sin intermediarios.'
+  },
+  {
+    q: '¿Puedo cancelar en cualquier momento?',
+    a: 'Sí. Puedes cancelar con 15 días de preaviso. Se factura el trabajo realizado hasta la fecha. Sin penalizaciones ni letra pequeña.'
+  }
+];
+---
+
+<Layout title="Preguntas Frecuentes | Scale It">
+  <Navbar />
+  <main class="pt-32 pb-20">
+    <div class="mx-auto max-w-3xl px-6">
+      <div class="text-center">
+        <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">FAQ</p>
+        <h1 class="mt-3 text-4xl font-bold text-white sm:text-5xl">Preguntas <span class="gradient-text">Frecuentes</span></h1>
+        <p class="mx-auto mt-4 max-w-xl text-gray-400">
+          Todo lo que necesitas saber antes de trabajar conmigo.
+        </p>
+      </div>
+
+      <div class="mt-16 space-y-4">
+        {faqs.map((faq, i) => (
+          <details class="group gradient-border p-0 overflow-hidden">
+            <summary class="relative z-10 cursor-pointer list-none p-6 flex items-center justify-between text-white font-medium hover:text-purple-light transition-colors">
+              <span>{faq.q}</span>
+              <svg class="h-5 w-5 flex-shrink-0 text-gray-500 transition-transform group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+            </summary>
+            <div class="relative z-10 px-6 pb-6 text-gray-400 leading-relaxed">
+              {faq.a}
+            </div>
+          </details>
+        ))}
+      </div>
+
+      <div class="mt-16 text-center">
+        <p class="text-gray-400">¿No encuentras tu respuesta?</p>
+        <a
+          href="/#contacto"
+          class="mt-4 inline-flex rounded-full bg-gradient-to-r from-purple to-cyan px-8 py-3.5 text-base font-semibold text-white transition-all hover:shadow-xl hover:shadow-purple/25 hover:scale-105"
+        >
+          Pregúntame directamente &rarr;
+        </a>
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
