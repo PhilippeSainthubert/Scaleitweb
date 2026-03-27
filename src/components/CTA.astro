@@ -3,7 +3,7 @@
 
 <section id="contacto" class="relative py-32">
   <div class="mx-auto max-w-4xl px-6">
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple/20 via-dark-2 to-cyan/20 p-12 text-center glow">
+    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple/20 via-dark-2 to-cyan/20 p-12 glow">
       <!-- Background decoration -->
       <div class="absolute inset-0 overflow-hidden pointer-events-none">
         <div class="absolute -top-24 -right-24 w-96 h-96 bg-purple/10 rounded-full blur-3xl"></div>
@@ -11,27 +11,108 @@
       </div>
 
       <div class="relative z-10">
-        <h2 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-          Listo para <span class="gradient-text">escalar?</span>
-        </h2>
-        <p class="mx-auto mt-4 max-w-xl text-lg text-gray-400">
-          Agenda una llamada de 30 minutos. Analizamos tu situación actual,
-          identificamos las oportunidades y te digo exactamente cómo puedo ayudarte.
-        </p>
+        <div class="text-center">
+          <h2 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">
+            Listo para <span class="gradient-text">escalar?</span>
+          </h2>
+          <p class="mx-auto mt-4 max-w-xl text-lg text-gray-400">
+            Agenda una llamada de 30 minutos. Analizamos tu situación actual,
+            identificamos las oportunidades y te digo exactamente cómo puedo ayudarte.
+          </p>
+        </div>
 
-        <div class="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-          <a
-            href="mailto:philippe@scaleit.com"
-            class="group rounded-full bg-gradient-to-r from-purple to-cyan px-8 py-4 text-base font-semibold text-white transition-all hover:shadow-xl hover:shadow-purple/25 hover:scale-105"
+        <form
+          action="https://formsubmit.co/philosh95@gmail.com"
+          method="POST"
+          class="mx-auto mt-10 max-w-lg space-y-5"
+        >
+          <!-- FormSubmit config -->
+          <input type="hidden" name="_subject" value="Nuevo lead desde Scale It" />
+          <input type="hidden" name="_captcha" value="false" />
+          <input type="hidden" name="_template" value="box" />
+          <input type="hidden" name="_next" value="https://growth-scaleit.com/#contacto" />
+          <input type="text" name="_honey" style="display:none" />
+
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="nombre" class="block text-sm font-medium text-gray-300 mb-1.5">Nombre</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                required
+                placeholder="Tu nombre"
+                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
+              />
+            </div>
+            <div>
+              <label for="apellido" class="block text-sm font-medium text-gray-300 mb-1.5">Apellido</label>
+              <input
+                type="text"
+                id="apellido"
+                name="apellido"
+                required
+                placeholder="Tu apellido"
+                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
+              />
+            </div>
+          </div>
+
+          <div class="grid gap-5 sm:grid-cols-2">
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-300 mb-1.5">Correo</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                required
+                placeholder="tu@empresa.com"
+                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
+              />
+            </div>
+            <div>
+              <label for="movil" class="block text-sm font-medium text-gray-300 mb-1.5">Móvil</label>
+              <input
+                type="tel"
+                id="movil"
+                name="movil"
+                placeholder="+34 600 000 000"
+                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="proyecto" class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de proyecto</label>
+            <select
+              id="proyecto"
+              name="tipo_de_proyecto"
+              required
+              class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50 appearance-none"
+              style="background-image: url('data:image/svg+xml;utf8,<svg fill=\'%239ca3af\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'><path fill-rule=\'evenodd\' d=\'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\' clip-rule=\'evenodd\'/></svg>'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;"
+            >
+              <option value="" disabled selected class="text-gray-500">Selecciona un tipo</option>
+              <option value="Growth Strategy">Growth Strategy</option>
+              <option value="Market Research">Market Research</option>
+              <option value="AI Automation">AI Automation</option>
+              <option value="AI Content Generation">AI Content Generation</option>
+              <option value="Paid Ads">Paid Ads</option>
+              <option value="Influencer Marketing">Influencer Marketing</option>
+            </select>
+          </div>
+
+          <button
+            type="submit"
+            class="group w-full rounded-xl bg-gradient-to-r from-purple to-cyan px-8 py-4 text-base font-semibold text-white transition-all hover:shadow-xl hover:shadow-purple/25 hover:scale-[1.02]"
           >
             Agenda tu llamada gratuita
             <span class="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-          </a>
-        </div>
+          </button>
 
-        <p class="mt-6 text-sm text-gray-500">
-          Sin compromiso. Si no puedo ayudarte, te lo digo.
-        </p>
+          <p class="text-center text-sm text-gray-500">
+            Sin compromiso. Si no puedo ayudarte, te lo digo.
+          </p>
+        </form>
       </div>
     </div>
   </div>
