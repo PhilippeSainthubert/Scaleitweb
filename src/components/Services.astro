@@ -2,36 +2,42 @@
 const services = [
   {
     icon: '&#9889;',
+    agent: 'Strategy Agent',
     title: 'Growth Strategy',
     description: 'Diseño la estrategia de crecimiento completa para tu empresa: canales, métricas, experimentos y roadmap de ejecución.',
     tags: ['Product-Led Growth', 'Go-to-Market', 'Funnel Optimization']
   },
   {
     icon: '&#9881;',
+    agent: 'Automation Agent',
     title: 'AI Automation',
     description: 'Automatizo procesos repetitivos con IA: lead qualification, outreach personalizado, reporting y workflows operativos.',
     tags: ['Claude AI', 'Make/n8n', 'Custom Workflows']
   },
   {
     icon: '&#128640;',
+    agent: 'RevOps Agent',
     title: 'Revenue Operations',
     description: 'Conecto tu stack de ventas y marketing para crear un pipeline predecible. CRM, scoring, atribución y dashboards.',
     tags: ['GoHighLevel', 'CRM Setup', 'Pipeline Design']
   },
   {
     icon: '&#127919;',
+    agent: 'Paid Agent',
     title: 'Paid & Organic Growth',
     description: 'Lanzo y optimizo campañas de adquisición. Google Ads, Meta, LinkedIn y estrategia de contenido con IA.',
     tags: ['Google Ads', 'LinkedIn Ads', 'Content Strategy']
   },
   {
     icon: '&#128202;',
+    agent: 'Analytics Agent',
     title: 'Analytics & Tracking',
     description: 'Implemento tracking completo y dashboards para que tomes decisiones basadas en datos, no intuición.',
     tags: ['GA4', 'GTM', 'Custom Dashboards']
   },
   {
     icon: '&#129302;',
+    agent: 'Outreach Agent',
     title: 'AI-Powered Outreach',
     description: 'Sistemas de prospección inteligente que califican, personalizan y envían mensajes a escala sin perder el toque humano.',
     tags: ['Lead Scoring', 'Email Sequences', 'Personalization']
@@ -47,7 +53,7 @@ const services = [
         Todo lo que necesitas para <span class="gradient-text">escalar</span>
       </h2>
       <p class="mx-auto mt-4 max-w-2xl text-gray-400">
-        No vendo humo. Construyo sistemas que generan resultados medibles y sostenibles.
+        No vendo humo. Un agente de IA ejecuta cada sistema, yo lo diseño y lo superviso de punta a punta.
       </p>
     </div>
 
@@ -55,7 +61,12 @@ const services = [
       {services.map((service, i) => (
         <div class={`gradient-border card-hover p-6 animate-fade-in-up delay-${(i + 1) * 100}`}>
           <div class="relative z-10">
-            <div class="text-3xl mb-4" set:html={service.icon} />
+            <div class="flex items-center justify-between mb-4">
+              <div class="text-3xl" set:html={service.icon} />
+              <span class="rounded-full bg-cyan/10 border border-cyan/20 px-2.5 py-1 text-[10px] uppercase tracking-wider text-cyan">
+                {service.agent}
+              </span>
+            </div>
             <h3 class="text-lg font-semibold text-white">{service.title}</h3>
             <p class="mt-2 text-sm text-gray-400 leading-relaxed">{service.description}</p>
             <div class="mt-4 flex flex-wrap gap-2">

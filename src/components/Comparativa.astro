@@ -1,0 +1,86 @@
+---
+const rows = [
+  {
+    axis: 'Alcance',
+    scaleIt: 'Growth completo: estrategia, automatización, paid y RevOps',
+    tools: 'Un canal a la vez, herramienta por herramienta',
+    agency: 'Depende del contrato, suele quedar fragmentado'
+  },
+  {
+    axis: 'Velocidad',
+    scaleIt: 'Agentes de IA ejecutan en horas, no en semanas',
+    tools: 'Rápido si sabés usar la herramienta — todo lo hacés vos',
+    agency: 'Semanas de idas y vueltas y aprobaciones'
+  },
+  {
+    axis: 'Supervisión',
+    scaleIt: 'Cada agente supervisado por un growth consultor senior',
+    tools: 'Ninguna, dependés de tu propio criterio',
+    agency: 'Muchas veces un junior maneja tu cuenta'
+  },
+  {
+    axis: 'Transparencia',
+    scaleIt: 'Ves cada tarea y su estado en tiempo real',
+    tools: 'Ves el dashboard de la herramienta, no el resultado',
+    agency: 'Reporte mensual, caja negra el resto del tiempo'
+  },
+  {
+    axis: 'Costo',
+    scaleIt: 'Fracción de contratar un equipo de growth interno',
+    tools: 'Barato en licencias, caro en tu tiempo',
+    agency: 'Retainers altos + fees que aparecen después'
+  }
+];
+---
+
+<section id="comparativa" class="relative py-32">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="text-center">
+      <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">Comparativa</p>
+      <h2 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
+        Lo mejor de <span class="gradient-text">ambos mundos</span>
+      </h2>
+      <p class="mx-auto mt-4 max-w-2xl text-gray-400">
+        Ni la lentitud de una agencia, ni la soledad de hacerlo todo con herramientas sueltas.
+      </p>
+    </div>
+
+    <div class="mt-16 overflow-x-auto">
+      <div class="min-w-[720px]">
+        <!-- Header row -->
+        <div class="grid grid-cols-4 gap-4">
+          <div></div>
+          <div class="gradient-border glow p-4 text-center">
+            <span class="relative z-10 text-sm font-bold gradient-text">Scale It</span>
+          </div>
+          <div class="p-4 text-center">
+            <span class="text-sm font-semibold text-gray-400">Herramientas sueltas</span>
+          </div>
+          <div class="p-4 text-center">
+            <span class="text-sm font-semibold text-gray-400">Agencias tradicionales</span>
+          </div>
+        </div>
+
+        <!-- Rows -->
+        <div class="mt-3 space-y-3">
+          {rows.map((row, i) => (
+            <div class={`grid grid-cols-4 gap-4 items-stretch animate-fade-in-up delay-${(i + 1) * 100}`}>
+              <div class="flex items-center px-4 text-sm font-semibold uppercase tracking-wider text-gray-500">
+                {row.axis}
+              </div>
+              <div class="rounded-xl border border-purple/30 bg-purple/5 p-4">
+                <p class="text-sm text-white leading-relaxed">{row.scaleIt}</p>
+              </div>
+              <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                <p class="text-sm text-gray-500 leading-relaxed">{row.tools}</p>
+              </div>
+              <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                <p class="text-sm text-gray-500 leading-relaxed">{row.agency}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
