@@ -41,6 +41,10 @@ const organization = {
   description,
   areaServed: { '@type': 'Country', name: 'España' },
   address: { '@type': 'PostalAddress', addressLocality: 'Barcelona', addressCountry: 'ES' },
+  founder: [
+    { '@type': 'Person', name: 'Philippe Saint-Hubert' },
+    { '@type': 'Person', name: 'Patrick Saint-Hubert' },
+  ],
   sameAs: [
     'https://www.linkedin.com/in/philippesainthubert/',
     'https://www.youtube.com/@Marketingdetrasdelclick',
@@ -72,7 +76,13 @@ const graphs = [organization, website, ...(schema ? (Array.isArray(schema) ? sch
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     {GSC_VERIFICATION && <meta name="google-site-verification" content={GSC_VERIFICATION} />}
 
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title="Scale It" href="/rss.xml" />
     <meta name="generator" content={Astro.generator} />
     <meta name="theme-color" content="#ffffff" />
 

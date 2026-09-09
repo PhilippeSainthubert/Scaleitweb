@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { clusters, autores } from '../../data/autores';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+
+const fecha = (d: Date) =>
+  d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'Blog de Scale It',
+  url: 'https://www.growth-scaleit.com/blog',
+  publisher: { '@id': 'https://www.growth-scaleit.com/#organization' },
+};
+---
+
+<Layout
+  title="Blog | Scale It"
+  description="Cómo se construye y se opera un sistema de adquisición B2B: outbound, SEO, agentes de IA y RevOps. Sin humo y sin recetas de manual."
+  schema={schema}
+>
+  <Navbar />
+
+  <main>
+    <section class="border-b border-line pb-16 pt-36 sm:pt-44">
+      <div class="mx-auto max-w-6xl px-6">
+        <p class="eyebrow">Blog</p>
+        <h1 class="display-xl mt-5 max-w-3xl text-balance">Cómo se construye una máquina de adquisición</h1>
+        <p class="lede mt-6">
+          Lo que aprendemos montando y operando estos sistemas. Sin recetas de
+          manual y sin métricas de vanidad.
+        </p>
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-20">
+      <div class="mx-auto max-w-6xl px-6">
+        {posts.length === 0 ? (
+          <p class="text-[15px] text-ink-2">Todavía no hay publicaciones. Vuelve pronto.</p>
+        ) : (
+          <div class="grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post) => (
+              <a href={`/blog/${post.id}/`} class="group bg-bg p-7 transition-colors hover:bg-surface">
+                <div class="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+                  <span class="text-accent">{clusters[post.data.cluster]}</span>
+                  <span class="h-1 w-1 rounded-full bg-line-2"></span>
+                  <time datetime={post.data.pubDate.toISOString()}>{fecha(post.data.pubDate)}</time>
+                </div>
+                <h2 class="mt-4 text-[19px] font-semibold leading-snug tracking-[-0.02em] text-ink">
+                  {post.data.title}
+                </h2>
+                <p class="mt-3 text-[14px] leading-relaxed text-ink-2">{post.data.description}</p>
+                <p class="mt-5 font-mono text-[11px] text-ink-3">{autores[post.data.author].rol}</p>
+              </a>
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

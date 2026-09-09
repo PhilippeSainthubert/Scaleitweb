@@ -1,30 +1,34 @@
 ---
-// ⚠️ PENDIENTE: sustituir los datos del segundo socio cuando Philippe los pase.
-// Todo lo marcado con «PENDIENTE» es marcador, no dato real.
-const todos = [
+/**
+ * Los dos socios.
+ *
+ * La bio de Patrick está escrita solo con lo que consta: su especialidad es
+ * outbound. No se le atribuyen años, cifras ni clientes que nadie ha
+ * verificado, porque es exactamente el tipo de detalle que un comprador B2B
+ * comprueba en LinkedIn antes de la primera llamada.
+ * Falta su foto: mientras tanto lleva monograma, que se lee como decisión de
+ * diseño y no como una ficha rota.
+ */
+const socios = [
   {
     nombre: 'Philippe Saint-Hubert',
+    iniciales: 'PS',
     rol: 'Sistemas, estrategia y agentes',
     foto: '/philippe.jpeg',
-    bio: 'Consultor de growth para empresas tech y fintech. Diseña la arquitectura del sistema y construye los agentes que lo operan.',
+    bio: 'Consultor de growth para empresas tech y fintech. Diseña la arquitectura del sistema de adquisición y construye los agentes que lo operan.',
     tags: ['Growth strategy', 'Agentes de IA', 'RevOps', 'SEO', 'Fintech'],
     linkedin: 'https://www.linkedin.com/in/philippesainthubert/',
-    publicado: true,
   },
   {
-    // Se publica en cuanto Philippe pase nombre, foto, LinkedIn y bio reales.
-    // Hasta entonces no sale: una ficha a medias en una web comercial resta
-    // mucha más confianza de la que suma tener dos caras.
-    nombre: '',
+    nombre: 'Patrick Saint-Hubert',
+    iniciales: 'PS',
     rol: 'Outbound y generación de demanda',
     foto: null,
-    bio: '',
+    bio: 'Especialista en outbound B2B. Define el ICP, encuentra las señales de compra y convierte esa lista en conversaciones: secuencias multicanal, LinkedIn y deliverability.',
     tags: ['Outbound B2B', 'ICP y datos', 'LinkedIn', 'Deliverability'],
-    linkedin: null,
-    publicado: false,
+    linkedin: 'https://www.linkedin.com/in/patrick-saint-hubert-5b9560269/',
   },
 ];
-const socios = todos.filter((s) => s.publicado);
 ---
 
 <section id="nosotros" class="border-t border-line bg-surface py-24 sm:py-32">
@@ -33,13 +37,13 @@ const socios = todos.filter((s) => s.publicado);
       <p class="eyebrow">Nosotros</p>
       <h2 class="display-lg mt-4 text-balance">Somos dos hermanos, y los vas a tener a los dos</h2>
       <p class="lede mt-5">
-        Sin cuentas delegadas en un junior ni gestores que rotan. Uno diseña y
-        construye el sistema, el otro lo llena de demanda. Nos conocés por nombre
-        desde la primera llamada.
+        Sin cuentas delegadas en un junior ni gestores que rotan cada seis meses.
+        Uno diseña y construye el sistema, el otro lo llena de demanda. Nos
+        conocés por nombre desde la primera llamada.
       </p>
     </div>
 
-    <div class={`mt-14 grid gap-5 ${socios.length > 1 ? "md:grid-cols-2" : "max-w-xl"}`}>
+    <div class="mt-14 grid gap-5 md:grid-cols-2">
       {socios.map((socio, i) => (
         <article class="card reveal p-7" style={`transition-delay:${i * 80}ms`}>
           <div class="flex items-center gap-4">
@@ -53,8 +57,8 @@ const socios = todos.filter((s) => s.publicado);
                 class="h-16 w-16 rounded-full object-cover"
               />
             ) : (
-              <div class="flex h-16 w-16 items-center justify-center rounded-full border border-dashed border-line-2 bg-surface font-mono text-[10px] text-ink-3">
-                foto
+              <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent/10 font-mono text-[15px] font-medium tracking-[0.04em] text-accent-deep">
+                {socio.iniciales}
               </div>
             )}
             <div>
@@ -71,14 +75,17 @@ const socios = todos.filter((s) => s.publicado);
             ))}
           </div>
 
-          {socio.linkedin && (
-            <a href={socio.linkedin} target="_blank" rel="noopener noreferrer" class="mt-6 inline-flex items-center gap-1.5 text-[14px] text-ink transition-colors hover:text-accent">
-              LinkedIn
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7m0 0H9m8 0v8" />
-              </svg>
-            </a>
-          )}
+          <a
+            href={socio.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-6 inline-flex items-center gap-1.5 text-[14px] text-ink transition-colors hover:text-accent"
+          >
+            LinkedIn
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7m0 0H9m8 0v8" />
+            </svg>
+          </a>
         </article>
       ))}
     </div>

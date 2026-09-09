@@ -29,9 +29,32 @@ const servicioSchema = {
     ],
   },
 };
+
+const personas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Philippe Saint-Hubert',
+    jobTitle: 'Socio, sistemas y estrategia',
+    worksFor: { '@id': 'https://www.growth-scaleit.com/#organization' },
+    sameAs: [
+      'https://www.linkedin.com/in/philippesainthubert/',
+      'https://www.youtube.com/@Marketingdetrasdelclick',
+      'https://x.com/Mktgdtrdelclick',
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: 'Patrick Saint-Hubert',
+    jobTitle: 'Socio, outbound y generación de demanda',
+    worksFor: { '@id': 'https://www.growth-scaleit.com/#organization' },
+    sameAs: ['https://www.linkedin.com/in/patrick-saint-hubert-5b9560269/'],
+  },
+];
 ---
 
-<Layout schema={servicioSchema}>
+<Layout schema={[servicioSchema, ...personas]}>
   <Navbar />
   <main>
     <Hero />
