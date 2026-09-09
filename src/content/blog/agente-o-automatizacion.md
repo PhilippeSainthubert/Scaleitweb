@@ -15,7 +15,7 @@ La distinción no es académica. Determina qué procesos puedes automatizar de v
 
 Una automatización recorre un camino fijo. Si pasa esto, haz aquello. Es un diagrama de flujo que alguien dibujó de antemano y que la máquina ejecuta sin desviarse.
 
-Entra un formulario, se crea un contacto en el CRM, se manda un correo, se avisa por Slack. Cinco pasos, siempre los mismos, siempre en el mismo orden. Herramientas como Make, n8n o Zapier hacen esto extraordinariamente bien y son baratas.
+Entra un formulario, se crea un contacto en el CRM, se manda un correo, se avisa por Slack. Cinco pasos, siempre los mismos, siempre en el mismo orden. Herramientas como Make, n8n o Zapier hacen esto extraordinariamente bien y son baratas, y [elegir entre ellas depende más de tu equipo que de la herramienta](/blog/n8n-make-o-codigo).
 
 Su virtud es que es predecible. Su límite es que **solo sabe hacer lo que estaba dibujado**. Cuando aparece un caso que nadie previó, la automatización no improvisa: se para, o peor, sigue adelante haciendo lo incorrecto con total confianza.
 
@@ -64,3 +64,9 @@ Casi siempre, una automatización. La mayoría de los procesos de una empresa de
 El agente entra donde la automatización ya se estrelló: cualificar entradas escritas a mano, personalizar mensajes a escala sin que suenen a plantilla, revisar datos sucios, priorizar una cola de trabajo cuando el criterio no cabe en tres reglas.
 
 Ese orden importa. Automatizar primero lo dibujable deja el terreno limpio y hace evidente dónde hace falta criterio de verdad. Al revés, se acaba pagando un agente para hacer el trabajo de un `if`.
+
+## Si estás decidiendo qué montar
+
+El orden que recomendamos: primero [pasa el proceso por el filtro](/blog/que-procesos-dar-a-un-agente), porque más de la mitad de los casos que nos llegan se resuelven con una automatización y sale mucho más barato. Si de verdad hace falta un agente, [haz la cuenta de los tres costes](/blog/cuanto-cuesta-un-agente-de-ia) antes de firmar, y monta la medición desde el primer día, que es [lo que evita que se degrade en silencio](/blog/por-que-falla-tu-agente-de-ia).
+
+Es lo que hacemos en [agentes de IA](/servicios/agentes-de-ia). [Media hora y miramos tu caso concreto](/#contacto).
