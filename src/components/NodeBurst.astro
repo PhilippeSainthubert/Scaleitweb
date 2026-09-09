@@ -17,7 +17,7 @@ interface Props {
 
 const { rays: RAYS = 300, class: className = '', seed = 20260909 } = Astro.props;
 
-// PRNG mulberry32 — determinista, 32 bits, suficiente para esto.
+// PRNG mulberry32: determinista, 32 bits, suficiente para esto.
 function mulberry32(a: number) {
   return function () {
     a |= 0;
@@ -65,8 +65,26 @@ const lines = Array.from({ length: RAYS }, (_, i) => {
     width: +(0.6 + rnd() * 1.0).toFixed(2),
     tip: +(1.1 + depth * 1.5).toFixed(2),
     delay: Math.round(rnd() * 700),
+    // Ritmo propio de parpadeo, para que ningún par de puntas lata igual.
+    twinkle: +(5 + rnd() * 7).toFixed(1),
+    twinkleDelay: +(rnd() * 9).toFixed(1),
   };
 });
+
+// Solo una parte de los rayos lleva pulso. Con los 300 a la vez sería ruido:
+// unas decenas de acciones viajando se leen como un sistema trabajando.
+const pulses = lines
+  .filter((_, i) => i % 4 === 1)
+  .map((l) => ({
+    x2: l.x2,
+    y2: l.y2,
+    len: l.len,
+    color: l.color,
+    dash: Math.round(34 + rnd() * 58),   // longitud del pulso
+    dur: +(2.4 + rnd() * 3.4).toFixed(2), // cada uno a su velocidad
+    delay: +(rnd() * 7).toFixed(2),
+    width: +(0.9 + rnd() * 0.9).toFixed(2),
+  }));
 ---
 
 <div class={`pointer-events-none select-none ${className}`} aria-hidden="true">
@@ -99,7 +117,22 @@ const lines = Array.from({ length: RAYS }, (_, i) => {
           r={l.tip}
           fill={l.color}
           fill-opacity={Math.min(l.opacity + 0.25, 0.9)}
-          style={`--d:${l.delay}`}
+          style={`--d:${l.delay};--tw:${l.twinkle}s;--twd:${l.twinkleDelay}s`}
+        />
+      ))}
+
+      {/* Pulsos: acciones saliendo del sistema, en bucle infinito. */}
+      {pulses.map((p) => (
+        <line
+          class="burst-pulse"
+          x1={OX}
+          y1={OY}
+          x2={p.x2}
+          y2={p.y2}
+          stroke={p.color}
+          stroke-width={p.width}
+          stroke-linecap="round"
+          style={`--len:${p.len};--p:${p.dash};--dur:${p.dur}s;--pd:${p.delay}s`}
         />
       ))}
     </g>

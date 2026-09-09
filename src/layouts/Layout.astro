@@ -29,7 +29,8 @@ const ogImage = new URL(image, Astro.site).href;
 const GA4_ID = import.meta.env.PUBLIC_GA4_ID;
 // Verificación de Search Console por etiqueta HTML (propiedad de prefijo de URL).
 // La vía preferida es el TXT de DNS, que cubre apex + www + subdominios de golpe.
-const GSC_VERIFICATION = import.meta.env.PUBLIC_GSC_VERIFICATION;
+const GSC_VERIFICATION =
+  import.meta.env.PUBLIC_GSC_VERIFICATION ?? '6ZfGJkmFVDo406erLlthifMmn1XmNcfIMCDo0STJKQo';
 
 const organization = {
   '@context': 'https://schema.org',
@@ -92,7 +93,7 @@ const graphs = [organization, website, ...(schema ? (Array.isArray(schema) ? sch
 
     <script type="application/ld+json" is:inline set:html={JSON.stringify(graphs)} />
 
-    {/* Consent Mode v2 — denegado por defecto en el EEE. Debe ir ANTES
+    {/* Consent Mode v2: denegado por defecto en el EEE. Debe ir ANTES
         de cualquier etiqueta de Google. El banner lo actualiza al aceptar. */}
     <script is:inline>
       window.dataLayer = window.dataLayer || [];

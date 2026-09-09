@@ -9,7 +9,7 @@ const links = [
 ];
 ---
 
-<nav class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">
+<nav id="site-nav" class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-bg/80 backdrop-blur-xl transition-[border-color,box-shadow] duration-300">
   <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
     <a href="/" class="text-[17px] font-semibold tracking-[-0.02em] text-ink">
       Scale It
@@ -47,6 +47,19 @@ const links = [
 
 <script is:inline>
   (function () {
+    // La barra solo se separa del fondo cuando hay contenido detrás.
+    var nav = document.getElementById('site-nav');
+    if (nav) {
+      var onScroll = function () {
+        var scrolled = window.scrollY > 8;
+        nav.classList.toggle('border-line', scrolled);
+        nav.classList.toggle('border-transparent', !scrolled);
+        nav.classList.toggle('shadow-sm', scrolled);
+      };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
     var btn = document.getElementById('mobile-menu-btn');
     var menu = document.getElementById('mobile-menu');
     if (!btn || !menu) return;
