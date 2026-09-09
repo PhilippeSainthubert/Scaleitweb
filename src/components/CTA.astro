@@ -1,4 +1,27 @@
 ---
+const sectores = [
+  'Industria y fabricación',
+  'Servicios técnicos B2B',
+  'Despachos y consultoría especializada',
+  'Software y SaaS',
+  'Construcción y reformas',
+  'Logística y transporte',
+  'Formación y certificaciones',
+  'Ecommerce y retail',
+  'Otro',
+];
+
+// Horquillas, no una casilla en blanco: se responde sin pensar, no obliga a
+// nadie a comprometerse con una cifra exacta y los datos salen comparables.
+const presupuestos = [
+  'Menos de 1.000 € al mes',
+  'Entre 1.000 € y 2.500 €',
+  'Entre 2.500 € y 5.000 €',
+  'Entre 5.000 € y 10.000 €',
+  'Más de 10.000 €',
+  'Todavía no lo tenemos definido',
+];
+
 const tipos = [
   'Quiero el sistema completo',
   'Outbound / generación de demanda',
@@ -35,6 +58,13 @@ const tipos = [
       <input type="hidden" name="_next" value="https://www.growth-scaleit.com/gracias" />
       <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none" />
 
+      {/* Procedencia del lead. Se rellenan solos: sin esto no se sabe si el
+          contacto vino de la landing de outbound, de un post o de la portada,
+          y por tanto no se sabe qué página vende. */}
+      <input type="hidden" id="origen" name="origen" value="" />
+      <input type="hidden" id="pagina_entrada" name="pagina_entrada" value="" />
+      <input type="hidden" id="campana" name="campana" value="" />
+
       <div class="grid gap-5 sm:grid-cols-2">
         <div>
           <label for="nombre" class="mb-1.5 block text-[13.5px] font-medium text-ink">Nombre</label>
@@ -67,6 +97,25 @@ const tipos = [
         </select>
       </div>
 
+      <div class="mt-5 grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="sector" class="mb-1.5 block text-[13.5px] font-medium text-ink">¿En qué sector estás?</label>
+          <select id="sector" name="sector" required
+            class="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent/30">
+            <option value="" disabled selected>Elegí tu sector</option>
+            {sectores.map((s) => <option value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div>
+          <label for="presupuesto" class="mb-1.5 block text-[13.5px] font-medium text-ink">¿Cuánto pensás invertir al mes?</label>
+          <select id="presupuesto" name="presupuesto" required
+            class="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent/30">
+            <option value="" disabled selected>Elegí una horquilla</option>
+            {presupuestos.map((p) => <option value={p}>{p}</option>)}
+          </select>
+        </div>
+      </div>
+
       <div class="mt-5">
         <label for="proyecto" class="mb-1.5 block text-[13.5px] font-medium text-ink">Contanos el contexto</label>
         <textarea id="proyecto" name="proyecto" rows="4" placeholder="Qué vendés, a quién, y qué está frenando el crecimiento ahora mismo."
@@ -88,12 +137,48 @@ const tipos = [
   (function () {
     var form = document.getElementById('contact-form');
     if (!form) return;
+
+    // ── De dónde viene este lead ───────────────────────────────────
+    // La primera página que pisó y la campaña se guardan en sessionStorage
+    // en cuanto entra, porque para cuando rellena el formulario ya navegó
+    // y esa información se habría perdido.
+    var params = new URLSearchParams(location.search);
+    var LL = 'si-landing', CC = 'si-campana';
+
+    function guardar(clave, valor) {
+      try { if (valor && !sessionStorage.getItem(clave)) sessionStorage.setItem(clave, valor); } catch (e) {}
+    }
+    function leer(clave) {
+      try { return sessionStorage.getItem(clave) || ''; } catch (e) { return ''; }
+    }
+
+    guardar(LL, location.pathname);
+
+    var utm = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content']
+      .map(function (k) { return params.get(k) ? k.replace('utm_', '') + '=' + params.get(k) : null; })
+      .filter(Boolean)
+      .join(' · ');
+    if (utm) guardar(CC, utm);
+
+    // ?origen=... lo ponen los botones de las landings. Si no viene, se usa
+    // la primera página de la sesión, y si tampoco, de dónde llegó.
+    var origen = params.get('origen') || leer(LL) || document.referrer || 'directo';
+    var oi = document.getElementById('origen');
+    var pi = document.getElementById('pagina_entrada');
+    var ci = document.getElementById('campana');
+    if (oi) oi.value = origen;
+    if (pi) pi.value = leer(LL) || location.pathname;
+    if (ci) ci.value = leer(CC) || 'sin campaña';
     form.addEventListener('submit', function () {
       // Evento clave de GA4. Solo dispara si hay consentimiento y GA4 cargado.
       if (typeof window.gtag === 'function') {
+        var v = function (id) { return (document.getElementById(id) || {}).value || ''; };
         window.gtag('event', 'generate_lead', {
           form_id: 'contact-form',
-          tipo: (document.getElementById('tipo') || {}).value || '',
+          tipo: v('tipo'),
+          sector: v('sector'),
+          presupuesto: v('presupuesto'),
+          origen: v('origen'),
         });
       }
     });
