@@ -8,7 +8,7 @@ export const autores = {
   'Patrick Saint-Hubert': {
     rol: 'Socio, outbound y generación de demanda',
     linkedin: 'https://www.linkedin.com/in/patrick-saint-hubert-5b9560269/',
-    foto: null,
+    foto: '/patrick.jpeg',
     iniciales: 'PS',
   },
 } as const;
