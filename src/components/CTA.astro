@@ -22,6 +22,11 @@ const presupuestos = [
   'Todavía no lo tenemos definido',
 ];
 
+// El Sheet recibe una copia del lead. Sin URL configurada no se envía nada,
+// así que la web funciona igual antes de montar el Sheet.
+const SHEET_URL = import.meta.env.PUBLIC_SHEET_URL || '';
+const SHEET_TOKEN = import.meta.env.PUBLIC_SHEET_TOKEN || '';
+
 const tipos = [
   'Quiero el sistema completo',
   'Outbound / generación de demanda',
@@ -133,7 +138,7 @@ const tipos = [
   </div>
 </section>
 
-<script is:inline>
+<script is:inline define:vars={{ SHEET_URL, SHEET_TOKEN }}>
   (function () {
     var form = document.getElementById('contact-form');
     if (!form) return;
@@ -169,10 +174,29 @@ const tipos = [
     if (oi) oi.value = origen;
     if (pi) pi.value = leer(LL) || location.pathname;
     if (ci) ci.value = leer(CC) || 'sin campaña';
+    var v = function (id) { return (document.getElementById(id) || {}).value || ''; };
+
     form.addEventListener('submit', function () {
+      // Copia al Sheet. Con sendBeacon porque el navegador se va a ir a la
+      // página de gracias inmediatamente después y un fetch normal se
+      // cancelaría a mitad.
+      if (SHEET_URL && SHEET_TOKEN) {
+        try {
+          var carga = {
+            tipo: 'lead',
+            token: SHEET_TOKEN,
+            trampa: (document.getElementsByName('_honey')[0] || {}).value || '',
+            nombre: v('nombre'), empresa: v('empresa'), email: v('email'), web: v('web'),
+            sector: v('sector'), presupuesto: v('presupuesto'), tipo_necesidad: v('tipo'),
+            proyecto: v('proyecto'), origen: v('origen'),
+            pagina_entrada: v('pagina_entrada'), campana: v('campana'),
+          };
+          navigator.sendBeacon(SHEET_URL, new Blob([JSON.stringify(carga)], { type: 'text/plain' }));
+        } catch (e) { /* si falla, el correo del formulario sigue llegando */ }
+      }
+
       // Evento clave de GA4. Solo dispara si hay consentimiento y GA4 cargado.
       if (typeof window.gtag === 'function') {
-        var v = function (id) { return (document.getElementById(id) || {}).value || ''; };
         window.gtag('event', 'generate_lead', {
           form_id: 'contact-form',
           tipo: v('tipo'),

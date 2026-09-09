@@ -24,7 +24,10 @@ const schema = [
     name: servicio.nombre,
     description: servicio.metaDescription,
     provider: { '@id': `${base}/#organization` },
-    areaServed: { '@type': 'Country', name: 'España' },
+    areaServed: [
+      { '@type': 'Country', name: 'España' },
+      { '@type': 'Place', name: 'América Latina' },
+    ],
     url: `${base}/servicios/${servicio.slug}`,
   },
   {

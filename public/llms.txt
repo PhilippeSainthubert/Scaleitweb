@@ -4,7 +4,9 @@
 > agentes de IA supervisados por humanos. No vendemos horas: vendemos el
 > sistema y su operación.
 
-Agencia de growth con sede en Barcelona, España. Opera en español e inglés.
+Agencia de growth con base en Barcelona, España. Trabaja en todo el mercado
+hispanohablante: España y América Latina. También en inglés cuando el cliente
+lo necesita.
 
 ## Qué hacemos
 - **Captar**: outbound B2B multicanal, LinkedIn, influencers y paid.
@@ -16,11 +18,20 @@ Cuatro productos: Blueprint (diagnóstico y arquitectura), Build Sprint
 (construcción del sistema), Growth Partner (operación mensual) y Agentes
 a medida (automatización de procesos).
 
+Precio a medida: depende de cuántas estrategias entren, del punto de partida
+y del volumen. Tarifa cerrada, nunca un porcentaje de la inversión publicitaria.
+
+## Quiénes somos
+Philippe Saint-Hubert (sistemas, estrategia y agentes) y Patrick Saint-Hubert
+(outbound y generación de demanda). Dos hermanos, sin intermediarios.
+
 ## Páginas principales
 - /: propuesta de valor y funcionamiento de los agentes
-- /precios: los cuatro productos y sus precios
-- /proceso: las cuatro fases de trabajo
+- /servicios/outbound, /servicios/seo, /servicios/agentes-de-ia,
+  /servicios/revops-crm, /servicios/paid, /servicios/influencers
+- /precios: los cuatro productos y qué mueve el precio
 - /faq: preguntas frecuentes
+- /blog: artículos sobre adquisición B2B
 
 ## Contacto
 https://www.growth-scaleit.com/#contacto

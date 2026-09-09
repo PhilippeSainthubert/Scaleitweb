@@ -39,7 +39,10 @@ const organization = {
   name: 'Scale It',
   url: 'https://www.growth-scaleit.com',
   description,
-  areaServed: { '@type': 'Country', name: 'España' },
+  areaServed: [
+    { '@type': 'Country', name: 'España' },
+    { '@type': 'Place', name: 'América Latina' },
+  ],
   address: { '@type': 'PostalAddress', addressLocality: 'Barcelona', addressCountry: 'ES' },
   founder: [
     { '@type': 'Person', name: 'Philippe Saint-Hubert' },

@@ -16,7 +16,10 @@ const servicioSchema = {
   '@type': 'Service',
   name: 'Sistema de adquisición operado por agentes de IA',
   provider: { '@id': 'https://www.growth-scaleit.com/#organization' },
-  areaServed: { '@type': 'Country', name: 'España' },
+  areaServed: [
+    { '@type': 'Country', name: 'España' },
+    { '@type': 'Place', name: 'América Latina' },
+  ],
   serviceType: 'Growth marketing y automatización con IA',
   hasOfferCatalog: {
     '@type': 'OfferCatalog',
