@@ -12,7 +12,16 @@ export default defineConfig({
   site: 'https://www.growth-scaleit.com',
 
   // La pagina de testimonios inventados desaparece; su URL sigue viva.
+  // Las dos formas: la regla que genera Astro es de coincidencia exacta, así
+  // que sin la variante con barra final /testimonios/ devolvía 404.
   redirects: { '/testimonios': '/casos-de-exito' },
+
+  // Una sola forma canónica de cada URL, sin barra final. Sin esto el sitemap
+  // pedía indexar /precios/ mientras el canonical de esa misma página apuntaba
+  // a /precios: dos señales contradictorias sobre la misma URL. De paso, Vercel
+  // pasa a redirigir con 301 cualquier URL con barra final, lo que arregla
+  // /testimonios/ y todas las demás de una vez.
+  trailingSlash: 'never',
 
   integrations: [
     sitemap({
@@ -21,6 +30,10 @@ export default defineConfig({
       changefreq: 'weekly',
       lastmod: new Date(),
       serialize(item) {
+        // Sin barra final, para que coincida exactamente con el canonical.
+        if (item.url !== 'https://www.growth-scaleit.com/') {
+          item.url = item.url.replace(/\/$/, '');
+        }
         if (item.url.endsWith('.com/')) item.priority = 1.0;
         else if (/\/(precios|agentes-de-ia|servicios)/.test(item.url)) item.priority = 0.9;
         else if (/\/(aviso-legal|privacidad|cookies|terminos)/.test(item.url)) item.priority = 0.2;
