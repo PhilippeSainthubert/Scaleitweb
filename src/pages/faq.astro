@@ -2,85 +2,155 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import PageHero from '../components/PageHero.astro';
+import Agenda from '../components/Agenda.astro';
 
-const faqs = [
+const grupos = [
   {
-    q: '¿Qué tipo de empresas trabajan contigo?',
-    a: 'Trabajo principalmente con empresas tech, SaaS, fintechs y startups que ya tienen producto-mercado fit y quieren escalar su crecimiento de forma sistemática.'
+    titulo: 'Cómo trabajamos',
+    preguntas: [
+      {
+        q: '¿Sois una agencia o una consultora?',
+        a: 'Ninguna de las dos del todo. Una agencia te vende horas de gente y una consultora te vende un informe. Nosotros construimos un sistema de adquisición, te lo dejamos documentado y lo operamos con agentes mientras nos necesites. Lo construido es tuyo desde el primer día.',
+      },
+      {
+        q: '¿Quién lleva mi cuenta exactamente?',
+        a: 'Nosotros dos, Philippe y Patrick. No hay gestor de cuentas intermedio ni junior que rote cada seis meses. Es la ventaja de ser dos hermanos y no una estructura: sabés a quién llamar y esa persona conoce tu caso.',
+      },
+      {
+        q: '¿Cuánto tardáis en poner algo en marcha?',
+        a: 'El Blueprint sale en una o dos semanas. La construcción va de cuatro a ocho, según cuántas estrategias entren y cómo esté tu punto de partida. En outbound las primeras reuniones suelen aparecer entre la cuarta y la sexta semana, porque antes hay que calentar los dominios.',
+      },
+      {
+        q: '¿Trabajáis con empresas fuera de España?',
+        a: 'Sí, en español y en inglés. La mayoría de lo que montamos es independiente del país; lo que cambia es la investigación de mercado y el cumplimiento normativo, que se ajustan al lugar donde vendas.',
+      },
+      {
+        q: '¿Puedo contratar solo una parte?',
+        a: 'Sí. Hay quien empieza solo por outbound, quien viene solo a que le montemos los agentes y quien quiere el sistema entero. Lo que no hacemos es operar a ciegas: si no podemos medir, no cogemos el trabajo.',
+      },
+    ],
   },
   {
-    q: '¿Necesito tener un equipo de marketing?',
-    a: 'No. Precisamente Scale It existe para que no necesites contratar un equipo completo. Diseño los sistemas y automatizaciones para que puedas crecer con el equipo que tienes.'
+    titulo: 'Los agentes de IA',
+    preguntas: [
+      {
+        q: '¿Los agentes escriben solos y lo mandan sin que nadie mire?',
+        a: 'No. Los agentes preparan, investigan, priorizan y redactan; la revisión y el criterio son humanos antes de que nada salga hacia un cliente tuyo. Un agente sin supervisión no es un producto, es un riesgo con factura mensual.',
+      },
+      {
+        q: '¿En qué se diferencia un agente de una automatización de Make o n8n?',
+        a: 'Una automatización recorre un camino fijo que alguien dibujó antes. Un agente decide sobre información que no había visto. Si tu proceso cabe en un diagrama sin ramas que falten, necesitás una automatización, es más barata y más fiable, y te lo diremos.',
+      },
+      {
+        q: '¿Los agentes van a sustituir a alguien de mi equipo?',
+        a: 'Sustituyen tareas, no personas. Lo habitual es que el equipo deje de hacer lo mecánico y pase a lo que exige criterio. Si lo que buscás es recortar plantilla, no somos la agencia.',
+      },
+      {
+        q: '¿Qué pasa si un agente se equivoca?',
+        a: 'Cada agente tiene límites duros escritos y un protocolo de escalado a una persona. Todo queda con trazabilidad: qué hizo, cuándo y con qué información. Sin eso no se puede depurar nada el día que algo falla.',
+      },
+      {
+        q: '¿Mis datos entran a entrenar modelos?',
+        a: 'No. Se trabaja con configuraciones que no usan tus datos para entrenamiento, y los accesos se limitan a lo que cada agente necesita para su tarea.',
+      },
+    ],
   },
   {
-    q: '¿Qué incluye la llamada de diagnóstico gratuita?',
-    a: 'En 30 minutos analizamos tu situación actual: funnel, métricas, stack, y equipo. Te doy recomendaciones accionables y te explico exactamente cómo puedo ayudarte. Sin compromiso.'
+    titulo: 'Outbound y captación',
+    preguntas: [
+      {
+        q: '¿Usáis listas compradas?',
+        a: 'Nunca. La lista se construye desde criterios y señales de compra, y cada contacto se verifica antes de escribirle. Las listas compradas queman dominios y no convierten.',
+      },
+      {
+        q: '¿No va a sonar mi empresa a robot?',
+        a: 'Ese es justo el fallo que corregimos. La personalización se apoya en algo real y comprobable de cada cuenta, no en meter el nombre de la empresa en una plantilla. Si el mensaje solo vale cambiando una palabra, no sirve.',
+      },
+      {
+        q: '¿Vais a quemar el dominio de mi empresa?',
+        a: 'No, porque el outbound no sale de él. Se montan dominios secundarios que se calientan durante semanas antes del primer envío serio. Tu dominio principal se queda limpio para el correo del negocio.',
+      },
+      {
+        q: '¿Cuántas reuniones vais a conseguir?',
+        a: 'No damos esa cifra antes de ver tu mercado, tu ticket y tu propuesta, y desconfiá de quien te la dé. Lo que sí fijamos de antemano son los umbrales a los que cortamos un segmento si no responde.',
+      },
+    ],
   },
   {
-    q: '¿En cuánto tiempo veré resultados?',
-    a: 'Depende del proyecto, pero normalmente los primeros sistemas están operativos en 2-4 semanas. Los resultados medibles suelen verse entre el primer y segundo mes.'
+    titulo: 'Dinero y compromiso',
+    preguntas: [
+      {
+        q: '¿Por qué no hay precios en la web?',
+        a: 'Porque publicar una tarifa obliga a inventar un cliente medio que no existe. El precio depende de cuántas estrategias entren, de cómo esté tu punto de partida y del volumen. En media hora salís con un número concreto.',
+      },
+      {
+        q: '¿Hay permanencia?',
+        a: 'En la operación mensual no la hay. El Blueprint y el Build Sprint van con alcance y precio cerrados antes de empezar.',
+      },
+      {
+        q: '¿Cobráis comisión sobre la inversión en anuncios?',
+        a: 'No. Tarifa cerrada. Cobrar un porcentaje del gasto haría que nos convenga que gastes más, que es lo contrario de para lo que se nos contrata.',
+      },
+      {
+        q: '¿Y si decidimos parar?',
+        a: 'Te quedás con todo: los agentes, la documentación, las secuencias, el CRM configurado y las licencias, que van a tu nombre desde el principio. No se apaga nada cuando nos vamos.',
+      },
+    ],
   },
-  {
-    q: '¿Qué herramientas utilizas?',
-    a: 'Mi stack incluye Claude AI para automatización inteligente, GoHighLevel como CRM, Make/n8n para workflows, Google Ads y Meta Ads para paid, y GA4 + GTM para analytics. Adapto el stack a las necesidades de cada cliente.'
-  },
-  {
-    q: '¿Cómo funciona el pricing?',
-    a: 'Trabajo con proyectos a medida. Después de la llamada de diagnóstico, te envío una propuesta con alcance, plazos y precio cerrado. Sin sorpresas.'
-  },
-  {
-    q: '¿Trabajas en remoto?',
-    a: 'Sí. Trabajo 100% en remoto con clientes de toda España y Latinoamérica. Nos coordinamos por Slack, email y videollamadas semanales.'
-  },
-  {
-    q: '¿Qué diferencia a Scale It de una agencia?',
-    a: 'No soy una agencia con juniors ejecutando plantillas. Soy un consultor senior que diseña e implementa sistemas personalizados con IA. Trabajo directamente contigo, sin intermediarios.'
-  },
-  {
-    q: '¿Puedo cancelar en cualquier momento?',
-    a: 'Sí. Puedes cancelar con 15 días de preaviso. Se factura el trabajo realizado hasta la fecha. Sin penalizaciones ni letra pequeña.'
-  }
 ];
+
+const todas = grupos.flatMap((g) => g.preguntas);
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: todas.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
 ---
 
-<Layout title="Preguntas Frecuentes | Scale It">
+<Layout
+  title="Preguntas frecuentes | Scale It"
+  description="Cómo trabajamos, qué hacen los agentes de IA, cómo funciona el outbound y cómo cobramos. Respuestas directas, incluidas las incómodas."
+  schema={schema}
+>
   <Navbar />
-  <main class="pt-32 pb-20">
-    <div class="mx-auto max-w-3xl px-6">
-      <div class="text-center">
-        <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">FAQ</p>
-        <h1 class="mt-3 text-4xl font-bold text-white sm:text-5xl">Preguntas <span class="gradient-text">Frecuentes</span></h1>
-        <p class="mx-auto mt-4 max-w-xl text-gray-400">
-          Todo lo que necesitas saber antes de trabajar conmigo.
-        </p>
-      </div>
 
-      <div class="mt-16 space-y-4">
-        {faqs.map((faq, i) => (
-          <details class="group gradient-border p-0 overflow-hidden">
-            <summary class="relative z-10 cursor-pointer list-none p-6 flex items-center justify-between text-white font-medium hover:text-purple-light transition-colors">
-              <span>{faq.q}</span>
-              <svg class="h-5 w-5 flex-shrink-0 text-gray-500 transition-transform group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-            </summary>
-            <div class="relative z-10 px-6 pb-6 text-gray-400 leading-relaxed">
-              {faq.a}
+  <main>
+    <PageHero
+      eyebrow="Preguntas frecuentes"
+      titulo="Las respuestas, incluidas las incómodas"
+      entradilla="Si falta la tuya, escribinos y la añadimos a esta página."
+    />
+
+    <section class="py-16 sm:py-20">
+      <div class="mx-auto max-w-3xl px-6 space-y-14">
+        {grupos.map((grupo) => (
+          <div>
+            <h2 class="display-md">{grupo.titulo}</h2>
+            <div class="mt-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-bg">
+              {grupo.preguntas.map((f) => (
+                <details class="group">
+                  <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-[15.5px] font-medium text-ink">
+                    {f.q}
+                    <svg class="h-4 w-4 shrink-0 text-ink-3 transition-transform duration-300 group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                  </summary>
+                  <p class="px-6 pb-6 text-[14.5px] leading-relaxed text-ink-2">{f.a}</p>
+                </details>
+              ))}
             </div>
-          </details>
+          </div>
         ))}
       </div>
+    </section>
 
-      <div class="mt-16 text-center">
-        <p class="text-gray-400">¿No encuentras tu respuesta?</p>
-        <a
-          href="/#contacto"
-          class="mt-4 inline-flex rounded-full bg-gradient-to-r from-purple to-cyan px-8 py-3.5 text-base font-semibold text-white transition-all hover:shadow-xl hover:shadow-purple/25 hover:scale-105"
-        >
-          Pregúntame directamente &rarr;
-        </a>
-      </div>
-    </div>
+    <Agenda servicio="faq" />
   </main>
+
   <Footer />
 </Layout>

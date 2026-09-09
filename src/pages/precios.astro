@@ -2,121 +2,235 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import PageHero from '../components/PageHero.astro';
+import Agenda from '../components/Agenda.astro';
 
-const plans = [
+const productos = [
   {
-    name: 'Sprint',
-    description: 'Proyecto puntual con entregable claro',
-    price: 'Desde 1.500',
-    unit: '/proyecto',
-    features: [
-      'Diagnóstico completo de tu funnel',
-      'Estrategia de growth con roadmap',
-      'Implementación de 1 sistema/automatización',
-      'Setup de herramientas',
-      'Documentación y handoff',
-      '2 semanas de soporte post-entrega'
+    nombre: 'Blueprint',
+    formato: 'Una o dos semanas',
+    lead: 'El diagnóstico y la arquitectura.',
+    descripcion:
+      'Auditamos funnel, stack, datos y equipo. Salís con el mapa del sistema, las prioridades ordenadas por impacto y el plan de ejecución. Es tuyo, lo hagas con nosotros o sin nosotros.',
+    incluye: [
+      'Auditoría de adquisición, datos y CRM',
+      'Arquitectura del sistema propuesto',
+      'Prioridades ordenadas por impacto y esfuerzo',
+      'Plan de ejecución con plazos',
     ],
-    cta: 'Empezar Sprint',
-    highlighted: false
   },
   {
-    name: 'Growth Partner',
-    description: 'Acompañamiento mensual continuo',
-    price: 'Desde 2.500',
-    unit: '/mes',
-    features: [
-      'Todo lo del Sprint, más:',
-      'Estrategia de growth continua',
-      'Automatizaciones con IA ilimitadas',
-      'Gestión de campañas paid',
-      'Revenue ops y CRM management',
-      'Dashboards y reporting semanal',
-      'Reunión semanal de seguimiento',
-      'Soporte prioritario por Slack'
+    nombre: 'Build Sprint',
+    formato: 'De cuatro a ocho semanas',
+    lead: 'La construcción.',
+    descripcion:
+      'Montamos el sistema: CRM y RevOps, tracking y atribución, infraestructura y secuencias de outbound, base técnica de SEO y los agentes que van a operarlo.',
+    incluye: [
+      'Todo lo que salga priorizado del Blueprint',
+      'Agentes construidos y conectados a tu stack',
+      'Tracking y atribución funcionando',
+      'Documentación y traspaso al equipo',
     ],
-    cta: 'Ser Growth Partner',
-    highlighted: true
+    destacado: true,
   },
   {
-    name: 'Advisory',
-    description: 'Consultoría estratégica para founders',
-    price: 'Desde 500',
-    unit: '/mes',
-    features: [
-      'Llamada mensual de 60 min',
-      'Revisión de métricas y estrategia',
-      'Recomendaciones accionables',
-      'Acceso a frameworks y templates',
-      'Soporte por email entre sesiones'
+    nombre: 'Growth Partner',
+    formato: 'Mensual',
+    lead: 'La operación.',
+    descripcion:
+      'Los agentes ejecutan a diario y nosotros supervisamos cada entrega. Reunión semanal, panel abierto y decisiones sobre datos, no sobre intuición.',
+    incluye: [
+      'Operación diaria del sistema completo',
+      'Supervisión humana de cada entrega',
+      'Reunión semanal y panel en tiempo real',
+      'Procesos nuevos entrando al sistema cada mes',
     ],
-    cta: 'Agenda Advisory',
-    highlighted: false
-  }
+  },
+  {
+    nombre: 'Agentes a medida',
+    formato: 'Por agente',
+    lead: 'La automatización concreta.',
+    descripcion:
+      'Un proceso repetitivo que se lleva horas de tu equipo, convertido en un agente con límites escritos, supervisión y trazabilidad.',
+    incluye: [
+      'Mapa del proceso y coste actual en horas',
+      'Agente construido, conectado y documentado',
+      'Límites duros y protocolo de escalado',
+      'Formación al equipo que va a convivir con él',
+    ],
+  },
 ];
+
+const factores = [
+  {
+    titulo: 'Cuántas estrategias entran',
+    texto: 'No cuesta lo mismo montar solo outbound que outbound, SEO y RevOps a la vez. Cada canal suma infraestructura, herramientas y supervisión.',
+  },
+  {
+    titulo: 'Cómo esté el punto de partida',
+    texto: 'Un CRM limpio con tracking decente acorta semanas. Uno con tres años de datos sucios y sin atribución, las alarga.',
+  },
+  {
+    titulo: 'El volumen de la operación',
+    texto: 'Operar cien cuentas al mes y operar tres mil no son el mismo trabajo, ni el mismo coste de datos y herramientas.',
+  },
+  {
+    titulo: 'Cuántos agentes hay que construir',
+    texto: 'Cada proceso automatizado es diseño, construcción, límites y supervisión. Se cobran por separado porque se entregan por separado.',
+  },
+  {
+    titulo: 'Con qué velocidad lo querés',
+    texto: 'Comprimir un Build Sprint de ocho semanas en cuatro es posible y se nota en el precio, porque significa dedicarte a vos el calendario entero.',
+  },
+];
+
+const faq = [
+  {
+    q: '¿Por qué no publicáis los precios?',
+    a: 'Porque publicar una cifra obliga a inventar un cliente medio que no existe. Preferimos mirar tu caso media hora y darte un número que se sostenga, en vez de una tarifa que luego se llena de extras.',
+  },
+  {
+    q: '¿Cobráis un porcentaje de la inversión publicitaria?',
+    a: 'No. Tarifa cerrada, siempre. Cobrar un porcentaje del gasto convierte nuestro incentivo en que gastes más, y eso es exactamente lo contrario de lo que nos contratás.',
+  },
+  {
+    q: '¿Hay permanencia?',
+    a: 'En la operación mensual, no. El Blueprint y el Build Sprint tienen alcance y precio cerrados de antemano. Si algún mes no aportamos, te vas, y lo construido se queda con vos documentado.',
+  },
+  {
+    q: '¿Puedo empezar solo por el Blueprint?',
+    a: 'Es lo que recomendamos. Sale con precio fijo, te llevás la arquitectura y el plan, y decidís después si lo ejecutamos nosotros o tu equipo.',
+  },
+  {
+    q: '¿Qué presupuesto mínimo tiene sentido?',
+    a: 'Si el ticket anual de tu producto está por debajo de unos 6.000 euros, el outbound no devuelve lo que cuesta y te lo diremos en la primera llamada. En ese caso la conversación va por SEO y producto, no por secuencias.',
+  },
+  {
+    q: '¿Las herramientas van aparte?',
+    a: 'Sí, y te decimos cuáles y cuánto antes de firmar nada. Las licencias se contratan a tu nombre: son tuyas, y el día que dejemos de trabajar juntos no se apaga nada.',
+  },
+];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.a },
+  })),
+};
 ---
 
-<Layout title="Precios | Scale It">
+<Layout
+  title="Precios | Scale It"
+  description="Cuatro formas de trabajar con nosotros y qué mueve el precio de cada una. Tarifa cerrada, nunca un porcentaje de tu inversión publicitaria."
+  schema={schema}
+>
   <Navbar />
-  <main class="pt-32 pb-20">
-    <div class="mx-auto max-w-6xl px-6">
-      <div class="text-center">
-        <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">Precios</p>
-        <h1 class="mt-3 text-4xl font-bold text-white sm:text-5xl">Inversión <span class="gradient-text">transparente</span></h1>
-        <p class="mx-auto mt-4 max-w-xl text-gray-400">
-          Sin sorpresas. Cada propuesta se adapta a tus necesidades específicas.
-        </p>
-      </div>
 
-      <div class="mt-16 grid gap-6 lg:grid-cols-3">
-        {plans.map((plan) => (
-          <div class={`gradient-border p-8 flex flex-col ${plan.highlighted ? 'glow' : ''}`}>
-            <div class="relative z-10 flex flex-col flex-1">
-              {plan.highlighted && (
-                <div class="mb-4 inline-flex self-start items-center gap-2 rounded-full bg-purple/10 border border-purple/30 px-3 py-1 text-xs text-purple-light">
-                  Más popular
+  <main>
+    <PageHero
+      eyebrow="Precios"
+      titulo="El precio depende de lo que haya que montar"
+      entradilla="No es una evasiva: montar solo outbound y montar el sistema entero no cuestan lo mismo, y una tarifa publicada obligaría a inventar un cliente medio que no existe. Abajo está exactamente qué mueve el número."
+    />
+
+    <section class="py-20 sm:py-24">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="grid gap-5 lg:grid-cols-2">
+          {productos.map((p) => (
+            <article class={`card reveal p-8 ${p.destacado ? 'border-accent/30' : ''}`}>
+              <div class="flex items-start justify-between gap-4">
+                <div>
+                  <h2 class="display-md">{p.nombre}</h2>
+                  <p class="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{p.formato}</p>
                 </div>
-              )}
-              <h3 class="text-2xl font-bold text-white">{plan.name}</h3>
-              <p class="mt-1 text-sm text-gray-400">{plan.description}</p>
-
-              <div class="mt-6">
-                <span class="text-4xl font-bold text-white">{plan.price}€</span>
-                <span class="text-gray-500">{plan.unit}</span>
+                {p.destacado && (
+                  <span class="shrink-0 rounded-full bg-accent/10 px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.1em] text-accent-deep">
+                    El más pedido
+                  </span>
+                )}
               </div>
 
-              <ul class="mt-8 space-y-3 flex-1">
-                {plan.features.map((feature) => (
-                  <li class="flex items-start gap-3 text-sm text-gray-400">
-                    <svg class="h-5 w-5 flex-shrink-0 text-cyan" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+              <p class="mt-5 text-[15px] font-medium text-accent">{p.lead}</p>
+              <p class="mt-3 text-[14.5px] leading-relaxed text-ink-2">{p.descripcion}</p>
+
+              <ul class="mt-6 space-y-2.5 border-t border-line pt-5">
+                {p.incluye.map((i) => (
+                  <li class="flex items-start gap-2.5 text-[14px] text-ink-2">
+                    <svg class="mt-[3px] h-3.5 w-3.5 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
                     </svg>
-                    {feature}
+                    {i}
                   </li>
                 ))}
               </ul>
 
-              <a
-                href="/#contacto"
-                class={`mt-8 block rounded-xl py-3.5 text-center text-sm font-semibold transition-all hover:scale-[1.02] ${
-                  plan.highlighted
-                    ? 'bg-gradient-to-r from-purple to-cyan text-white hover:shadow-xl hover:shadow-purple/25'
-                    : 'border border-white/10 bg-white/5 text-gray-300 hover:bg-white/10'
-                }`}
-              >
-                {plan.cta} &rarr;
-              </a>
-            </div>
-          </div>
-        ))}
+              <div class="mt-7 flex items-center justify-between gap-4 border-t border-line pt-5">
+                <span class="text-[14px] text-ink-3">A consultar en la llamada</span>
+                <a href="#agenda" class="btn btn-ghost">Pedir número</a>
+              </div>
+            </article>
+          ))}
+        </div>
       </div>
+    </section>
 
-      <div class="mt-12 text-center">
-        <p class="text-sm text-gray-500">
-          Precios orientativos + IVA. Cada proyecto recibe una propuesta personalizada tras la llamada de diagnóstico.
+    <section class="border-t border-line bg-surface py-20 sm:py-24">
+      <div class="mx-auto max-w-6xl px-6">
+        <p class="eyebrow">Transparencia</p>
+        <h2 class="display-lg mt-4 max-w-2xl text-balance">Qué mueve el precio</h2>
+        <p class="lede mt-5">
+          Cinco variables. En la llamada las repasamos sobre tu caso y salís con un número, no con un rango.
         </p>
+
+        <div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
+          {factores.map((f, i) => (
+            <div class="bg-bg p-6">
+              <span class="font-mono text-[11px] text-accent">0{i + 1}</span>
+              <h3 class="mt-3 text-[16px] font-semibold tracking-[-0.015em] text-ink">{f.titulo}</h3>
+              <p class="mt-2.5 text-[14px] leading-relaxed text-ink-2">{f.texto}</p>
+            </div>
+          ))}
+          <div class="bg-bg p-6">
+            <span class="font-mono text-[11px] text-positive">Fijo</span>
+            <h3 class="mt-3 text-[16px] font-semibold tracking-[-0.015em] text-ink">Lo que nunca cambia</h3>
+            <p class="mt-2.5 text-[14px] leading-relaxed text-ink-2">
+              Tarifa cerrada y acordada antes de empezar. Nunca un porcentaje de tu inversión publicitaria.
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
+
+    <section class="border-t border-line py-20 sm:py-24">
+      <div class="mx-auto max-w-3xl px-6">
+        <p class="eyebrow">Preguntas</p>
+        <h2 class="display-md mt-4 text-balance">Lo que se pregunta antes de la llamada</h2>
+
+        <div class="mt-10 divide-y divide-line overflow-hidden rounded-xl border border-line bg-bg">
+          {faq.map((f) => (
+            <details class="group">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-[15.5px] font-medium text-ink">
+                {f.q}
+                <svg class="h-4 w-4 shrink-0 text-ink-3 transition-transform duration-300 group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </summary>
+              <p class="px-6 pb-6 text-[14.5px] leading-relaxed text-ink-2">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <Agenda
+      titulo="Media hora y salís con un número"
+      texto="Repasamos tu caso, te decimos qué montaríamos primero y cuánto costaría. Si no somos la solución, también te lo decimos."
+      servicio="precios"
+    />
   </main>
+
   <Footer />
 </Layout>

@@ -1,0 +1,16 @@
+---
+interface Props {
+  eyebrow: string;
+  titulo: string;
+  entradilla?: string;
+}
+const { eyebrow, titulo, entradilla } = Astro.props;
+---
+
+<section class="border-b border-line pb-14 pt-36 sm:pt-44">
+  <div class="mx-auto max-w-6xl px-6">
+    <p class="eyebrow">{eyebrow}</p>
+    <h1 class="display-xl mt-5 max-w-3xl text-balance">{titulo}</h1>
+    {entradilla && <p class="lede mt-6">{entradilla}</p>}
+  </div>
+</section>

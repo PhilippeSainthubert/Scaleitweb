@@ -4,22 +4,24 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 ---
 
-<Layout title="Error del servidor | Scale It">
+<Layout title="Error del servidor | Scale It" description="Algo ha fallado por nuestra parte." noindex={true}>
   <Navbar />
-  <main class="relative min-h-screen flex items-center justify-center radial-glow pt-20">
-    <div class="relative z-10 mx-auto max-w-xl px-6 text-center">
-      <div class="text-8xl font-extrabold gradient-text animate-fade-in-up">500</div>
-      <h1 class="animate-fade-in-up delay-100 mt-4 text-2xl font-bold text-white">Algo salió mal</h1>
-      <p class="animate-fade-in-up delay-200 mt-3 text-gray-400">
-        Estamos trabajando para solucionarlo. Por favor, inténtalo de nuevo en unos minutos.
+
+  <main class="flex min-h-[72vh] items-center">
+    <div class="mx-auto max-w-2xl px-6 py-24 text-center">
+      <p class="font-mono text-[13px] uppercase tracking-[0.16em] text-accent">Error 500</p>
+      <h1 class="display-lg mt-5 text-balance">Se rompió algo de nuestro lado</h1>
+      <p class="lede mx-auto mt-5 text-balance">
+        No es cosa tuya. Probá a recargar en un minuto; si sigue igual, escribinos
+        y lo miramos.
       </p>
-      <a
-        href="/"
-        class="animate-fade-in-up delay-300 mt-8 inline-flex rounded-full bg-gradient-to-r from-purple to-cyan px-8 py-3.5 text-base font-semibold text-white transition-all hover:shadow-xl hover:shadow-purple/25 hover:scale-105"
-      >
-        &larr; Volver al inicio
-      </a>
+
+      <div class="mt-9 flex flex-wrap justify-center gap-3">
+        <a href="/" class="btn btn-primary">Volver al inicio</a>
+        <a href="/#contacto" class="btn btn-ghost">Avisarnos</a>
+      </div>
     </div>
   </main>
+
   <Footer />
 </Layout>

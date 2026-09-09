@@ -11,12 +11,13 @@ export default defineConfig({
   // que impedía cualquier trabajo serio de SEO.
   site: 'https://www.growth-scaleit.com',
 
+  // La pagina de testimonios inventados desaparece; su URL sigue viva.
+  redirects: { '/testimonios': '/casos-de-exito' },
+
   integrations: [
     sitemap({
-      // /gracias no debe indexarse. /testimonios y /casos-de-exito quedan
-      // fuera MIENTRAS su contenido siga siendo inventado — no se amplifica
-      // con SEO algo que hay que reescribir con casos reales.
-      filter: (page) => !/\/(gracias|testimonios|casos-de-exito)/.test(page),
+      // /gracias es la unica que no debe indexarse.
+      filter: (page) => !page.includes('/gracias'),
       changefreq: 'weekly',
       lastmod: new Date(),
       serialize(item) {
