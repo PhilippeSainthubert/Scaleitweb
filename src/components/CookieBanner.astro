@@ -1,51 +1,55 @@
 ---
 ---
-
-<div id="cookie-banner" class="fixed bottom-0 left-0 right-0 z-50 hidden">
-  <div class="mx-auto max-w-4xl p-4">
-    <div class="rounded-2xl border border-white/10 bg-dark-2/95 backdrop-blur-xl p-6 shadow-2xl">
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex-1">
-          <p class="text-sm text-gray-300">
-            Usamos cookies para analizar el tráfico y mejorar tu experiencia.
-            <a href="/cookies" class="text-purple-light hover:underline">Más info</a>
-          </p>
-        </div>
-        <div class="flex gap-3 flex-shrink-0">
-          <button
-            id="cookie-reject"
-            class="rounded-full border border-white/10 bg-white/5 px-5 py-2 text-sm text-gray-300 transition-all hover:bg-white/10"
-          >
-            Rechazar
-          </button>
-          <button
-            id="cookie-accept"
-            class="rounded-full bg-gradient-to-r from-purple to-cyan px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90"
-          >
-            Aceptar
-          </button>
-        </div>
-      </div>
+<div
+  id="cookie-banner"
+  hidden
+  class="fixed inset-x-0 bottom-0 z-[60] border-t border-line bg-bg/95 backdrop-blur-xl"
+>
+  <div class="mx-auto flex max-w-5xl flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center">
+    <p class="flex-1 text-[13.5px] leading-relaxed text-ink-2">
+      Usamos cookies de analítica para entender qué contenido sirve. Sin tu
+      consentimiento no se carga ninguna. Podés cambiar de idea cuando quieras.
+      <a href="/cookies" class="underline underline-offset-2 hover:text-ink">Más detalle</a>.
+    </p>
+    <div class="flex shrink-0 gap-2">
+      <button id="cookie-reject" class="btn btn-ghost">Rechazar</button>
+      <button id="cookie-accept" class="btn btn-primary">Aceptar</button>
     </div>
   </div>
 </div>
 
-<script>
-  const banner = document.getElementById('cookie-banner');
-  const acceptBtn = document.getElementById('cookie-accept');
-  const rejectBtn = document.getElementById('cookie-reject');
+<script is:inline>
+  // Consent Mode v2: el banner es quien concede de verdad. El estado por
+  // defecto (denied) lo fija el Layout antes de cualquier etiqueta de Google.
+  (function () {
+    var KEY = 'si-consent';
+    var banner = document.getElementById('cookie-banner');
+    if (!banner) return;
 
-  if (!localStorage.getItem('cookie_consent')) {
-    banner?.classList.remove('hidden');
-  }
+    function stored() {
+      try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    }
+    function save(v) {
+      try { localStorage.setItem(KEY, v); } catch (e) { /* modo privado */ }
+    }
+    function apply(granted) {
+      if (typeof window.gtag === 'function') {
+        window.gtag('consent', 'update', {
+          ad_storage: granted ? 'granted' : 'denied',
+          analytics_storage: granted ? 'granted' : 'denied',
+          ad_user_data: granted ? 'granted' : 'denied',
+          ad_personalization: granted ? 'granted' : 'denied',
+        });
+      }
+    }
 
-  acceptBtn?.addEventListener('click', () => {
-    localStorage.setItem('cookie_consent', 'accepted');
-    banner?.classList.add('hidden');
-  });
+    if (!stored()) banner.hidden = false;
 
-  rejectBtn?.addEventListener('click', () => {
-    localStorage.setItem('cookie_consent', 'rejected');
-    banner?.classList.add('hidden');
-  });
+    document.getElementById('cookie-accept').addEventListener('click', function () {
+      save('granted'); apply(true); banner.hidden = true;
+    });
+    document.getElementById('cookie-reject').addEventListener('click', function () {
+      save('denied'); apply(false); banner.hidden = true;
+    });
+  })();
 </script>

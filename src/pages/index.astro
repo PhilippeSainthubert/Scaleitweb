@@ -6,13 +6,32 @@ import TaskTracker from '../components/TaskTracker.astro';
 import Services from '../components/Services.astro';
 import Comparativa from '../components/Comparativa.astro';
 import Process from '../components/Process.astro';
-import About from '../components/About.astro';
+import Nosotros from '../components/Nosotros.astro';
 import Stack from '../components/Stack.astro';
 import CTA from '../components/CTA.astro';
 import Footer from '../components/Footer.astro';
+
+const servicioSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Service',
+  name: 'Sistema de adquisición operado por agentes de IA',
+  provider: { '@id': 'https://www.growth-scaleit.com/#organization' },
+  areaServed: { '@type': 'Country', name: 'España' },
+  serviceType: 'Growth marketing y automatización con IA',
+  hasOfferCatalog: {
+    '@type': 'OfferCatalog',
+    name: 'Servicios de Scale It',
+    itemListElement: [
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Outbound B2B' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'SEO y contenido' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'Agentes de IA a medida' } },
+      { '@type': 'Offer', itemOffered: { '@type': 'Service', name: 'RevOps y CRM' } },
+    ],
+  },
+};
 ---
 
-<Layout>
+<Layout schema={servicioSchema}>
   <Navbar />
   <main>
     <Hero />
@@ -20,7 +39,7 @@ import Footer from '../components/Footer.astro';
     <Services />
     <Comparativa />
     <Process />
-    <About />
+    <Nosotros />
     <Stack />
     <CTA />
   </main>

@@ -1,60 +1,58 @@
 ---
 const links = [
-  { label: 'Cómo trabajan', href: '/#agentes' },
+  { label: 'Cómo funciona', href: '/#agentes' },
   { label: 'Servicios', href: '/#servicios' },
   { label: 'Proceso', href: '/#proceso' },
+  { label: 'Nosotros', href: '/#nosotros' },
   { label: 'Precios', href: '/precios' },
-  { label: 'Casos de Éxito', href: '/casos-de-exito' },
   { label: 'FAQ', href: '/faq' },
-  { label: 'Blog', href: '/blog' },
 ];
 ---
 
-<nav class="fixed top-0 left-0 right-0 z-50 border-b border-white/5 backdrop-blur-xl bg-dark/80">
-  <div class="mx-auto max-w-6xl px-6 py-4 flex items-center justify-between">
-    <a href="/" class="text-xl font-bold tracking-tight">
-      <span class="gradient-text">Scale</span><span class="text-white"> It</span>
+<nav class="fixed inset-x-0 top-0 z-50 border-b border-line bg-bg/80 backdrop-blur-xl">
+  <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
+    <a href="/" class="text-[17px] font-semibold tracking-[-0.02em] text-ink">
+      Scale It
     </a>
 
-    <div class="hidden lg:flex items-center gap-6">
-      {links.map(link => (
-        <a href={link.href} class="text-sm text-gray-400 hover:text-white transition-colors duration-200">
+    <div class="hidden items-center gap-7 lg:flex">
+      {links.map((link) => (
+        <a href={link.href} class="text-[14px] text-ink-2 transition-colors hover:text-ink">
           {link.label}
         </a>
       ))}
     </div>
 
-    <a
-      href="/#contacto"
-      class="rounded-full bg-gradient-to-r from-purple to-cyan px-5 py-2 text-sm font-semibold text-white transition-all hover:opacity-90 hover:shadow-lg hover:shadow-purple/25"
-    >
-      Hablemos
-    </a>
-
-    <!-- Mobile menu button -->
-    <button id="mobile-menu-btn" class="lg:hidden text-white ml-3" aria-label="Menu">
-      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-      </svg>
-    </button>
+    <div class="flex items-center gap-2">
+      <a href="/#contacto" class="btn btn-primary hidden sm:inline-flex">Hablemos</a>
+      <button id="mobile-menu-btn" class="p-2 text-ink lg:hidden" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu">
+        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+        </svg>
+      </button>
+    </div>
   </div>
 
-  <!-- Mobile menu -->
-  <div id="mobile-menu" class="hidden lg:hidden border-t border-white/5 bg-dark/95 backdrop-blur-xl">
-    <div class="px-6 py-4 space-y-3">
-      {links.map(link => (
-        <a href={link.href} class="block text-sm text-gray-400 hover:text-white transition-colors py-2">
+  <div id="mobile-menu" class="hidden border-t border-line bg-bg lg:hidden">
+    <div class="space-y-1 px-6 py-4">
+      {links.map((link) => (
+        <a href={link.href} class="block py-2 text-[15px] text-ink-2 transition-colors hover:text-ink">
           {link.label}
         </a>
       ))}
+      <a href="/#contacto" class="btn btn-primary mt-3 w-full">Hablemos</a>
     </div>
   </div>
 </nav>
 
-<script>
-  const btn = document.getElementById('mobile-menu-btn');
-  const menu = document.getElementById('mobile-menu');
-  btn?.addEventListener('click', () => {
-    menu?.classList.toggle('hidden');
-  });
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('mobile-menu-btn');
+    var menu = document.getElementById('mobile-menu');
+    if (!btn || !menu) return;
+    btn.addEventListener('click', function () {
+      var open = menu.classList.toggle('hidden');
+      btn.setAttribute('aria-expanded', String(!open));
+    });
+  })();
 </script>

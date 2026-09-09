@@ -1,0 +1,107 @@
+---
+/**
+ * Abanico radial de rayos con nodo en la punta.
+ *
+ * Se genera ENTERO en build time con un PRNG semillado: la salida es
+ * determinista, así que el HTML del servidor y el del cliente coinciden,
+ * no hay salto de layout y no se envía ni un byte de JavaScript.
+ * La animación es solo CSS (stroke-dashoffset escalonado).
+ *
+ * La metáfora es literal: un punto de origen, cientos de acciones.
+ */
+interface Props {
+  rays?: number;
+  class?: string;
+  seed?: number;
+}
+
+const { rays: RAYS = 300, class: className = '', seed = 20260909 } = Astro.props;
+
+// PRNG mulberry32 — determinista, 32 bits, suficiente para esto.
+function mulberry32(a: number) {
+  return function () {
+    a |= 0;
+    a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Mezcla dos colores hex en el espacio sRGB.
+function mix(c1: string, c2: string, t: number) {
+  const p = (c: string) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16));
+  const [r1, g1, b1] = p(c1);
+  const [r2, g2, b2] = p(c2);
+  const ch = (a: number, b: number) => Math.round(a + (b - a) * t);
+  return `rgb(${ch(r1, r2)},${ch(g1, g2)},${ch(b1, b2)})`;
+}
+
+const OX = 960;   // origen X (centro)
+const OY = 820;   // origen Y (borde inferior del viewBox)
+const rnd = mulberry32(seed);
+
+const lines = Array.from({ length: RAYS }, (_, i) => {
+  const t = i / (RAYS - 1);
+
+  // Ángulo base repartido por el semicírculo superior, con temblor mínimo
+  // para que no se lea como un patrón matemático.
+  const angle = Math.PI * t + (rnd() - 0.5) * 0.014;
+
+  // Longitudes muy desiguales: la potencia concentra muchos rayos cortos
+  // y deja unos pocos larguísimos, que es lo que da el efecto de estallido.
+  const len = 300 + Math.pow(rnd(), 1.7) * 580;
+
+  const x2 = OX + Math.cos(angle) * len;
+  const y2 = OY - Math.sin(angle) * len;
+
+  const depth = rnd();
+  return {
+    x2: +x2.toFixed(1),
+    y2: +y2.toFixed(1),
+    len: Math.round(len),
+    color: mix('#93b1ff', '#1633b8', depth),
+    opacity: +(0.16 + depth * 0.72).toFixed(2),
+    width: +(0.6 + rnd() * 1.0).toFixed(2),
+    tip: +(1.1 + depth * 1.5).toFixed(2),
+    delay: Math.round(rnd() * 700),
+  };
+});
+---
+
+<div class={`pointer-events-none select-none ${className}`} aria-hidden="true">
+  <svg
+    viewBox="0 0 1920 820"
+    preserveAspectRatio="xMidYMax slice"
+    class="h-full w-full"
+    role="presentation"
+  >
+    <g class="burst-field">
+      {lines.map((l) => (
+        <line
+          class="burst-ray"
+          x1={OX}
+          y1={OY}
+          x2={l.x2}
+          y2={l.y2}
+          stroke={l.color}
+          stroke-width={l.width}
+          stroke-opacity={l.opacity}
+          stroke-linecap="round"
+          style={`--len:${l.len};--d:${l.delay}`}
+        />
+      ))}
+      {lines.map((l) => (
+        <circle
+          class="burst-tip"
+          cx={l.x2}
+          cy={l.y2}
+          r={l.tip}
+          fill={l.color}
+          fill-opacity={Math.min(l.opacity + 0.25, 0.9)}
+          style={`--d:${l.delay}`}
+        />
+      ))}
+    </g>
+  </svg>
+</div>

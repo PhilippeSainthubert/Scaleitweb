@@ -1,41 +1,156 @@
 ---
-import '../styles/global.css'
-import SpeedInsights from '@vercel/speed-insights/astro'
-import Analytics from '@vercel/analytics/astro'
-import CookieBanner from '../components/CookieBanner.astro'
+import '@fontsource-variable/geist';
+import '@fontsource-variable/geist-mono';
+import '../styles/global.css';
+import SpeedInsights from '@vercel/speed-insights/astro';
+import Analytics from '@vercel/analytics/astro';
+import CookieBanner from '../components/CookieBanner.astro';
 
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
+  noindex?: boolean;
+  schema?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const {
-  title = "Scale It | Agentes de IA para el growth de tu empresa",
-  description = "Agentes de IA supervisados por un growth consultor diseñan, construyen y ejecutan tu estrategia de crecimiento. Growth strategy, automatización, paid y RevOps. Por Philippe Saint-Hubert."
+  title = 'Scale It | Tu máquina de adquisición, operada por agentes de IA',
+  description = 'Construimos tu sistema de adquisición B2B y lo operamos con agentes de IA supervisados. Outbound, SEO, RevOps y automatización a medida. Barcelona.',
+  image = '/og-default.png',
+  noindex = false,
+  schema,
 } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname.replace(/\/+$/, '') || '/', Astro.site).href;
+const ogImage = new URL(image, Astro.site).href;
+
+// GA4 solo se carga si hay ID configurada. Sin ID, nada de scripts.
+const GA4_ID = import.meta.env.PUBLIC_GA4_ID;
+// Verificación de Search Console por etiqueta HTML (propiedad de prefijo de URL).
+// La vía preferida es el TXT de DNS, que cubre apex + www + subdominios de golpe.
+const GSC_VERIFICATION = import.meta.env.PUBLIC_GSC_VERIFICATION;
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  '@id': 'https://www.growth-scaleit.com/#organization',
+  name: 'Scale It',
+  url: 'https://www.growth-scaleit.com',
+  description,
+  areaServed: { '@type': 'Country', name: 'España' },
+  address: { '@type': 'PostalAddress', addressLocality: 'Barcelona', addressCountry: 'ES' },
+  sameAs: [
+    'https://www.linkedin.com/in/philippesainthubert/',
+    'https://www.youtube.com/@Marketingdetrasdelclick',
+    'https://x.com/Mktgdtrdelclick',
+  ],
+};
+
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  '@id': 'https://www.growth-scaleit.com/#website',
+  url: 'https://www.growth-scaleit.com',
+  name: 'Scale It',
+  inLanguage: 'es-ES',
+  publisher: { '@id': 'https://www.growth-scaleit.com/#organization' },
+};
+
+const graphs = [organization, website, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
 ---
 
 <!DOCTYPE html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {GSC_VERIFICATION && <meta name="google-site-verification" content={GSC_VERIFICATION} />}
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="theme-color" content="#ffffff" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Scale It" />
+    <meta property="og:locale" content="es_ES" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
     <meta name="twitter:card" content="summary_large_image" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
-    <title>{title}</title>
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(graphs)} />
+
+    {/* Consent Mode v2 — denegado por defecto en el EEE. Debe ir ANTES
+        de cualquier etiqueta de Google. El banner lo actualiza al aceptar. */}
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      window.gtag = gtag;
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        analytics_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500,
+      });
+      try {
+        if (localStorage.getItem('si-consent') === 'granted') {
+          gtag('consent', 'update', {
+            ad_storage: 'granted',
+            analytics_storage: 'granted',
+            ad_user_data: 'granted',
+            ad_personalization: 'granted',
+          });
+        }
+      } catch (e) { /* almacenamiento bloqueado: se queda en denied */ }
+    </script>
+
+    {GA4_ID && (
+      <>
+        <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GA4_ID}`}></script>
+        <script is:inline define:vars={{ GA4_ID }}>
+          gtag('js', new Date());
+          gtag('config', GA4_ID, { anonymize_ip: true });
+        </script>
+      </>
+    )}
   </head>
-  <body class="grid-bg min-h-screen antialiased">
+
+  <body class="min-h-screen bg-bg antialiased">
     <slot />
     <CookieBanner />
     <SpeedInsights />
     <Analytics />
+
+    <script is:inline>
+      // Revelado por scroll. Barato, respeta prefers-reduced-motion vía CSS.
+      (function () {
+        var els = document.querySelectorAll('.reveal');
+        if (!('IntersectionObserver' in window)) {
+          els.forEach(function (el) { el.classList.add('is-in'); });
+          return;
+        }
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+          });
+        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+        els.forEach(function (el) { io.observe(el); });
+      })();
+    </script>
   </body>
 </html>
