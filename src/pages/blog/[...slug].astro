@@ -3,7 +3,7 @@ import { getCollection, render } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
-import Agenda from '../../components/Agenda.astro';
+import Formulario from '../../components/Formulario.astro';
 import { autores, clusters } from '../../data/autores';
 
 export async function getStaticPaths() {
@@ -104,11 +104,7 @@ const schema = [
       </div>
     </article>
 
-    <Agenda
-      titulo="¿Te suena de algo lo que acabás de leer?"
-      texto="Media hora, miramos tu caso concreto y te decimos por dónde empezaríamos."
-      servicio={post.data.cluster}
-    />
+    <Formulario origen="blog" titulo="¿Te suena de algo lo que acabás de leer?" texto="Media hora, miramos tu caso concreto y te decimos por dónde empezaríamos." />
   </main>
 
   <Footer />

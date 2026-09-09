@@ -2,7 +2,7 @@
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
-import Agenda from '../../components/Agenda.astro';
+import Formulario from '../../components/Formulario.astro';
 import NeuralField from '../../components/NeuralField.astro';
 import { servicios } from '../../data/servicios';
 
@@ -155,7 +155,11 @@ const schema = [
       </div>
     </section>
 
-    <Agenda servicio={servicio.slug} />
+    <Formulario
+      origen={`servicio:${servicio.slug}`}
+      titulo={`¿Hablamos de ${servicio.nombre.toLowerCase()}?`}
+      texto="Media hora sobre tu caso concreto. Te decimos qué haríamos primero, en qué orden y cuánto costaría. Si no somos la solución, también te lo decimos."
+    />
 
     <section class="border-t border-line py-20">
       <div class="mx-auto max-w-6xl px-6">

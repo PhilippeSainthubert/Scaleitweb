@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import PageHero from '../components/PageHero.astro';
-import Agenda from '../components/Agenda.astro';
+import Formulario from '../components/Formulario.astro';
 
 const productos = [
   {
@@ -225,11 +225,7 @@ const schema = {
       </div>
     </section>
 
-    <Agenda
-      titulo="Media hora y salís con un número"
-      texto="Repasamos tu caso, te decimos qué montaríamos primero y cuánto costaría. Si no somos la solución, también te lo decimos."
-      servicio="precios"
-    />
+    <Formulario origen="precios" titulo="Media hora y salís con un número" texto="Repasamos tu caso, te decimos qué montaríamos primero y cuánto costaría. Si no somos la solución, también te lo decimos." />
   </main>
 
   <Footer />

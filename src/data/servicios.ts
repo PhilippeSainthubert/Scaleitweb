@@ -50,6 +50,9 @@ export const servicios: Servicio[] = [
       { q: '¿Usáis listas compradas?', a: 'No. Construimos la lista desde criterios y señales, y verificamos cada contacto antes de escribirle.' },
       { q: '¿Cuánto tarda en verse algo?', a: 'La infraestructura y el calentamiento del dominio llevan de dos a tres semanas antes del primer envío serio. Las primeras reuniones suelen aparecer entre la cuarta y la sexta semana.' },
       { q: '¿Lo escribe una IA?', a: 'Los agentes preparan, investigan y proponen. La revisión y el criterio son humanos, siempre, antes de que salga nada.' },
+      { q: '¿Vais a quemar el dominio de nuestra empresa?', a: 'No, porque el outbound no sale de él. Se montan dominios secundarios que se calientan durante semanas antes del primer envío serio. El dominio principal se queda limpio para el correo del negocio, que es lo que no os podéis permitir perder.' },
+      { q: '¿Cuántas reuniones vamos a conseguir?', a: 'No damos esa cifra antes de ver vuestro mercado, vuestro ticket y vuestra propuesta, y desconfiad de quien la dé de entrada. Lo que sí fijamos de antemano son los umbrales a los que cortamos un segmento si no responde, para que nadie siga gastando en algo que no funciona.' },
+      { q: '¿Y si nuestro sector no está en LinkedIn?', a: 'Mejor para vosotros: menos competencia por la atención. En industria y servicios técnicos la lista se construye desde asociaciones sectoriales, listados de ferias y registros mercantiles, y el canal principal pasa a ser el correo y el teléfono.' },
     ],
   },
   {
@@ -87,7 +90,9 @@ export const servicios: Servicio[] = [
     faq: [
       { q: '¿Cuánto tarda el SEO en dar resultados?', a: 'Las correcciones técnicas se notan en semanas. El contenido nuevo necesita de tres a seis meses para asentarse. Cualquiera que prometa menos está vendiendo humo.' },
       { q: '¿Escribís vosotros el contenido?', a: 'Sí, con agentes que investigan y redactan, y revisión humana obligatoria. Ninguna pieza sale sin que uno de los dos la lea entera.' },
-      { q: '¿Sirve para aparecer en ChatGPT?', a: 'Es parte del trabajo. Requiere contenido citable, datos estructurados y permitir el acceso a los rastreadores de búsqueda con IA.' },
+      { q: '¿Sirve para aparecer en ChatGPT?', a: 'Es parte del trabajo. Requiere contenido citable, datos estructurados y permitir el acceso a los rastreadores de búsqueda con IA, que son distintos de los de entrenamiento y se autorizan por separado.' },
+      { q: 'Nuestro sector no lo busca nadie en Google. ¿Sirve el SEO?', a: 'A veces es verdad y os lo diremos. Pero lo habitual es que sí se busque, solo que con otras palabras: no el nombre técnico del producto, sino el problema que resuelve. Eso sale del research, y si de verdad no hay volumen, la conversación se va a outbound.' },
+      { q: '¿Hay que rehacer la web entera?', a: 'Casi nunca. La mayoría de los problemas técnicos se arreglan sobre lo que ya hay. Solo proponemos rehacer cuando la plataforma actual impide medir o indexar, y en ese caso te enseñamos por qué antes de que gastes nada.' },
     ],
   },
   {
@@ -125,7 +130,9 @@ export const servicios: Servicio[] = [
     faq: [
       { q: '¿Sustituye a alguien de mi equipo?', a: 'Sustituye tareas, no personas. Lo normal es que el equipo pase a hacer la parte que exige criterio y deje de hacer la mecánica.' },
       { q: '¿Y si el agente se equivoca?', a: 'Por eso todo pasa por revisión antes de tener efecto, y por eso cada agente tiene límites duros escritos. Un agente sin supervisión es un riesgo, no un producto.' },
-      { q: '¿Con qué modelos trabajáis?', a: 'Con el que mejor encaje en cada tarea. La arquitectura no queda atada a un proveedor concreto.' },
+      { q: '¿Con qué modelos trabajáis?', a: 'Con el que mejor encaje en cada tarea. La arquitectura no queda atada a un proveedor concreto, entre otras cosas porque este mercado cambia cada pocos meses.' },
+      { q: '¿Nuestros datos entran a entrenar modelos?', a: 'No. Se trabaja con configuraciones que excluyen el uso de vuestros datos para entrenamiento, y cada agente accede solo a lo que necesita para su tarea, no a todo.' },
+      { q: '¿Qué pasa con los agentes si dejamos de trabajar juntos?', a: 'Se quedan con vosotros, documentados y operables por vuestro equipo. Están construidos sobre vuestras cuentas y vuestras herramientas, no sobre una plataforma nuestra que se pueda apagar.' },
     ],
   },
   {
@@ -161,8 +168,12 @@ export const servicios: Servicio[] = [
     paraQuien:
       'Equipos comerciales de tres o más personas, o empresas donde el fundador ya no puede llevar el pipeline de cabeza.',
     faq: [
-      { q: '¿Con qué CRM trabajáis?', a: 'Sobre todo HubSpot, Pipedrive y GoHighLevel. Si ya tenés uno, lo normal es aprovecharlo antes que migrar.' },
-      { q: '¿Hay que migrar de herramienta?', a: 'Casi nunca. Migrar es caro y arriesgado; primero exprimimos lo que ya pagás.' },
+      { q: 'No tenemos CRM. ¿Nos montáis uno?', a: 'Sí. Si no tenés CRM lo elegimos juntos y lo montamos de cero: pipeline, campos, automatizaciones y la carga inicial de lo que hoy tengas en hojas de cálculo o en la cabeza de los comerciales. Y si ya tenés uno, no lo tocamos por tocarlo: lo normal es aprovecharlo.' },
+      { q: '¿Y si el nuestro está hecho un desastre?', a: 'Es el caso más habitual y no hace falta migrar para arreglarlo. Se limpian duplicados, se redefinen las etapas con criterios que no admitan interpretación y se recupera lo que se pueda del histórico. Migrar de herramienta es caro y arriesgado; primero exprimimos lo que ya pagás.' },
+      { q: '¿Con qué CRM trabajáis?', a: 'Sobre todo HubSpot, Pipedrive y GoHighLevel, que cubren casi todos los casos de una empresa de vuestro tamaño. Si usás otro, lo miramos: lo que importa es que tenga API para conectarle los agentes.' },
+      { q: '¿Quién paga las licencias?', a: 'Vosotros, y a vuestro nombre. Es deliberado: el día que dejemos de trabajar juntos no se apaga nada ni hay que rescatar datos de ninguna cuenta nuestra.' },
+      { q: '¿Cuánto se tarda en tenerlo funcionando?', a: 'Un CRM montado de cero, entre dos y tres semanas. Uno existente que hay que ordenar puede llevar más, porque limpiar datos sucios es lento y no se puede automatizar del todo sin romper cosas.' },
+      { q: '¿Nos vais a obligar a cambiar la forma de vender?', a: 'No. El sistema se adapta a cómo vendéis, no al revés. Lo que sí vamos a hacer es discutir las etapas del pipeline si significan cosas distintas según quién mueva la oportunidad, porque entonces los datos no valen para decidir.' },
     ],
   },
   {
@@ -195,10 +206,13 @@ export const servicios: Servicio[] = [
       'Panel de gasto contra pipeline generado',
     ],
     paraQuien:
-      'Empresas que ya invierten al menos 3.000 € al mes en medios, o que están a punto de empezar y quieren no quemar los tres primeros meses aprendiendo.',
+      'Empresas que ya han invertido en paid y saben que puede funcionar, pero no tienen forma de saber qué campaña trae el negocio que se cierra. También quien va a empezar y prefiere no quemar los tres primeros meses aprendiendo.',
     faq: [
       { q: '¿Cobráis un porcentaje de la inversión?', a: 'No. Tarifa fija, para que nuestro incentivo no sea que gastes más.' },
-      { q: '¿Inversión mínima?', a: 'Por debajo de 3.000 € al mes no hay suficientes datos para optimizar, y te saldría más rentable poner ese dinero en SEO.' },
+      { q: '¿Hay una inversión mínima?', a: 'No ponemos una cifra como puerta de entrada. Lo que sí te diremos en la primera llamada es si con tu presupuesto hay datos suficientes para optimizar: por debajo de cierto volumen las plataformas tardan semanas en aprender, y a veces ese dinero rinde más en SEO. Preferimos decírtelo antes que cobrarte por descubrirlo.' },
+    { q: 'Ya hemos probado y no funcionó. ¿Por qué ahora sí?', a: 'Casi siempre falla lo mismo: se optimizaba a coste por lead porque es lo que la plataforma sabe medir, sin saber qué campaña traía los contratos que se firmaban. Antes de tocar una puja conectamos el gasto con el pipeline. Si después de eso el canal sigue sin rendir, te lo diremos y cortamos.' },
+    { q: '¿De quién son las cuentas publicitarias?', a: 'Tuyas, siempre, a tu nombre y con nosotros como usuarios invitados. El histórico de una cuenta es un activo que vale dinero, y no se queda en la agencia cuando la relación termina.' },
+    { q: '¿En qué plataformas trabajáis?', a: 'Google, Meta y LinkedIn, que es donde está el B2B español. La elección no es de catálogo: depende de si vuestro comprador busca activamente una solución como la vuestra, en cuyo caso manda Google, o si hay que interrumpirle, y entonces LinkedIn y Meta.' },
     ],
   },
   {
@@ -234,7 +248,10 @@ export const servicios: Servicio[] = [
       'Marcas con un producto explicable en vídeo corto y un público identificable. En B2B muy nicho suele rendir más el outbound.',
     faq: [
       { q: '¿Trabajáis con nano y micro creadores?', a: 'Casi siempre. En B2B rinden mejor y salen mucho más baratos.' },
-      { q: '¿Garantizáis resultados?', a: 'No, y desconfiá de quien lo haga. Garantizamos criterio de selección, medición honesta y que cortamos lo que no funciona.' },
+      { q: '¿Garantizáis resultados?', a: 'No, y desconfiad de quien lo haga. Garantizamos criterio de selección, medición honesta y que cortamos lo que no funciona en vez de dejarlo correr.' },
+      { q: 'Somos B2B y esto suena a consumo. ¿Nos sirve?', a: 'Depende de si vuestro comprador consume contenido de alguien. En sectores técnicos existen referentes con audiencias pequeñas y muy cualificadas que rinden mejor que cualquier campaña. Si no los hay en el vuestro, os lo diremos y el presupuesto se va a otro canal.' },
+      { q: '¿Quién se queda los derechos del contenido?', a: 'Se negocia por escrito antes de grabar nada, y es de las cosas que más se olvidan. Lo normal es acordar uso en vuestros canales y en publicidad durante un plazo concreto, porque un vídeo que funciona vale mucho más si lo podéis pagar como anuncio.' },
+      { q: '¿Cómo sabemos si ha servido de algo?', a: 'Con enlaces de seguimiento, códigos propios por creador y atribución hasta la oportunidad en el CRM. Si solo se puede medir en impresiones, no aceptamos la campaña.' },
     ],
   },
 ];

@@ -3,7 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import PageHero from '../components/PageHero.astro';
-import Agenda from '../components/Agenda.astro';
+import Formulario from '../components/Formulario.astro';
 
 const contenido = [
   'El punto de partida real, con sus números',
@@ -92,11 +92,7 @@ const fundadores = [
       </div>
     </section>
 
-    <Agenda
-      titulo="¿Te interesa una de las tres plazas?"
-      texto="Media hora para ver si encajamos. Si tu caso no nos sirve como caso, también te lo decimos."
-      servicio="fundadores"
-    />
+    <Formulario origen="casos" titulo="¿Te interesa una de las tres plazas?" texto="Media hora para ver si encajamos. Si tu caso no nos sirve como caso, también te lo decimos." />
   </main>
 
   <Footer />
