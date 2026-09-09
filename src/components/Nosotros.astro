@@ -1,7 +1,7 @@
 ---
 // ⚠️ PENDIENTE: sustituir los datos del segundo socio cuando Philippe los pase.
 // Todo lo marcado con «PENDIENTE» es marcador, no dato real.
-const socios = [
+const todos = [
   {
     nombre: 'Philippe Saint-Hubert',
     rol: 'Sistemas, estrategia y agentes',
@@ -9,18 +9,22 @@ const socios = [
     bio: 'Consultor de growth para empresas tech y fintech. Diseña la arquitectura del sistema y construye los agentes que lo operan.',
     tags: ['Growth strategy', 'Agentes de IA', 'RevOps', 'SEO', 'Fintech'],
     linkedin: 'https://www.linkedin.com/in/philippesainthubert/',
-    pendiente: false,
+    publicado: true,
   },
   {
-    nombre: 'PENDIENTE: nombre del socio',
+    // Se publica en cuanto Philippe pase nombre, foto, LinkedIn y bio reales.
+    // Hasta entonces no sale: una ficha a medias en una web comercial resta
+    // mucha más confianza de la que suma tener dos caras.
+    nombre: '',
     rol: 'Outbound y generación de demanda',
     foto: null,
-    bio: 'PENDIENTE: bio real. Especialista en outbound B2B: definición de ICP, señales de compra, secuencias multicanal y deliverability.',
+    bio: '',
     tags: ['Outbound B2B', 'ICP y datos', 'LinkedIn', 'Deliverability'],
     linkedin: null,
-    pendiente: true,
+    publicado: false,
   },
 ];
+const socios = todos.filter((s) => s.publicado);
 ---
 
 <section id="nosotros" class="border-t border-line bg-surface py-24 sm:py-32">
@@ -35,7 +39,7 @@ const socios = [
       </p>
     </div>
 
-    <div class="mt-14 grid gap-5 md:grid-cols-2">
+    <div class={`mt-14 grid gap-5 ${socios.length > 1 ? "md:grid-cols-2" : "max-w-xl"}`}>
       {socios.map((socio, i) => (
         <article class="card reveal p-7" style={`transition-delay:${i * 80}ms`}>
           <div class="flex items-center gap-4">

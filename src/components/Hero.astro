@@ -1,24 +1,22 @@
 ---
-import NodeBurst from './NodeBurst.astro';
+import NeuralField from './NeuralField.astro';
 
 const pillars = ['Diseñamos', 'Construimos', 'Operamos'];
 ---
 
 <section class="relative overflow-hidden">
-  <!-- El abanico de nodos: un origen, cientos de acciones.
-       No es decoración, es el argumento de la marca. -->
-  <div class="absolute inset-x-0 bottom-0 top-0 -z-10">
+  <!-- La red neuronal: nodos que derivan, sinapsis que aparecen al acercarse y
+       señales encadenándose de nodo en nodo. Reacciona al cursor. El contenedor
+       no captura eventos para no robarle los clics a los botones; el canvas
+       escucha el puntero en la ventana. -->
+  <div class="pointer-events-none absolute inset-0 -z-10">
     <div class="absolute inset-0 bg-gradient-to-b from-surface-2 via-bg to-bg"></div>
-    <NodeBurst
-      class="absolute inset-x-0 bottom-0 h-[66%] [mask-image:radial-gradient(140%_100%_at_50%_100%,#000_56%,transparent_92%)]"
-    />
-    <!-- Velo blanco radial: el texto tiene que apoyarse sobre blanco, no sobre
-         los rayos. Es el truco que usa Stripe para que el gráfico no compita
-         con la lectura. -->
-    <div class="absolute inset-0 bg-[radial-gradient(66%_56%_at_50%_34%,#fff_42%,rgba(255,255,255,.9)_68%,rgba(255,255,255,0)_100%)]"></div>
+    <NeuralField class="absolute inset-0 [mask-image:radial-gradient(125%_115%_at_50%_45%,#000_66%,transparent_97%)]" />
+    <!-- Velo radial: el texto se apoya sobre blanco, la red respira alrededor. -->
+    <div class="absolute inset-0 bg-[radial-gradient(50%_42%_at_50%_40%,#fff_30%,rgba(255,255,255,.74)_58%,rgba(255,255,255,0)_100%)]"></div>
   </div>
 
-  <div class="mx-auto max-w-6xl px-6 pb-44 pt-36 sm:pb-56 sm:pt-44">
+  <div class="mx-auto max-w-6xl px-6 pb-32 pt-36 sm:pb-40 sm:pt-44">
     <div class="mx-auto max-w-4xl text-center">
       <p class="eyebrow">Agentes de IA · supervisión humana</p>
 
@@ -41,7 +39,6 @@ const pillars = ['Diseñamos', 'Construimos', 'Operamos'];
         <a href="/#agentes" class="btn btn-ghost">Ver el sistema por dentro</a>
       </div>
 
-      <!-- Un sistema. Cientos de acciones al día. -->
       <div class="mt-14 flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-2">
         {pillars.map((p, i) => (
           <>

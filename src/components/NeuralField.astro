@@ -1,0 +1,325 @@
+---
+/**
+ * Red neuronal interactiva. La firma visual de Scale It.
+ *
+ * Nodos que derivan lentamente, sinapsis que aparecen cuando dos nodos están
+ * cerca, y señales que viajan de nodo en nodo encadenándose: una activación
+ * propagándose, que es exactamente lo que estudia el neuromarketing. Al pasar
+ * el cursor, la red se aparta, se ilumina y dispara más: se puede tocar.
+ *
+ * Va en canvas y no en SVG porque hay que recalcular las sinapsis en cada
+ * fotograma. Con SVG serían miles de nodos del DOM cambiando 60 veces por
+ * segundo.
+ *
+ * Cuidados: se pausa fuera de pantalla y con la pestaña oculta, se apaga con
+ * prefers-reduced-motion (deja un fotograma fijo) y no hay interacción en
+ * pantallas táctiles. El canvas tiene tamaño desde el primer pintado, así que
+ * no mueve el layout.
+ */
+interface Props {
+  class?: string;
+}
+const { class: className = '' } = Astro.props;
+---
+
+<canvas
+  data-neural
+  class={`block h-full w-full ${className}`}
+  aria-hidden="true"
+></canvas>
+
+<script>
+  const TAU = Math.PI * 2;
+
+  function initNeural(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return;
+
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fine = window.matchMedia('(pointer: fine)').matches;
+
+    let w = 0;
+    let h = 0;
+    let dpr = 1;
+
+    interface Node {
+      x: number; y: number;      // posición base
+      vx: number; vy: number;    // deriva
+      ox: number; oy: number;    // desplazamiento por el cursor
+      r: number;
+      charge: number;            // 0 a 1, cuánto está activado ahora
+    }
+
+    interface Pulse { a: number; b: number; t: number; speed: number; }
+
+    let nodes: Node[] = [];
+    let pulses: Pulse[] = [];
+    let neighbours: number[][] = [];
+
+    const LINK_DIST = 148;
+    const MOUSE_DIST = 170;
+    const MAX_PULSES = 22;
+
+    const mouse = { x: -9999, y: -9999, active: false };
+
+    function build() {
+      const rect = canvas.getBoundingClientRect();
+      w = Math.max(rect.width, 1);
+      h = Math.max(rect.height, 1);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+      // Densidad constante por área, con tope para no ahogar un portátil.
+      const count = Math.min(170, Math.max(46, Math.round((w * h) / 8200)));
+      nodes = Array.from({ length: count }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        vx: (Math.random() - 0.5) * 0.16,
+        vy: (Math.random() - 0.5) * 0.16,
+        ox: 0,
+        oy: 0,
+        r: 1.3 + Math.random() * 2.1,
+        charge: 0,
+      }));
+      pulses = [];
+    }
+
+    function computeNeighbours() {
+      neighbours = nodes.map(() => []);
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const dx = (nodes[i].x + nodes[i].ox) - (nodes[j].x + nodes[j].ox);
+          const dy = (nodes[i].y + nodes[i].oy) - (nodes[j].y + nodes[j].oy);
+          if (dx * dx + dy * dy < LINK_DIST * LINK_DIST) {
+            neighbours[i].push(j);
+            neighbours[j].push(i);
+          }
+        }
+      }
+    }
+
+    function spawnPulse(from?: number) {
+      if (pulses.length >= MAX_PULSES) return;
+      const a = from ?? Math.floor(Math.random() * nodes.length);
+      const opts = neighbours[a];
+      if (!opts || !opts.length) return;
+      const b = opts[Math.floor(Math.random() * opts.length)];
+      pulses.push({ a, b, t: 0, speed: 0.006 + Math.random() * 0.012 });
+    }
+
+    function step() {
+      for (const n of nodes) {
+        n.x += n.vx;
+        n.y += n.vy;
+        // Rebote suave en los bordes: la red nunca se vacía por un lado.
+        if (n.x < -20) n.x = w + 20;
+        if (n.x > w + 20) n.x = -20;
+        if (n.y < -20) n.y = h + 20;
+        if (n.y > h + 20) n.y = -20;
+
+        // El cursor aparta los nodos y los carga.
+        let push = 0;
+        if (mouse.active) {
+          const dx = n.x - mouse.x;
+          const dy = n.y - mouse.y;
+          const d = Math.hypot(dx, dy);
+          if (d < MOUSE_DIST && d > 0.01) {
+            const force = (1 - d / MOUSE_DIST) ** 2;
+            push = force;
+            n.ox += (dx / d) * force * 26 * 0.16;
+            n.oy += (dy / d) * force * 26 * 0.16;
+          }
+        }
+        // Vuelta elástica a su sitio.
+        n.ox *= 0.9;
+        n.oy *= 0.9;
+        n.charge += (push - n.charge) * 0.12;
+      }
+
+      computeNeighbours();
+
+      for (let i = pulses.length - 1; i >= 0; i--) {
+        const p = pulses[i];
+        p.t += p.speed;
+        if (p.t >= 1) {
+          // Al llegar, la señal salta a otra sinapsis: se encadena.
+          const next = neighbours[p.b];
+          pulses.splice(i, 1);
+          if (next && next.length && Math.random() < 0.72) spawnPulse(p.b);
+        }
+      }
+      if (Math.random() < 0.14) spawnPulse();
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, w, h);
+
+      // Sinapsis
+      for (let i = 0; i < nodes.length; i++) {
+        const ni = nodes[i];
+        const ax = ni.x + ni.ox;
+        const ay = ni.y + ni.oy;
+        for (const j of neighbours[i]) {
+          if (j < i) continue;
+          const nj = nodes[j];
+          const bx = nj.x + nj.ox;
+          const by = nj.y + nj.oy;
+          const d = Math.hypot(bx - ax, by - ay);
+          const prox = 1 - d / LINK_DIST;
+          const heat = Math.max(ni.charge, nj.charge);
+          const alpha = prox * (0.3 + heat * 0.55);
+          if (alpha <= 0.004) continue;
+          ctx.strokeStyle = `rgba(47, 92, 255, ${alpha.toFixed(3)})`;
+          ctx.lineWidth = 0.55 + prox * 0.6 + heat * 0.8;
+          ctx.beginPath();
+          ctx.moveTo(ax, ay);
+          ctx.lineTo(bx, by);
+          ctx.stroke();
+        }
+      }
+
+      // Señales viajando
+      for (const p of pulses) {
+        const a = nodes[p.a];
+        const b = nodes[p.b];
+        if (!a || !b) continue;
+        const ax = a.x + a.ox;
+        const ay = a.y + a.oy;
+        const bx = b.x + b.ox;
+        const by = b.y + b.oy;
+        const e = p.t * p.t * (3 - 2 * p.t); // suavizado
+        const x = ax + (bx - ax) * e;
+        const y = ay + (by - ay) * e;
+        const fade = Math.sin(p.t * Math.PI);
+
+        const g = ctx.createRadialGradient(x, y, 0, x, y, 13);
+        g.addColorStop(0, `rgba(47, 92, 255, ${(0.5 * fade).toFixed(3)})`);
+        g.addColorStop(1, 'rgba(47, 92, 255, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, 13, 0, TAU);
+        ctx.fill();
+
+        ctx.fillStyle = `rgba(22, 51, 184, ${(0.95 * fade).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(x, y, 1.9, 0, TAU);
+        ctx.fill();
+      }
+
+      // Nodos
+      for (const n of nodes) {
+        const x = n.x + n.ox;
+        const y = n.y + n.oy;
+        const r = n.r * (1 + n.charge * 1.5);
+        if (n.charge > 0.04) {
+          const g = ctx.createRadialGradient(x, y, 0, x, y, 22);
+          g.addColorStop(0, `rgba(47, 92, 255, ${(0.22 * n.charge).toFixed(3)})`);
+          g.addColorStop(1, 'rgba(47, 92, 255, 0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(x, y, 22, 0, TAU);
+          ctx.fill();
+        }
+        ctx.fillStyle = `rgba(22, 51, 184, ${(0.48 + n.charge * 0.5).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, TAU);
+        ctx.fill();
+      }
+
+      // Sinapsis hacia el cursor: la parte que se "toca".
+      if (mouse.active) {
+        for (const n of nodes) {
+          const x = n.x + n.ox;
+          const y = n.y + n.oy;
+          const d = Math.hypot(x - mouse.x, y - mouse.y);
+          if (d < MOUSE_DIST) {
+            const alpha = (1 - d / MOUSE_DIST) * 0.4;
+            ctx.strokeStyle = `rgba(47, 92, 255, ${alpha.toFixed(3)})`;
+            ctx.lineWidth = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.lineTo(mouse.x, mouse.y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    let raf = 0;
+    let running = false;
+
+    function loop() {
+      step();
+      draw();
+      raf = requestAnimationFrame(loop);
+    }
+    function start() {
+      if (running || reduced) return;
+      running = true;
+      raf = requestAnimationFrame(loop);
+    }
+    function stop() {
+      running = false;
+      cancelAnimationFrame(raf);
+    }
+
+    build();
+    computeNeighbours();
+    draw();
+
+    if (reduced) return; // se queda el fotograma fijo
+
+    // Solo gasta CPU cuando se ve.
+    const io = new IntersectionObserver(
+      (entries) => entries.forEach((e) => (e.isIntersecting ? start() : stop())),
+      { threshold: 0 }
+    );
+    io.observe(canvas);
+
+    document.addEventListener('visibilitychange', () => {
+      document.hidden ? stop() : start();
+    });
+
+    if (fine) {
+      // El canvas no recibe eventos (pointer-events: none en el contenedor),
+      // así que se escucha en la ventana y se traduce a coordenadas locales.
+      window.addEventListener(
+        'pointermove',
+        (ev) => {
+          const rect = canvas.getBoundingClientRect();
+          const x = ev.clientX - rect.left;
+          const y = ev.clientY - rect.top;
+          mouse.active = x >= -60 && y >= -60 && x <= rect.width + 60 && y <= rect.height + 60;
+          mouse.x = x;
+          mouse.y = y;
+        },
+        { passive: true }
+      );
+      window.addEventListener('pointerleave', () => (mouse.active = false));
+      // Al hacer clic cerca, la red dispara.
+      window.addEventListener('pointerdown', () => {
+        if (!mouse.active) return;
+        let best = -1;
+        let bestD = Infinity;
+        nodes.forEach((n, i) => {
+          const d = Math.hypot(n.x + n.ox - mouse.x, n.y + n.oy - mouse.y);
+          if (d < bestD) { bestD = d; best = i; }
+        });
+        if (best >= 0 && bestD < 220) for (let k = 0; k < 3; k++) spawnPulse(best);
+      });
+    }
+
+    let resizeTimer: number;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        build();
+        computeNeighbours();
+      }, 180);
+    });
+  }
+
+  document.querySelectorAll<HTMLCanvasElement>('canvas[data-neural]').forEach(initNeural);
+</script>

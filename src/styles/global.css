@@ -130,69 +130,6 @@ body {
   background: var(--color-surface);
 }
 
-/* ── El gráfico de nodos ───────────────────────────────────────
-   Dibujado con stroke-dashoffset y retardo escalonado por rayo.
-   Cero JavaScript: el SVG sale entero del build. */
-.burst-ray {
-  stroke-dasharray: var(--len);
-  stroke-dashoffset: var(--len);
-}
-.burst-tip { opacity: 0; }
-
-/* El pulso viaja del origen a la punta y vuelve a empezar. Con dasharray
-   «pulso, largo-del-rayo» solo hay un trazo visible por línea; moviendo el
-   dashoffset de 0 a -largo, ese trazo recorre el rayo entero. */
-.burst-pulse {
-  stroke-dasharray: var(--p) var(--len);
-  stroke-dashoffset: 0;
-  opacity: 0;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  /* Entrada: se dibuja una vez al cargar. */
-  .burst-ray {
-    animation: draw-ray 1.1s cubic-bezier(.16, 1, .3, 1) forwards;
-    animation-delay: calc(var(--d) * 1ms);
-  }
-  .burst-tip {
-    animation:
-      pop-tip .5s ease-out forwards,
-      twinkle var(--tw, 8s) ease-in-out infinite;
-    animation-delay: calc(var(--d) * 1ms + 850ms), calc(var(--twd, 0s) + 1.4s);
-  }
-
-  /* Vida permanente: pulsos en bucle, campo respirando y deriva lentísima. */
-  .burst-pulse {
-    animation: pulse-out var(--dur) cubic-bezier(.4, 0, .7, 1) infinite;
-    animation-delay: var(--pd);
-  }
-  .burst-field {
-    animation:
-      drift 48s ease-in-out infinite alternate,
-      breathe 11s ease-in-out infinite;
-    transform-origin: 50% 100%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .burst-ray { stroke-dashoffset: 0; }
-  .burst-tip { opacity: 1; }
-  .burst-pulse { display: none; }
-}
-
-@keyframes draw-ray { to { stroke-dashoffset: 0; } }
-@keyframes pop-tip  { to { opacity: 1; } }
-@keyframes drift    { from { transform: rotate(-0.5deg); } to { transform: rotate(0.5deg); } }
-@keyframes breathe  { 0%, 100% { opacity: .88; } 50% { opacity: 1; } }
-@keyframes twinkle  { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
-
-@keyframes pulse-out {
-  0%        { stroke-dashoffset: 0;                      opacity: 0; }
-  6%        {                                            opacity: .95; }
-  72%       {                                            opacity: .95; }
-  100%      { stroke-dashoffset: calc(var(--len) * -1);  opacity: 0; }
-}
-
 /* ── Acabados ──────────────────────────────────────────────────── */
 
 ::selection {
