@@ -1,6 +1,20 @@
 User-agent: *
 Allow: /
-
 Disallow: /gracias
 
-Sitemap: https://growth-scaleit.com/sitemap.xml
+# ── Buscadores con IA: se permiten explícitamente los bots de BÚSQUEDA,
+#    que son los que pueden citarnos en respuestas generativas.
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: ChatGPT-User
+Allow: /
+User-agent: Claude-SearchBot
+Allow: /
+User-agent: Claude-User
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://www.growth-scaleit.com/sitemap-index.xml

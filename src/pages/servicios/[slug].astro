@@ -1,0 +1,174 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import Agenda from '../../components/Agenda.astro';
+import NeuralField from '../../components/NeuralField.astro';
+import { servicios } from '../../data/servicios';
+
+export function getStaticPaths() {
+  return servicios.map((servicio) => ({
+    params: { slug: servicio.slug },
+    props: { servicio },
+  }));
+}
+
+const { servicio } = Astro.props;
+const otros = servicios.filter((s) => s.slug !== servicio.slug).slice(0, 3);
+const base = 'https://www.growth-scaleit.com';
+
+const schema = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: servicio.nombre,
+    description: servicio.metaDescription,
+    provider: { '@id': `${base}/#organization` },
+    areaServed: { '@type': 'Country', name: 'España' },
+    url: `${base}/servicios/${servicio.slug}`,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: base },
+      { '@type': 'ListItem', position: 2, name: 'Servicios', item: `${base}/#servicios` },
+      { '@type': 'ListItem', position: 3, name: servicio.nombre, item: `${base}/servicios/${servicio.slug}` },
+    ],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: servicio.faq.map((f) => ({
+      '@type': 'Question',
+      name: f.q,
+      acceptedAnswer: { '@type': 'Answer', text: f.a },
+    })),
+  },
+];
+---
+
+<Layout title={servicio.metaTitle} description={servicio.metaDescription} schema={schema}>
+  <Navbar />
+
+  <main>
+    <section class="relative overflow-hidden">
+      <div class="pointer-events-none absolute inset-0 -z-10">
+        <div class="absolute inset-0 bg-gradient-to-b from-surface-2 via-bg to-bg"></div>
+        <NeuralField class="absolute inset-0 opacity-80 [mask-image:radial-gradient(120%_100%_at_50%_40%,#000_52%,transparent_90%)]" />
+        <div class="absolute inset-0 bg-[radial-gradient(70%_62%_at_50%_38%,#fff_44%,rgba(255,255,255,.9)_70%,rgba(255,255,255,0)_100%)]"></div>
+      </div>
+
+      <div class="mx-auto max-w-4xl px-6 pb-24 pt-36 sm:pb-28 sm:pt-44">
+        <nav aria-label="Ruta" class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+          <a href="/" class="transition-colors hover:text-ink">Inicio</a>
+          <span>/</span>
+          <a href="/#servicios" class="transition-colors hover:text-ink">{servicio.pilar}</a>
+        </nav>
+
+        <h1 class="display-xl mt-6 text-balance">{servicio.h1}</h1>
+        <p class="lede mt-6">{servicio.entradilla}</p>
+
+        <div class="mt-9 flex flex-wrap gap-3">
+          <a href="#agenda" class="btn btn-primary">
+            Agenda una llamada
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
+            </svg>
+          </a>
+          <a href="#incluye" class="btn btn-ghost">Qué incluye</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-line py-20 sm:py-24">
+      <div class="mx-auto max-w-4xl px-6">
+        <p class="eyebrow">El problema</p>
+        <h2 class="display-md mt-4 max-w-2xl text-balance">{servicio.problema.titulo}</h2>
+        <p class="prose-measure mt-5 text-[16px] leading-relaxed text-ink-2">{servicio.problema.texto}</p>
+      </div>
+    </section>
+
+    <section id="incluye" class="border-t border-line bg-surface py-20 sm:py-24">
+      <div class="mx-auto max-w-6xl px-6">
+        <p class="eyebrow">Qué incluye</p>
+        <h2 class="display-lg mt-4 max-w-2xl text-balance">Lo que hacemos, sin letra pequeña</h2>
+
+        <div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
+          {servicio.incluye.map((item) => (
+            <div class="bg-bg p-6">
+              <h3 class="text-[16px] font-semibold tracking-[-0.015em] text-ink">{item.titulo}</h3>
+              <p class="mt-2.5 text-[14px] leading-relaxed text-ink-2">{item.texto}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-line py-20 sm:py-24">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="grid gap-12 lg:grid-cols-2">
+          <div>
+            <p class="eyebrow">Entregables</p>
+            <h2 class="display-md mt-4 text-balance">Qué te llevás, exactamente</h2>
+            <ul class="mt-7 space-y-3.5">
+              {servicio.entregables.map((e) => (
+                <li class="flex items-start gap-3 text-[15px] leading-relaxed text-ink-2">
+                  <svg class="mt-1 h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                  </svg>
+                  {e}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="card h-fit p-7">
+            <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Para quién es</p>
+            <p class="mt-4 text-[15px] leading-relaxed text-ink-2">{servicio.paraQuien}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-line bg-surface py-20 sm:py-24">
+      <div class="mx-auto max-w-3xl px-6">
+        <p class="eyebrow">Preguntas</p>
+        <h2 class="display-md mt-4 text-balance">Lo que nos preguntan siempre</h2>
+
+        <div class="mt-10 divide-y divide-line overflow-hidden rounded-xl border border-line bg-bg">
+          {servicio.faq.map((f) => (
+            <details class="group">
+              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-[15.5px] font-medium text-ink">
+                {f.q}
+                <svg class="h-4 w-4 shrink-0 text-ink-3 transition-transform duration-300 group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                </svg>
+              </summary>
+              <p class="px-6 pb-6 text-[14.5px] leading-relaxed text-ink-2">{f.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    <Agenda servicio={servicio.slug} />
+
+    <section class="border-t border-line py-20">
+      <div class="mx-auto max-w-6xl px-6">
+        <p class="eyebrow">Seguir mirando</p>
+        <div class="mt-8 grid gap-5 sm:grid-cols-3">
+          {otros.map((o) => (
+            <a href={`/servicios/${o.slug}`} class="card p-6">
+              <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{o.pilar}</p>
+              <h2 class="mt-3 text-[17px] font-semibold tracking-[-0.02em] text-ink">{o.nombre}</h2>
+              <p class="mt-2 text-[14px] leading-relaxed text-ink-2">{o.entradilla.slice(0, 92)}...</p>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>

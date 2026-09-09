@@ -2,85 +2,71 @@
 const rows = [
   {
     axis: 'Alcance',
-    scaleIt: 'Growth completo: estrategia, automatización, paid y RevOps',
-    tools: 'Un canal a la vez, herramienta por herramienta',
-    agency: 'Depende del contrato, suele quedar fragmentado'
+    scaleIt: 'El sistema completo: captación, atracción y operación',
+    tools: 'Un canal cada vez, herramienta por herramienta',
+    agency: 'Lo que diga el contrato, casi siempre fragmentado',
   },
   {
     axis: 'Velocidad',
-    scaleIt: 'Agentes de IA ejecutan en horas, no en semanas',
-    tools: 'Rápido si sabés usar la herramienta — todo lo hacés vos',
-    agency: 'Semanas de idas y vueltas y aprobaciones'
+    scaleIt: 'Los agentes ejecutan en horas, no en semanas',
+    tools: 'Rápido si sabés usarla, pero lo hacés todo vos',
+    agency: 'Semanas de idas, vueltas y aprobaciones',
   },
   {
-    axis: 'Supervisión',
-    scaleIt: 'Cada agente supervisado por un growth consultor senior',
-    tools: 'Ninguna, dependés de tu propio criterio',
-    agency: 'Muchas veces un junior maneja tu cuenta'
+    axis: 'Quién lo lleva',
+    scaleIt: 'Los dos socios, con nombre y apellido',
+    tools: 'Nadie. Tu propio criterio',
+    agency: 'Un junior que rota cada seis meses',
   },
   {
     axis: 'Transparencia',
-    scaleIt: 'Ves cada tarea y su estado en tiempo real',
-    tools: 'Ves el dashboard de la herramienta, no el resultado',
-    agency: 'Reporte mensual, caja negra el resto del tiempo'
+    scaleIt: 'Cada tarea y su estado, en tiempo real',
+    tools: 'El panel de la herramienta, no el resultado',
+    agency: 'Informe mensual y caja negra el resto del mes',
   },
   {
-    axis: 'Costo',
-    scaleIt: 'Fracción de contratar un equipo de growth interno',
-    tools: 'Barato en licencias, caro en tu tiempo',
-    agency: 'Retainers altos + fees que aparecen después'
-  }
+    axis: 'Coste',
+    scaleIt: 'Una fracción de montar el equipo interno',
+    tools: 'Barato en licencias, carísimo en tu tiempo',
+    agency: 'Retainer alto más extras que aparecen luego',
+  },
 ];
 ---
 
-<section id="comparativa" class="relative py-32">
+<section class="border-t border-line bg-surface py-24 sm:py-32">
   <div class="mx-auto max-w-6xl px-6">
-    <div class="text-center">
-      <p class="text-sm font-semibold uppercase tracking-widest text-purple-light">Comparativa</p>
-      <h2 class="mt-3 text-4xl font-bold tracking-tight text-white sm:text-5xl">
-        Lo mejor de <span class="gradient-text">ambos mundos</span>
-      </h2>
-      <p class="mx-auto mt-4 max-w-2xl text-gray-400">
-        Ni la lentitud de una agencia, ni la soledad de hacerlo todo con herramientas sueltas.
-      </p>
+    <div class="max-w-2xl">
+      <p class="eyebrow">Comparativa</p>
+      <h2 class="display-lg mt-4 text-balance">Ni la lentitud de una agencia, ni la soledad de las herramientas</h2>
     </div>
 
-    <div class="mt-16 overflow-x-auto">
-      <div class="min-w-[720px]">
-        <!-- Header row -->
-        <div class="grid grid-cols-4 gap-4">
-          <div></div>
-          <div class="gradient-border glow p-4 text-center">
-            <span class="relative z-10 text-sm font-bold gradient-text">Scale It</span>
-          </div>
-          <div class="p-4 text-center">
-            <span class="text-sm font-semibold text-gray-400">Herramientas sueltas</span>
-          </div>
-          <div class="p-4 text-center">
-            <span class="text-sm font-semibold text-gray-400">Agencias tradicionales</span>
-          </div>
-        </div>
-
-        <!-- Rows -->
-        <div class="mt-3 space-y-3">
+    <div class="reveal mt-12 overflow-x-auto">
+      <table class="w-full min-w-[700px] border-separate border-spacing-0 text-left">
+        <thead>
+          <tr>
+            <th class="w-[16%] pb-4 pr-4"></th>
+            <th class="w-[30%] rounded-t-xl border border-b-0 border-accent/25 bg-bg px-5 pb-4 pt-5">
+              <span class="text-[15px] font-semibold text-ink">Scale It</span>
+            </th>
+            <th class="w-[27%] px-5 pb-4 pt-5 text-[15px] font-medium text-ink-3">Herramientas sueltas</th>
+            <th class="w-[27%] px-5 pb-4 pt-5 text-[15px] font-medium text-ink-3">Agencia tradicional</th>
+          </tr>
+        </thead>
+        <tbody>
           {rows.map((row, i) => (
-            <div class={`grid grid-cols-4 gap-4 items-stretch animate-fade-in-up delay-${(i + 1) * 100}`}>
-              <div class="flex items-center px-4 text-sm font-semibold uppercase tracking-wider text-gray-500">
+            <tr>
+              <th scope="row" class="border-t border-line py-5 pr-4 align-top font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
                 {row.axis}
-              </div>
-              <div class="rounded-xl border border-purple/30 bg-purple/5 p-4">
-                <p class="text-sm text-white leading-relaxed">{row.scaleIt}</p>
-              </div>
-              <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                <p class="text-sm text-gray-500 leading-relaxed">{row.tools}</p>
-              </div>
-              <div class="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                <p class="text-sm text-gray-500 leading-relaxed">{row.agency}</p>
-              </div>
-            </div>
+              </th>
+              <td class={`border-x border-t border-accent/25 bg-bg px-5 py-5 align-top text-[14.5px] leading-relaxed text-ink ${i === rows.length - 1 ? 'rounded-b-xl border-b' : ''}`}>
+                {row.scaleIt}
+              </td>
+              <td class="border-t border-line px-5 py-5 align-top text-[14.5px] leading-relaxed text-ink-2">{row.tools}</td>
+              <td class="border-t border-line px-5 py-5 align-top text-[14.5px] leading-relaxed text-ink-2">{row.agency}</td>
+            </tr>
           ))}
-        </div>
-      </div>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>

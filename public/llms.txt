@@ -1,0 +1,26 @@
+# Scale It
+
+> Construimos la máquina de adquisición de empresas B2B y la operamos con
+> agentes de IA supervisados por humanos. No vendemos horas: vendemos el
+> sistema y su operación.
+
+Agencia de growth con sede en Barcelona, España. Opera en español e inglés.
+
+## Qué hacemos
+- **Captar**: outbound B2B multicanal, LinkedIn, influencers y paid.
+- **Atraer**: SEO técnico y de contenido, contenido programático, AEO.
+- **Operar**: agentes de IA a medida, RevOps, CRM, atribución y datos.
+
+## Cómo trabajamos
+Cuatro productos: Blueprint (diagnóstico y arquitectura), Build Sprint
+(construcción del sistema), Growth Partner (operación mensual) y Agentes
+a medida (automatización de procesos).
+
+## Páginas principales
+- /: propuesta de valor y funcionamiento de los agentes
+- /precios: los cuatro productos y sus precios
+- /proceso: las cuatro fases de trabajo
+- /faq: preguntas frecuentes
+
+## Contacto
+https://www.growth-scaleit.com/#contacto

@@ -1,0 +1,84 @@
+---
+/**
+ * Bloque de agenda.
+ *
+ * PENDIENTE: falta la URL de la página de citas de Google Calendar de
+ * philosh95@gmail.com. Se saca en Calendar, botón Crear, «Programación de
+ * citas», y al publicarla da un enlace del tipo
+ * https://calendar.google.com/calendar/appointments/schedules/AcZssZ...
+ * Se pega en AGENDA_URL y esta sección pasa sola de formulario a calendario.
+ *
+ * El calendario NO se carga solo: Google planta cookies al incrustarlo, así
+ * que hasta que el visitante pulsa no se pide nada a Google. Además evita
+ * cargar un iframe pesado que casi nadie abre.
+ */
+interface Props {
+  titulo?: string;
+  texto?: string;
+  servicio?: string;
+}
+
+const AGENDA_URL: string | null = null;
+
+const {
+  titulo = 'Media hora y sabés si te encajamos',
+  texto = 'Miramos tu situación, te decimos dónde está el cuello de botella y qué haríamos primero. Si no somos la solución, te lo decimos en la llamada.',
+  servicio = '',
+} = Astro.props;
+---
+
+<section id="agenda" class="border-t border-line bg-surface py-24 sm:py-32">
+  <div class="mx-auto max-w-3xl px-6 text-center">
+    <p class="eyebrow">Agenda</p>
+    <h2 class="display-lg mt-4 text-balance">{titulo}</h2>
+    <p class="lede mx-auto mt-5 text-balance">{texto}</p>
+
+    {AGENDA_URL ? (
+      <div class="mt-10">
+        <div
+          id="agenda-slot"
+          class="mx-auto max-w-2xl overflow-hidden rounded-xl border border-line bg-bg p-10 shadow-sm"
+        >
+          <p class="text-[14.5px] text-ink-2">
+            El calendario se carga desde Google y guarda cookies suyas.
+            Se abre solo si lo pedís.
+          </p>
+          <button id="agenda-load" class="btn btn-primary mt-6" data-url={AGENDA_URL} data-servicio={servicio}>
+            Ver horarios disponibles
+          </button>
+        </div>
+      </div>
+    ) : (
+      <div class="mx-auto mt-10 max-w-xl rounded-xl border border-line bg-bg p-10 shadow-sm">
+        <p class="text-[15px] leading-relaxed text-ink-2">
+          Contanos en dos líneas qué vendés y qué te está frenando. Te
+          proponemos hueco en menos de 24 horas laborables.
+        </p>
+        <a href="/#contacto" class="btn btn-primary mt-7">Escribinos</a>
+      </div>
+    )}
+  </div>
+</section>
+
+<script is:inline>
+  (function () {
+    var btn = document.getElementById('agenda-load');
+    if (!btn) return;
+    btn.addEventListener('click', function () {
+      var slot = document.getElementById('agenda-slot');
+      var frame = document.createElement('iframe');
+      frame.src = btn.getAttribute('data-url') + '?gv=true';
+      frame.width = '100%';
+      frame.height = '620';
+      frame.frameBorder = '0';
+      frame.title = 'Calendario de disponibilidad';
+      frame.loading = 'lazy';
+      slot.innerHTML = '';
+      slot.classList.remove('p-10');
+      slot.appendChild(frame);
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'book_call', { servicio: btn.getAttribute('data-servicio') || '' });
+      }
+    });
+  })();
+</script>

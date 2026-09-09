@@ -1,130 +1,101 @@
 ---
+const tipos = [
+  'Quiero el sistema completo',
+  'Outbound / generación de demanda',
+  'SEO y contenido',
+  'Agentes de IA a medida',
+  'RevOps, CRM y datos',
+  'Todavía no lo tengo claro',
+];
 ---
 
-<section id="contacto" class="relative py-32">
-  <div class="mx-auto max-w-4xl px-6">
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple/20 via-dark-2 to-cyan/20 p-12 glow">
-      <!-- Background decoration -->
-      <div class="absolute inset-0 overflow-hidden pointer-events-none">
-        <div class="absolute -top-24 -right-24 w-96 h-96 bg-purple/10 rounded-full blur-3xl"></div>
-        <div class="absolute -bottom-24 -left-24 w-96 h-96 bg-cyan/10 rounded-full blur-3xl"></div>
-      </div>
-
-      <div class="relative z-10">
-        <div class="text-center">
-          <h2 class="text-4xl font-bold tracking-tight text-white sm:text-5xl">
-            Listo para <span class="gradient-text">escalar?</span>
-          </h2>
-          <p class="mx-auto mt-4 max-w-xl text-lg text-gray-400">
-            Agenda una llamada de 30 minutos. Analizamos tu situación actual,
-            identificamos las oportunidades y te digo exactamente cómo puedo ayudarte.
-          </p>
-        </div>
-
-        <form
-          action="https://formsubmit.co/philosh95@gmail.com"
-          method="POST"
-          class="mx-auto mt-10 max-w-lg space-y-5"
-        >
-          <!-- FormSubmit config -->
-          <input type="hidden" name="_subject" value="Nuevo lead desde Scale It" />
-          <input type="hidden" name="_captcha" value="false" />
-          <input type="hidden" name="_template" value="box" />
-          <input type="hidden" name="_next" value="https://growth-scaleit.com/gracias" />
-          <input type="text" name="_honey" style="display:none" />
-
-          <div class="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label for="nombre" class="block text-sm font-medium text-gray-300 mb-1.5">Nombre</label>
-              <input
-                type="text"
-                id="nombre"
-                name="nombre"
-                required
-                placeholder="Tu nombre"
-                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
-              />
-            </div>
-            <div>
-              <label for="apellido" class="block text-sm font-medium text-gray-300 mb-1.5">Apellido</label>
-              <input
-                type="text"
-                id="apellido"
-                name="apellido"
-                required
-                placeholder="Tu apellido"
-                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
-              />
-            </div>
-          </div>
-
-          <div class="grid gap-5 sm:grid-cols-2">
-            <div>
-              <label for="email" class="block text-sm font-medium text-gray-300 mb-1.5">Correo</label>
-              <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                placeholder="tu@empresa.com"
-                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
-              />
-            </div>
-            <div>
-              <label for="movil" class="block text-sm font-medium text-gray-300 mb-1.5">Móvil</label>
-              <input
-                type="tel"
-                id="movil"
-                name="movil"
-                placeholder="+34 600 000 000"
-                class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label for="proyecto" class="block text-sm font-medium text-gray-300 mb-1.5">Tipo de proyecto</label>
-            <select
-              id="proyecto"
-              name="tipo_de_proyecto"
-              required
-              class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50 appearance-none"
-              style="background-image: url('data:image/svg+xml;utf8,<svg fill=\'%239ca3af\' viewBox=\'0 0 20 20\' xmlns=\'http://www.w3.org/2000/svg\'><path fill-rule=\'evenodd\' d=\'M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z\' clip-rule=\'evenodd\'/></svg>'); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;"
-            >
-              <option value="" disabled selected class="text-gray-500">Selecciona un tipo</option>
-              <option value="Growth Strategy">Growth Strategy</option>
-              <option value="Market Research">Market Research</option>
-              <option value="AI Automation">AI Automation</option>
-              <option value="AI Content Generation">AI Content Generation</option>
-              <option value="Paid Ads">Paid Ads</option>
-              <option value="Influencer Marketing">Influencer Marketing</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="descripcion" class="block text-sm font-medium text-gray-300 mb-1.5">Descripción del proyecto</label>
-            <textarea
-              id="descripcion"
-              name="descripcion"
-              rows="4"
-              placeholder="Cuéntame brevemente sobre tu proyecto, objetivos y en qué necesitas ayuda..."
-              class="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-gray-500 outline-none transition-all focus:border-purple/50 focus:ring-1 focus:ring-purple/50 resize-none"
-            ></textarea>
-          </div>
-
-          <button
-            type="submit"
-            class="group w-full rounded-xl bg-gradient-to-r from-purple to-cyan px-8 py-4 text-base font-semibold text-white transition-all hover:shadow-xl hover:shadow-purple/25 hover:scale-[1.02]"
-          >
-            Agenda tu llamada gratuita
-            <span class="inline-block transition-transform group-hover:translate-x-1">&rarr;</span>
-          </button>
-
-          <p class="text-center text-sm text-gray-500">
-            Sin compromiso. Si no puedo ayudarte, te lo digo.
-          </p>
-        </form>
-      </div>
+<section id="contacto" class="relative overflow-hidden border-t border-line bg-surface py-24 sm:py-32">
+  <div class="mx-auto max-w-3xl px-6">
+    <div class="text-center">
+      <p class="eyebrow">Contacto</p>
+      <h2 class="display-lg mt-4 text-balance">Media hora y sabés si te encajamos</h2>
+      <p class="lede mx-auto mt-5 text-balance">
+        Miramos tu situación, te decimos dónde está el cuello de botella y qué
+        haríamos primero. Si no somos la solución, te lo decimos en la llamada.
+      </p>
     </div>
+
+    {/* Pendiente: sustituir formsubmit.co por endpoint propio en /api/contacto
+        (validación + Turnstile + alta en CRM + Measurement Protocol). Requiere
+        credenciales de CRM y de proveedor de correo. */}
+    <form
+      id="contact-form"
+      action="https://formsubmit.co/philosh95@gmail.com"
+      method="POST"
+      class="mt-12 rounded-xl border border-line bg-bg p-7 shadow-sm sm:p-9"
+    >
+      <input type="hidden" name="_subject" value="Nuevo lead desde Scale It" />
+      <input type="hidden" name="_captcha" value="false" />
+      <input type="hidden" name="_template" value="box" />
+      <input type="hidden" name="_next" value="https://www.growth-scaleit.com/gracias" />
+      <input type="text" name="_honey" tabindex="-1" autocomplete="off" style="display:none" />
+
+      <div class="grid gap-5 sm:grid-cols-2">
+        <div>
+          <label for="nombre" class="mb-1.5 block text-[13.5px] font-medium text-ink">Nombre</label>
+          <input type="text" id="nombre" name="nombre" required autocomplete="name" placeholder="Tu nombre"
+            class="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-accent focus:ring-1 focus:ring-accent/30" />
+        </div>
+        <div>
+          <label for="empresa" class="mb-1.5 block text-[13.5px] font-medium text-ink">Empresa</label>
+          <input type="text" id="empresa" name="empresa" autocomplete="organization" placeholder="Nombre de la empresa"
+            class="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-accent focus:ring-1 focus:ring-accent/30" />
+        </div>
+        <div>
+          <label for="email" class="mb-1.5 block text-[13.5px] font-medium text-ink">Email de trabajo</label>
+          <input type="email" id="email" name="email" required autocomplete="email" placeholder="tu@empresa.com"
+            class="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-accent focus:ring-1 focus:ring-accent/30" />
+        </div>
+        <div>
+          <label for="web" class="mb-1.5 block text-[13.5px] font-medium text-ink">Web</label>
+          <input type="text" id="web" name="web" inputmode="url" placeholder="empresa.com"
+            class="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-accent focus:ring-1 focus:ring-accent/30" />
+        </div>
+      </div>
+
+      <div class="mt-5">
+        <label for="tipo" class="mb-1.5 block text-[13.5px] font-medium text-ink">¿Qué necesitás?</label>
+        <select id="tipo" name="tipo" required
+          class="w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors focus:border-accent focus:ring-1 focus:ring-accent/30">
+          <option value="" disabled selected>Elegí una opción</option>
+          {tipos.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </div>
+
+      <div class="mt-5">
+        <label for="proyecto" class="mb-1.5 block text-[13.5px] font-medium text-ink">Contanos el contexto</label>
+        <textarea id="proyecto" name="proyecto" rows="4" placeholder="Qué vendés, a quién, y qué está frenando el crecimiento ahora mismo."
+          class="w-full resize-y rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-accent focus:ring-1 focus:ring-accent/30"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-7 w-full">Agendar la llamada</button>
+
+      <p class="mt-4 text-center text-[12.5px] text-ink-3">
+        Te respondemos en menos de 24 h laborables. Tus datos solo se usan para
+        contactarte. Podés consultar la
+        <a href="/privacidad" class="underline underline-offset-2 hover:text-ink">política de privacidad</a>.
+      </p>
+    </form>
   </div>
 </section>
+
+<script is:inline>
+  (function () {
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+    form.addEventListener('submit', function () {
+      // Evento clave de GA4. Solo dispara si hay consentimiento y GA4 cargado.
+      if (typeof window.gtag === 'function') {
+        window.gtag('event', 'generate_lead', {
+          form_id: 'contact-form',
+          tipo: (document.getElementById('tipo') || {}).value || '',
+        });
+      }
+    });
+  })();
+</script>
