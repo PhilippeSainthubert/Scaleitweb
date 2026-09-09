@@ -47,7 +47,7 @@ const schema = {
         ) : (
           <div class="grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
             {posts.map((post) => (
-              <a href={`/blog/${post.id}/`} class="group bg-bg p-7 transition-colors hover:bg-surface">
+              <a href={`/blog/${post.id}`} class="group bg-bg p-7 transition-colors hover:bg-surface">
                 <div class="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
                   <span class="text-accent">{clusters[post.data.cluster]}</span>
                   <span class="h-1 w-1 rounded-full bg-line-2"></span>
