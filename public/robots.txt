@@ -1,20 +1,88 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Regla general
+# ─────────────────────────────────────────────────────────────────────────
 User-agent: *
 Allow: /
 Disallow: /gracias
 
-# ── Buscadores con IA: se permiten explícitamente los bots de BÚSQUEDA,
-#    que son los que pueden citarnos en respuestas generativas.
+# ─────────────────────────────────────────────────────────────────────────
+# BLOQUE 1 · Rastreadores de BÚSQUEDA y de PETICIÓN DE USUARIO
+#
+# Son los únicos que pueden citarnos en una respuesta generativa. Los de
+# búsqueda construyen el índice de recuperación; los de usuario van a buscar
+# la página en vivo cuando alguien pregunta algo. Bloquear cualquiera de
+# estos nos borra de las respuestas de IA, así que van explícitos.
+# ─────────────────────────────────────────────────────────────────────────
+
+# OpenAI
 User-agent: OAI-SearchBot
 Allow: /
+
 User-agent: ChatGPT-User
 Allow: /
+
+# Anthropic
 User-agent: Claude-SearchBot
 Allow: /
+
 User-agent: Claude-User
 Allow: /
+
+# Perplexity
 User-agent: PerplexityBot
 Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# Apple (Siri y Spotlight)
+User-agent: Applebot
+Allow: /
+
+# Meta
+User-agent: meta-externalfetcher
+Allow: /
+
+# ─────────────────────────────────────────────────────────────────────────
+# BLOQUE 2 · Rastreadores de ENTRENAMIENTO
+#
+# Estos NO nos citan: alimentan el entrenamiento de modelos futuros.
+# Permitirlos no aporta visibilidad directa y bloquearlos no cuesta citas.
+# Es una decisión de negocio, no técnica, y hoy la decisión es permitirlos:
+# aparecer en el conocimiento base de un modelo es lo que hace que te
+# mencione sin necesidad de buscarte.
+#
+# Para excluirse, cambiar el Allow por Disallow en el bot que corresponda.
+#
+# OJO con Google-Extended: NO controla la presencia ni el ranking en Google
+# Search ni en los AI Overviews. Solo afecta al entrenamiento y grounding de
+# Gemini. Google lo dice literalmente en su documentación. Estaba mal
+# clasificado en el bloque de búsqueda y aquí queda donde le toca.
+# ─────────────────────────────────────────────────────────────────────────
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
 User-agent: Google-Extended
 Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: meta-externalagent
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# ─────────────────────────────────────────────────────────────────────────
+# Nota sobre lo que NO aparece aquí: en el protocolo (RFC 9309, 2.2.1 y
+# 2.2.2) un rastreador sin directiva y sin comodín aplicable está PERMITIDO.
+# El permiso es el estado por defecto. Listarlos es declarar la política,
+# no habilitarla.
+# ─────────────────────────────────────────────────────────────────────────
 
 Sitemap: https://www.growth-scaleit.com/sitemap-index.xml

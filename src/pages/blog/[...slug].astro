@@ -4,7 +4,7 @@ import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import Formulario from '../../components/Formulario.astro';
-import { autores, clusters } from '../../data/autores';
+import { autores, clusters, personId } from '../../data/autores';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -15,7 +15,10 @@ const { post } = Astro.props;
 const { Content, headings } = await render(post);
 const autor = autores[post.data.author];
 const base = 'https://www.growth-scaleit.com';
-const url = `${base}/blog/${post.id}/`;
+// Sin barra final: el sitio es trailingSlash: 'never' y el canonical tampoco
+// la lleva. Con barra, mainEntityOfPage y el breadcrumb apuntaban a una URL
+// que redirige con 308, contradiciendo al canonical de la propia página.
+const url = `${base}/blog/${post.id}`;
 
 const fecha = (d: Date) =>
   d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -28,9 +31,14 @@ const schema = [
     description: post.data.description,
     datePublished: post.data.pubDate.toISOString(),
     dateModified: (post.data.updatedDate ?? post.data.pubDate).toISOString(),
-    author: { '@type': 'Person', name: post.data.author, url: autor.linkedin },
+    author: { '@id': personId[post.data.author] },
     publisher: { '@id': `${base}/#organization` },
+    isPartOf: { '@id': `${base}/#website` },
     mainEntityOfPage: url,
+    url,
+    image: `${base}/og-default.png`,
+    articleSection: clusters[post.data.cluster],
+    keywords: post.data.tags.join(', '),
     inLanguage: 'es-ES',
   },
   {

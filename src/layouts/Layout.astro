@@ -32,21 +32,31 @@ const GA4_ID = import.meta.env.PUBLIC_GA4_ID;
 const GSC_VERIFICATION =
   import.meta.env.PUBLIC_GSC_VERIFICATION ?? '6ZfGJkmFVDo406erLlthifMmn1XmNcfIMCDo0STJKQo';
 
+// La entidad de la organización tiene que decir SIEMPRE lo mismo, en todas
+// las URLs. Antes heredaba la `description` de cada página, así que Scale It
+// se describía como "qué es el archivo llms.txt" en el post de llms.txt.
+// Una entidad que se describe distinta en cada página es una entidad que
+// ningún motor puede consolidar.
+const ORG_DESCRIPTION =
+  'Agencia de growth B2B en Barcelona. Construimos el sistema de adquisición y lo operamos con agentes de IA supervisados: outbound, paid, SEO, RevOps y automatización.';
+
 const organization = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
   '@id': 'https://www.growth-scaleit.com/#organization',
   name: 'Scale It',
   url: 'https://www.growth-scaleit.com',
-  description,
+  description: ORG_DESCRIPTION,
+  logo: 'https://www.growth-scaleit.com/favicon-512.png',
+  image: 'https://www.growth-scaleit.com/og-default.png',
   areaServed: [
     { '@type': 'Country', name: 'España' },
     { '@type': 'Place', name: 'América Latina' },
   ],
   address: { '@type': 'PostalAddress', addressLocality: 'Barcelona', addressCountry: 'ES' },
   founder: [
-    { '@type': 'Person', name: 'Philippe Saint-Hubert' },
-    { '@type': 'Person', name: 'Patrick Saint-Hubert' },
+    { '@id': 'https://www.growth-scaleit.com/#philippe' },
+    { '@id': 'https://www.growth-scaleit.com/#patrick' },
   ],
   sameAs: [
     'https://www.linkedin.com/in/philippesainthubert/',
@@ -54,6 +64,34 @@ const organization = {
     'https://x.com/Mktgdtrdelclick',
   ],
 };
+
+// Los dos socios como nodos reales del grafo, definidos en todas las páginas.
+// Si el founder de la organización y el author de un post apuntan al mismo
+// @id, los motores tienen una persona; si no, tienen dos cadenas de texto.
+const personas = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': 'https://www.growth-scaleit.com/#philippe',
+    name: 'Philippe Saint-Hubert',
+    jobTitle: 'Socio, sistemas y estrategia',
+    worksFor: { '@id': 'https://www.growth-scaleit.com/#organization' },
+    url: 'https://www.growth-scaleit.com/#nosotros',
+    image: 'https://www.growth-scaleit.com/philippe.jpeg',
+    sameAs: ['https://www.linkedin.com/in/philippesainthubert/'],
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    '@id': 'https://www.growth-scaleit.com/#patrick',
+    name: 'Patrick Saint-Hubert',
+    jobTitle: 'Socio, outbound y generación de demanda',
+    worksFor: { '@id': 'https://www.growth-scaleit.com/#organization' },
+    url: 'https://www.growth-scaleit.com/#nosotros',
+    image: 'https://www.growth-scaleit.com/patrick.jpeg',
+    sameAs: ['https://www.linkedin.com/in/patrick-saint-hubert-5b9560269/'],
+  },
+];
 
 const website = {
   '@context': 'https://schema.org',
@@ -65,7 +103,7 @@ const website = {
   publisher: { '@id': 'https://www.growth-scaleit.com/#organization' },
 };
 
-const graphs = [organization, website, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
+const graphs = [organization, website, ...personas, ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])];
 ---
 
 <!DOCTYPE html>
