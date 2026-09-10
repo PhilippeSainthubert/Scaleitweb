@@ -1,0 +1,106 @@
+---
+/**
+ * La firma del socio que lleva ese servicio.
+ *
+ * El argumento diferencial es "somos dos y los vas a tener a los dos". Si eso
+ * solo aparece en una sección con dos fotos de 64 píxeles, no se nota. Aquí
+ * cada landing lleva la cara y la opinión de quien la ejecuta.
+ *
+ * Las frases son BORRADORES escritos en su voz. Philippe y Patrick tienen que
+ * leerlas y ajustarlas: son suyas y las van a tener que defender en la llamada.
+ */
+interface Props {
+  servicio: string;
+}
+const { servicio } = Astro.props;
+
+const SOCIOS = {
+  patrick: {
+    nombre: 'Patrick Saint-Hubert',
+    rol: 'Socio · Outbound y generación de demanda',
+    foto: '/patrick.jpeg',
+    linkedin: 'https://www.linkedin.com/in/patrick-saint-hubert-5b9560269/',
+  },
+  philippe: {
+    nombre: 'Philippe Saint-Hubert',
+    rol: 'Socio · Sistemas, estrategia y agentes',
+    foto: '/philippe.jpeg',
+    linkedin: 'https://www.linkedin.com/in/philippesainthubert/',
+  },
+};
+
+const FIRMAS: Record<string, { socio: 'patrick' | 'philippe'; cita: string }> = {
+  outbound: {
+    socio: 'patrick',
+    cita: 'El outbound que no funciona casi nunca falla por el copy. Falla porque la lista está mal y nadie lo quiere mirar. Yo empiezo por ahí, y a veces la conclusión es que a tu mercado no hay que escribirle todavía.',
+  },
+  paid: {
+    socio: 'patrick',
+    cita: 'Antes de tocar una puja quiero saber qué campaña trajo el contrato que firmaste en marzo. Si eso no se puede saber, optimizar es mover dinero a ciegas y encima con confianza.',
+  },
+  influencers: {
+    socio: 'patrick',
+    cita: 'La mitad del trabajo es decir que no. Un creador de 11.000 seguidores del sector correcto vende más que uno de 240.000 que no lo es, y cuesta ocho veces menos.',
+  },
+  'agentes-de-ia': {
+    socio: 'philippe',
+    cita: 'Lo primero que escribo de un agente no es lo que hace, es lo que no puede tocar y qué hace cuando duda. Sin esas dos cosas por delante, no es un producto, es un riesgo con factura mensual.',
+  },
+  seo: {
+    socio: 'philippe',
+    cita: 'Cada vez más compras empiezan en una respuesta generada que nadie ve en Analytics. Si tu contenido no está escrito para que se pueda citar, no existís en esa conversación.',
+  },
+  'revops-crm': {
+    socio: 'philippe',
+    cita: 'Cuando la previsión sale de una hoja que actualiza alguien los viernes, el problema no es el CRM. Es que las etapas significan cosas distintas según quién mueva la oportunidad.',
+  },
+};
+
+const firma = FIRMAS[servicio];
+const socio = firma ? SOCIOS[firma.socio] : null;
+---
+
+{firma && socio && (
+<section class="border-t border-line py-20 sm:py-24">
+  <div class="mx-auto max-w-4xl px-6">
+    <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-10">
+      <img
+        src={socio.foto}
+        alt={socio.nombre}
+        width="120"
+        height="120"
+        loading="lazy"
+        class="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-32 sm:w-32"
+      />
+
+      <div class="min-w-0">
+        <svg class="h-7 w-7 text-line-2" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path d="M9.5 5C6.5 6.9 5 9.6 5 13v6h6v-6H8.2c0-2 .8-3.6 2.4-4.7L9.5 5Zm9 0C15.5 6.9 14 9.6 14 13v6h6v-6h-2.8c0-2 .8-3.6 2.4-4.7L18.5 5Z" />
+        </svg>
+
+        <blockquote class="mt-4 text-[19px] leading-relaxed tracking-[-0.011em] text-ink sm:text-[21px]">
+          {firma.cita}
+        </blockquote>
+
+        <div class="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1">
+          <p class="text-[15px] font-semibold text-ink">{socio.nombre}</p>
+          <span class="hidden h-1 w-1 rounded-full bg-line-2 sm:block"></span>
+          <p class="text-[14px] text-ink-2">{socio.rol}</p>
+        </div>
+
+        <a
+          href={socio.linkedin}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="mt-3 inline-flex items-center gap-1.5 text-[13.5px] text-ink-3 transition-colors hover:text-accent"
+        >
+          Ver su perfil
+          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7m0 0H9m8 0v8" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+)}

@@ -1,0 +1,447 @@
+---
+/**
+ * Ejemplos visuales de trabajo real, uno por servicio.
+ *
+ * Lo que separa una web de agencia cara de una barata no es el CSS: es que la
+ * cara enseña el producto funcionando. Esto son maquetas construidas con HTML
+ * y CSS en el mismo lenguaje visual del sitio, no capturas de pantalla: pesan
+ * nada, se leen en móvil y se editan cambiando un dato.
+ *
+ * Los datos son ILUSTRATIVOS y se dice en el pie. No se atribuye nada a
+ * ningún cliente concreto porque todavía no los hay.
+ */
+interface Props {
+  servicio: string;
+}
+const { servicio } = Astro.props;
+
+const titulos: Record<string, { eyebrow: string; titulo: string; texto: string }> = {
+  paid: {
+    eyebrow: 'Ejemplos',
+    titulo: 'Así se ve el trabajo de paid',
+    texto: 'No es "gestionamos campañas". Es esto: los anuncios que escribimos, y el panel que conecta cada euro con el pipeline que generó.',
+  },
+  influencers: {
+    eyebrow: 'Ejemplos',
+    titulo: 'Así elegimos y medimos a un creador',
+    texto: 'La mitad del trabajo es descartar. Esto es la ficha con la que decidimos, y cómo se mide después.',
+  },
+  outbound: {
+    eyebrow: 'Ejemplos',
+    titulo: 'Así se ve una secuencia de verdad',
+    texto: 'La señal que la dispara, el mensaje que sale, y por qué no suena a plantilla.',
+  },
+  seo: {
+    eyebrow: 'Ejemplos',
+    titulo: 'Así se gana una búsqueda',
+    texto: 'Lo que ve el comprador cuando busca, y lo que hay detrás para llegar ahí.',
+  },
+  'agentes-de-ia': {
+    eyebrow: 'Ejemplos',
+    titulo: 'Un agente por dentro',
+    texto: 'Qué hace, qué NO puede hacer, y qué pasa cuando duda. Sin esas tres cosas escritas, un agente es un riesgo con factura mensual.',
+  },
+  'revops-crm': {
+    eyebrow: 'Ejemplos',
+    titulo: 'De hoja suelta a pipeline que se cree',
+    texto: 'El antes y el después de un CRM que nadie miraba.',
+  },
+};
+
+const cab = titulos[servicio];
+---
+
+{cab && (
+<section class="border-t border-line bg-surface py-24 sm:py-32">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="max-w-2xl">
+      <p class="eyebrow">{cab.eyebrow}</p>
+      <h2 class="display-lg mt-4 text-balance">{cab.titulo}</h2>
+      <p class="lede mt-5">{cab.texto}</p>
+    </div>
+
+    {servicio === 'paid' && (
+      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+        {/* Anuncio de búsqueda */}
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Anuncio de búsqueda</p>
+          <div class="mt-5 rounded-lg border border-line bg-bg p-5">
+            <div class="flex items-center gap-2">
+              <span class="rounded border border-ink px-1 py-px text-[10px] font-semibold text-ink">Anuncio</span>
+              <span class="text-[12.5px] text-ink-3">fabricante-componentes.es</span>
+            </div>
+            <p class="mt-2 text-[18px] leading-snug text-accent">
+              Mecanizado de precisión bajo plano | Entrega en 15 días
+            </p>
+            <p class="mt-1.5 text-[13.5px] leading-relaxed text-ink-2">
+              Series cortas desde 50 piezas. Certificación ISO 9001 y trazabilidad
+              completa. Presupuesto en 24 h con tu plano.
+            </p>
+            <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px] text-accent">
+              <span>Subir plano</span><span>Ver tolerancias</span><span>Casos por sector</span>
+            </div>
+          </div>
+          <p class="mt-4 text-[13px] leading-relaxed text-ink-3">
+            El titular promete un plazo, no adjetivos. La descripción responde a la
+            objeción real de ese comprador, que es la serie mínima.
+          </p>
+        </div>
+
+        {/* Del gasto al pipeline */}
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Del gasto al pipeline</p>
+          <div class="mt-5 space-y-4">
+            {[
+              { canal: 'Google Search', gasto: 4200, oport: 14, ganado: 2, ancho: 100 },
+              { canal: 'LinkedIn Ads', gasto: 2800, oport: 6, ganado: 1, ancho: 67 },
+              { canal: 'Meta', gasto: 1500, oport: 2, ganado: 0, ancho: 36 },
+            ].map((c) => (
+              <div>
+                <div class="flex items-baseline justify-between text-[13.5px]">
+                  <span class="font-medium text-ink">{c.canal}</span>
+                  <span class="font-mono text-[12.5px] text-ink-3">{c.gasto.toLocaleString('es-ES')} €</span>
+                </div>
+                <div class="mt-2 h-2 overflow-hidden rounded-full bg-surface">
+                  <div class="h-full rounded-full bg-accent" style={`width:${c.ancho}%`}></div>
+                </div>
+                <div class="mt-1.5 flex gap-4 font-mono text-[11.5px] text-ink-3">
+                  <span>{c.oport} oportunidades</span>
+                  <span class={c.ganado ? 'text-positive' : ''}>{c.ganado} ganadas</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p class="mt-6 border-t border-line pt-4 text-[13px] leading-relaxed text-ink-3">
+            Meta trae el lead más barato y cero contratos. Sin esta vista se
+            habría subido su presupuesto.
+          </p>
+        </div>
+      </div>
+    )}
+
+    {servicio === 'influencers' && (
+      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+        {/* Ficha de evaluación */}
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Ficha de evaluación</p>
+
+          <div class="mt-5 rounded-lg border border-line bg-bg p-5">
+            <div class="flex items-start gap-3.5">
+              <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-accent/10 font-mono text-[13px] text-accent-deep">C1</div>
+              <div class="min-w-0">
+                <p class="text-[15px] font-semibold text-ink">Creador A</p>
+                <p class="text-[13px] text-ink-3">Ingeniería industrial · 11.400 seguidores</p>
+              </div>
+              <span class="ml-auto shrink-0 rounded-full bg-positive/10 px-2.5 py-1 font-mono text-[11px] text-positive">Encaja</span>
+            </div>
+
+            <div class="mt-5 space-y-2.5">
+              {[
+                { k: 'Audiencia en el sector', v: '78%', bien: true },
+                { k: 'Engagement real', v: '4,1%', bien: true },
+                { k: 'Comentarios de personas, no bots', v: 'Sí', bien: true },
+                { k: 'Ha trabajado con competidores', v: 'No', bien: true },
+                { k: 'Coste por publicación', v: '900 €', bien: null },
+              ].map((f) => (
+                <div class="flex items-center justify-between border-b border-line pb-2 text-[13.5px] last:border-0">
+                  <span class="text-ink-2">{f.k}</span>
+                  <span class={`font-mono text-[12.5px] ${f.bien ? 'text-positive' : 'text-ink'}`}>{f.v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div class="mt-4 rounded-lg border border-dashed border-line-2 p-4">
+            <div class="flex items-start gap-3.5">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-surface font-mono text-[12px] text-ink-3">C2</div>
+              <div>
+                <p class="text-[14px] font-medium text-ink">Creador B · 240.000 seguidores</p>
+                <p class="mt-1 text-[13px] leading-relaxed text-ink-3">
+                  Descartado. Veinte veces más audiencia y un 0,4% de engagement,
+                  con comentarios genéricos. Cuesta ocho veces más y convierte menos.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Medición */}
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Cómo se mide después</p>
+
+          <div class="mt-5 grid grid-cols-3 gap-3">
+            {[
+              { n: '38.200', l: 'Impresiones', apagado: true },
+              { n: '412', l: 'Clics con seguimiento', apagado: false },
+              { n: '9', l: 'Oportunidades', apagado: false },
+            ].map((m) => (
+              <div class={`rounded-lg border border-line p-4 ${m.apagado ? 'opacity-45' : 'bg-bg'}`}>
+                <p class="font-mono text-[19px] leading-none tracking-tight text-ink">{m.n}</p>
+                <p class="mt-2 text-[12px] leading-tight text-ink-3">{m.l}</p>
+              </div>
+            ))}
+          </div>
+
+          <p class="mt-4 text-[13px] leading-relaxed text-ink-3">
+            La primera está apagada a propósito: es la que enseñan casi todas las
+            agencias y la única que no significa nada.
+          </p>
+
+          <div class="mt-6 rounded-lg bg-ink p-5">
+            <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-[#93b1ff]">Lo que se lleva al comité</p>
+            <p class="mt-3 font-mono text-[26px] leading-none tracking-tight text-white">1.011 €</p>
+            <p class="mt-2 text-[13px] text-[#c3cede]">coste por oportunidad generada</p>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {servicio === 'outbound' && (
+      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+        {/* La señal */}
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">La señal que lo dispara</p>
+          <div class="mt-5 space-y-3">
+            {[
+              { t: 'Publicó oferta de Responsable de Marketing', d: 'hace 6 días · lleva abierta 34 días', fuerte: true },
+              { t: 'Su web no tiene analítica instalada', d: 'detectado por el rastreador', fuerte: true },
+              { t: 'Hijo del fundador incorporado a dirección', d: 'cambio de puesto hace 8 meses', fuerte: false },
+            ].map((s) => (
+              <div class="flex items-start gap-3 rounded-lg border border-line bg-bg p-3.5">
+                <span class={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${s.fuerte ? 'bg-accent' : 'bg-line-2'}`}></span>
+                <div>
+                  <p class="text-[13.5px] leading-snug text-ink">{s.t}</p>
+                  <p class="mt-1 font-mono text-[11.5px] text-ink-3">{s.d}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+          <p class="mt-5 text-[13px] leading-relaxed text-ink-3">
+            Tres señales que ninguna lista comprada trae. La segunda la detecta un
+            agente rastreando su web, y es la que hace el mensaje imposible de ignorar.
+          </p>
+        </div>
+
+        {/* El mensaje */}
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">El mensaje que sale</p>
+          <div class="mt-5 rounded-lg border border-line bg-bg p-5">
+            <div class="border-b border-line pb-3">
+              <p class="font-mono text-[11.5px] text-ink-3">Asunto</p>
+              <p class="mt-1 text-[14px] font-medium text-ink">34 días buscando marketing</p>
+            </div>
+            <div class="space-y-3 pt-4 text-[13.5px] leading-relaxed text-ink-2">
+              <p>Marta,</p>
+              <p>
+                Vi que lleváis mes y pico con la oferta de Responsable de Marketing
+                abierta. Es un puesto difícil de cubrir cuando hay que montar el
+                área de cero.
+              </p>
+              <p>
+                De paso miré vuestra web: no tiene analítica instalada, así que
+                ahora mismo no hay forma de saber de dónde llegan los presupuestos
+                que pedís.
+              </p>
+              <p>
+                ¿Te interesa que os pase el diagnóstico completo? Son dos páginas
+                y os sirve contratéis a quien contratéis.
+              </p>
+            </div>
+          </div>
+          <p class="mt-5 text-[13px] leading-relaxed text-ink-3">
+            Sin "espero que estés muy bien". Se abre con algo comprobable, se aporta
+            un dato que no tenían, y se pide algo pequeño.
+          </p>
+        </div>
+      </div>
+    )}
+
+    {servicio === 'seo' && (
+      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Lo que ve el comprador</p>
+          <div class="mt-5 rounded-lg border border-line bg-bg p-5">
+            <p class="font-mono text-[12px] text-ink-3">google.es</p>
+            <div class="mt-3 rounded border border-line bg-surface px-3 py-2 text-[13.5px] text-ink-2">
+              mecanizado series cortas bajo plano
+            </div>
+
+            <div class="mt-5 rounded-lg border border-accent/25 bg-accent/[0.03] p-4">
+              <div class="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.1em] text-accent">
+                <span class="h-1.5 w-1.5 rounded-full bg-accent"></span> Respuesta con IA
+              </div>
+              <p class="mt-2.5 text-[13.5px] leading-relaxed text-ink-2">
+                Para series de 50 a 500 piezas conviene buscar talleres con
+                certificación ISO 9001 y capacidad de trabajar bajo plano...
+              </p>
+              <p class="mt-3 border-t border-accent/15 pt-2.5 font-mono text-[11.5px] text-accent">
+                Citado: fabricante-componentes.es
+              </p>
+            </div>
+
+            <div class="mt-4 space-y-3">
+              <div>
+                <p class="text-[12.5px] text-ink-3">fabricante-componentes.es › series-cortas</p>
+                <p class="text-[16px] leading-snug text-accent">Mecanizado de series cortas bajo plano: guía completa</p>
+                <p class="mt-1 text-[13px] leading-relaxed text-ink-2">Desde 50 piezas, tolerancias, plazos y cuándo compensa frente a...</p>
+              </div>
+            </div>
+          </div>
+          <p class="mt-4 text-[13px] leading-relaxed text-ink-3">
+            Aparecer en la respuesta generada ya no es un extra. Cada vez más
+            compras empiezan ahí y nunca llegan a los enlaces azules.
+          </p>
+        </div>
+
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Lo que hay detrás</p>
+          <div class="mt-5">
+            <div class="rounded-lg bg-ink px-4 py-3">
+              <p class="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#93b1ff]">Pilar</p>
+              <p class="mt-1 text-[14px] font-medium text-white">Mecanizado de series cortas</p>
+            </div>
+            <div class="ml-5 mt-3 space-y-2 border-l border-line pl-5">
+              {[
+                'Tolerancias: qué se puede pedir y qué no',
+                'Series cortas frente a impresión 3D',
+                'Cuánto tarda un presupuesto bajo plano',
+                'ISO 9001: qué garantiza de verdad',
+                'Glosario: 40 términos de mecanizado',
+              ].map((x) => (
+                <div class="relative rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[13.5px] text-ink-2">
+                  <span class="absolute -left-[21px] top-1/2 h-px w-4 bg-line"></span>
+                  {x}
+                </div>
+              ))}
+            </div>
+          </div>
+          <p class="mt-5 text-[13px] leading-relaxed text-ink-3">
+            Un pilar y cinco piezas que responden dudas reales del comprador. El
+            glosario existe para que lo cite una IA, no para que lo lea nadie de
+            principio a fin.
+          </p>
+        </div>
+      </div>
+    )}
+
+    {servicio === 'agentes-de-ia' && (
+      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Ficha del agente</p>
+          <p class="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-ink">Cualificador de entradas</p>
+
+          <div class="mt-5 space-y-4">
+            <div>
+              <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-positive">Puede</p>
+              <ul class="mt-2 space-y-1.5">
+                {['Leer el formulario y buscar la empresa','Puntuar encaje contra el ICP','Redactar un borrador de respuesta','Avisar por Slack si es prioritario'].map((x) => (
+                  <li class="flex gap-2.5 text-[13.5px] leading-snug text-ink-2">
+                    <span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-positive"></span>{x}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="border-t border-line pt-4">
+              <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-[#c0392b]">No puede</p>
+              <ul class="mt-2 space-y-1.5">
+                {['Enviar nada al cliente sin revisión','Borrar ni modificar registros del CRM','Acceder a datos de facturación'].map((x) => (
+                  <li class="flex gap-2.5 text-[13.5px] leading-snug text-ink-2">
+                    <span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#c0392b]"></span>{x}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div class="border-t border-line pt-4">
+              <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-3">Si duda</p>
+              <p class="mt-2 text-[13.5px] leading-relaxed text-ink-2">
+                Para, marca la entrada como "requiere criterio" y avisa. No adivina.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Antes y después</p>
+          <div class="mt-5 grid gap-4 sm:grid-cols-2">
+            <div class="rounded-lg border border-line bg-surface p-5">
+              <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-ink-3">Antes</p>
+              <p class="mt-3 font-mono text-[30px] leading-none tracking-tight text-ink">14</p>
+              <p class="mt-2 text-[13px] text-ink-2">pasos manuales por cada entrada</p>
+              <p class="mt-4 border-t border-line pt-3 font-mono text-[12px] text-ink-3">~9 h/semana</p>
+            </div>
+            <div class="rounded-lg border border-accent/25 bg-bg p-5">
+              <p class="font-mono text-[11px] uppercase tracking-[0.1em] text-accent">Después</p>
+              <p class="mt-3 font-mono text-[30px] leading-none tracking-tight text-ink">1</p>
+              <p class="mt-2 text-[13px] text-ink-2">revisar y aprobar el borrador</p>
+              <p class="mt-4 border-t border-line pt-3 font-mono text-[12px] text-positive">~40 min/semana</p>
+            </div>
+          </div>
+          <p class="mt-5 text-[13px] leading-relaxed text-ink-3">
+            El paso que queda es el que exige criterio, y ese se queda con una
+            persona a propósito.
+          </p>
+        </div>
+      </div>
+    )}
+
+    {servicio === 'revops-crm' && (
+      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Antes</p>
+          <div class="mt-5 space-y-2.5">
+            {[
+              { e: 'Contacto inicial', n: 47, prob: 'Nadie sabe qué significa' },
+              { e: 'En proceso', n: 112, prob: '38 sin tocar hace 3 meses' },
+              { e: 'Propuesta', n: 9, prob: 'Sin importe en 6 de ellas' },
+            ].map((x) => (
+              <div class="rounded-lg border border-line bg-surface p-4">
+                <div class="flex items-baseline justify-between">
+                  <span class="text-[14px] font-medium text-ink">{x.e}</span>
+                  <span class="font-mono text-[13px] text-ink-3">{x.n}</span>
+                </div>
+                <p class="mt-1.5 text-[12.5px] text-[#c0392b]">{x.prob}</p>
+              </div>
+            ))}
+          </div>
+          <p class="mt-5 text-[13px] leading-relaxed text-ink-3">
+            La previsión salía de una hoja aparte que actualizaba alguien los
+            viernes. Con estos datos, no había otra.
+          </p>
+        </div>
+
+        <div class="card p-7">
+          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-accent">Después</p>
+          <div class="mt-5 space-y-2.5">
+            {[
+              { e: 'Cualificado', n: 31, crit: 'Tiene presupuesto y fecha', imp: '620.000 €' },
+              { e: 'Propuesta enviada', n: 12, crit: 'Importe y alcance cerrados', imp: '284.000 €' },
+              { e: 'Negociación', n: 5, crit: 'Decisor identificado', imp: '145.000 €' },
+            ].map((x) => (
+              <div class="rounded-lg border border-line bg-bg p-4">
+                <div class="flex items-baseline justify-between">
+                  <span class="text-[14px] font-medium text-ink">{x.e}</span>
+                  <span class="font-mono text-[13px] text-ink">{x.imp}</span>
+                </div>
+                <p class="mt-1.5 flex items-center gap-2 text-[12.5px] text-ink-3">
+                  <span class="font-mono">{x.n}</span>
+                  <span class="h-1 w-1 rounded-full bg-line-2"></span>
+                  {x.crit}
+                </p>
+              </div>
+            ))}
+          </div>
+          <p class="mt-5 text-[13px] leading-relaxed text-ink-3">
+            Cada etapa con un criterio de entrada que no admite interpretación.
+            Ahí es cuando la previsión empieza a valer para decidir.
+          </p>
+        </div>
+      </div>
+    )}
+
+    <p class="mt-8 text-[12.5px] text-ink-3">
+      Ejemplos ilustrativos construidos para explicar el método. Las cifras no
+      corresponden a ningún cliente real.
+    </p>
+  </div>
+</section>
+)}

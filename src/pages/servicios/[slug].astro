@@ -3,6 +3,9 @@ import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import Formulario from '../../components/Formulario.astro';
+import Ejemplos from '../../components/Ejemplos.astro';
+import Formatos from '../../components/Formatos.astro';
+import FirmaSocio from '../../components/FirmaSocio.astro';
 import NeuralField from '../../components/NeuralField.astro';
 import { servicios } from '../../data/servicios';
 
@@ -134,7 +137,13 @@ const schema = [
       </div>
     </section>
 
-    <section class="border-t border-line bg-surface py-20 sm:py-24">
+    <FirmaSocio servicio={servicio.slug} />
+
+    <Ejemplos servicio={servicio.slug} />
+
+    <Formatos servicio={servicio.slug} />
+
+    <section class="border-t border-line py-20 sm:py-24">
       <div class="mx-auto max-w-3xl px-6">
         <p class="eyebrow">Preguntas</p>
         <h2 class="display-md mt-4 text-balance">Lo que nos preguntan siempre</h2>

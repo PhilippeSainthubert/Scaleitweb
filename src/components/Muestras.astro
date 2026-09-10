@@ -1,0 +1,97 @@
+---
+/**
+ * Anticipo de los ejemplos, en la home.
+ *
+ * La home tenía la consola de agentes y nada más. Los ejemplos buenos vivían
+ * escondidos en las landings, que es donde llega menos gente. Esto enseña tres
+ * de ellos en miniatura y empuja a la landing que corresponde.
+ */
+---
+
+<section class="border-t border-line py-24 sm:py-32">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="max-w-2xl">
+      <p class="eyebrow">El trabajo</p>
+      <h2 class="display-lg mt-4 text-balance">Esto es lo que sale de nuestra parte</h2>
+      <p class="lede mt-5">
+        No presentaciones. El anuncio que se publica, el mensaje que se envía y
+        la ficha con la que se decide.
+      </p>
+    </div>
+
+    <div class="mt-14 grid gap-5 lg:grid-cols-3">
+      {/* Paid */}
+      <a href="/servicios/paid" class="card group flex flex-col p-6">
+        <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Paid</p>
+        <div class="mt-4 flex-1 rounded-lg border border-line bg-surface p-4">
+          <div class="flex items-center gap-2">
+            <span class="rounded border border-ink px-1 py-px text-[9.5px] font-semibold text-ink">Anuncio</span>
+            <span class="text-[11.5px] text-ink-3">fabricante-componentes.es</span>
+          </div>
+          <p class="mt-2 text-[14.5px] leading-snug text-accent">
+            Mecanizado de precisión bajo plano | Entrega en 15 días
+          </p>
+          <p class="mt-1.5 text-[12px] leading-relaxed text-ink-2">
+            Series cortas desde 50 piezas. Presupuesto en 24 h con tu plano.
+          </p>
+        </div>
+        <p class="mt-4 text-[13.5px] leading-relaxed text-ink-2">
+          El titular promete un plazo, no adjetivos.
+        </p>
+        <span class="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent">
+          Ver el ejemplo entero
+          <svg class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
+          </svg>
+        </span>
+      </a>
+
+      {/* Outbound */}
+      <a href="/servicios/outbound" class="card group flex flex-col p-6">
+        <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Outbound</p>
+        <div class="mt-4 flex-1 rounded-lg border border-line bg-surface p-4">
+          <p class="font-mono text-[11px] text-ink-3">Asunto</p>
+          <p class="mt-1 text-[13.5px] font-medium text-ink">34 días buscando marketing</p>
+          <p class="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-ink-2">
+            Vi que lleváis mes y pico con la oferta abierta. De paso miré vuestra
+            web: no tiene analítica, así que no hay forma de saber de dónde llegan
+            los presupuestos...
+          </p>
+        </div>
+        <p class="mt-4 text-[13.5px] leading-relaxed text-ink-2">
+          Sin "espero que estés muy bien". Abre con algo comprobable.
+        </p>
+        <span class="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent">
+          Ver el ejemplo entero
+          <svg class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
+          </svg>
+        </span>
+      </a>
+
+      {/* Agentes */}
+      <a href="/servicios/agentes-de-ia" class="card group flex flex-col p-6">
+        <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Agentes de IA</p>
+        <div class="mt-4 flex-1 rounded-lg border border-line bg-surface p-4">
+          <p class="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#c0392b]">No puede</p>
+          <ul class="mt-2 space-y-1.5">
+            {['Enviar nada al cliente sin revisión','Borrar registros del CRM','Acceder a facturación'].map((x) => (
+              <li class="flex gap-2 text-[12.5px] leading-snug text-ink-2">
+                <span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#c0392b]"></span>{x}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p class="mt-4 text-[13.5px] leading-relaxed text-ink-2">
+          Lo primero que se escribe de un agente es lo que no puede tocar.
+        </p>
+        <span class="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent">
+          Ver el ejemplo entero
+          <svg class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
+          </svg>
+        </span>
+      </a>
+    </div>
+  </div>
+</section>

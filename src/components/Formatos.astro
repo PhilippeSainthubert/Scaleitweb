@@ -1,0 +1,193 @@
+---
+/**
+ * Formatos de contenido que se producen, por pilar.
+ *
+ * Los ejemplos anteriores explicaban el método pero eran esquemas. Esto enseña
+ * la pieza: el vídeo, el vertical, el clip.
+ *
+ * Los vídeos de YouTube son REALES, del canal de Philippe. Las maquetas de
+ * vertical y de clipping muestran el FORMATO, no una campaña concreta de
+ * ningún cliente, y se dice en el pie.
+ */
+interface Props {
+  servicio: string;
+}
+const { servicio } = Astro.props;
+
+const VIDEOS = [
+  { id: '9Muc5cRgjI4', titulo: 'Cómo automaticé mi contenido de LinkedIn con IA', dur: '14:22' },
+  { id: 'Q1peRZVZd8Y', titulo: 'Claude Design: la IA que diseña por vos', dur: '11:05' },
+  { id: 'qPQ0mGmh4ts', titulo: 'Cómo instalar Claude Code en Cursor', dur: '08:47' },
+];
+
+const VERTICALES = [
+  { gancho: '"Llevo 3 años vendiendo esto y nadie me lo había preguntado"', tipo: 'UGC · testimonio de uso', dur: '0:38' },
+  { gancho: '"El error que comete el 90% al pedir presupuesto"', tipo: 'Creador · educativo', dur: '0:52' },
+  { gancho: '"Esto es lo que pasa dentro de la máquina"', tipo: 'Marca · detrás de cámara', dur: '0:44' },
+];
+
+const CLIPS = [
+  { t: '02:14', g: 'El coste real de un SDR' },
+  { t: '07:31', g: 'Por qué las listas compradas no funcionan' },
+  { t: '11:08', g: '"Si no podés medirlo, no lo automatices"' },
+  { t: '18:45', g: 'La pregunta que destapa a una agencia' },
+];
+
+const MOSTRAR = ['influencers', 'seo', 'agentes-de-ia', 'paid'];
+---
+
+{MOSTRAR.includes(servicio) && (
+<section class="border-t border-line py-24 sm:py-32">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="max-w-2xl">
+      <p class="eyebrow">Formatos</p>
+      <h2 class="display-lg mt-4 text-balance">Las piezas que salen de aquí</h2>
+      <p class="lede mt-5">
+        Vídeo largo para posicionar, vertical para captar, y clips para que una
+        grabación rinda diez veces en vez de una.
+      </p>
+    </div>
+
+    {/* Vídeo largo, real */}
+    <div class="mt-14">
+      <div class="flex items-baseline justify-between gap-4">
+        <h3 class="text-[17px] font-semibold tracking-[-0.02em] text-ink">Vídeo largo</h3>
+        <span class="font-mono text-[11px] uppercase tracking-[0.1em] text-positive">Piezas reales</span>
+      </div>
+      <div class="mt-5 grid gap-5 sm:grid-cols-3">
+        {VIDEOS.map((v) => (
+          <a
+            href={`https://www.youtube.com/watch?v=${v.id}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="card group overflow-hidden"
+          >
+            <div class="relative aspect-video overflow-hidden bg-surface">
+              <img
+                src={`/video/${v.id}.jpg`}
+                alt={v.titulo}
+                width="640"
+                height="360"
+                loading="lazy"
+                class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              />
+              <span class="absolute bottom-2 right-2 rounded bg-ink/85 px-1.5 py-0.5 font-mono text-[10.5px] text-white">{v.dur}</span>
+              <span class="absolute inset-0 flex items-center justify-center">
+                <span class="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 shadow-md transition-transform duration-300 group-hover:scale-110">
+                  <svg class="ml-0.5 h-4 w-4 text-ink" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                </span>
+              </span>
+            </div>
+            <div class="p-4">
+              <p class="text-[13.5px] font-medium leading-snug text-ink">{v.titulo}</p>
+              <p class="mt-1.5 font-mono text-[11px] text-ink-3">Marketing detrás del click</p>
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+
+    {/* Verticales */}
+    <div class="mt-14">
+      <h3 class="text-[17px] font-semibold tracking-[-0.02em] text-ink">Vertical y UGC</h3>
+      <p class="mt-2 max-w-2xl text-[14.5px] leading-relaxed text-ink-2">
+        El gancho decide todo. Estos tres son los que funcionan en B2B: el
+        cliente contando algo que nadie le preguntó, el creador corrigiendo un
+        error común, y la marca enseñando el proceso.
+      </p>
+      <div class="mt-6 grid gap-5 sm:grid-cols-3">
+        {VERTICALES.map((v, i) => (
+          <div class="overflow-hidden rounded-xl border border-line">
+            {/* En oscuro a propósito: sobre una web blanca, un rectángulo
+                negro y vertical se lee como vídeo sin necesidad de foto. */}
+            <div class="relative aspect-[9/16] bg-ink">
+              <div class="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(47,92,255,0.35),transparent_60%)]"></div>
+
+              <div class="absolute inset-0 flex flex-col p-4">
+                <div class="flex items-center justify-between">
+                  <span class="rounded-full bg-white/15 px-2 py-0.5 font-mono text-[10px] text-white/90">{v.dur}</span>
+                  <span class="flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.1em] text-white/50">
+                    <span class="h-1.5 w-1.5 rounded-full bg-[#5C86FF]"></span> 9:16
+                  </span>
+                </div>
+
+                <div class="flex flex-1 items-center justify-center">
+                  <span class="flex h-12 w-12 items-center justify-center rounded-full border border-white/25 bg-white/10 backdrop-blur-sm">
+                    <svg class="ml-0.5 h-4 w-4 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                  </span>
+                </div>
+
+                {/* Subtítulos quemados, que es como se consume el vertical */}
+                <div>
+                  <p class="text-center text-[17px] font-semibold leading-[1.25] tracking-[-0.015em] text-white">
+                    {v.gancho}
+                  </p>
+
+                  {/* Onda de audio */}
+                  <div class="mt-4 flex h-5 items-end justify-center gap-[3px]">
+                    {[6,11,4,14,8,17,5,12,9,15,7,10,13,5,8,16,6,11].map((alto, j) => (
+                      <span
+                        class="w-[3px] rounded-full bg-white/25"
+                        style={`height:${alto + (j % 3) * 2}px`}
+                      ></span>
+                    ))}
+                  </div>
+
+                  <div class="mt-3 h-0.5 w-full rounded-full bg-white/15">
+                    <div class="h-full rounded-full bg-[#5C86FF]" style={`width:${[38, 62, 24][i]}%`}></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="border-t border-line bg-bg px-4 py-3 font-mono text-[11px] uppercase tracking-[0.1em] text-ink-3">{v.tipo}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    {/* Clipping */}
+    <div class="mt-14">
+      <h3 class="text-[17px] font-semibold tracking-[-0.02em] text-ink">Clipping</h3>
+      <p class="mt-2 max-w-2xl text-[14.5px] leading-relaxed text-ink-2">
+        Una grabación de veinte minutos son cuatro o cinco piezas cortas. Los
+        agentes marcan los momentos y una persona decide cuáles valen.
+      </p>
+
+      <div class="mt-6 card p-6">
+        <div class="flex items-center gap-3">
+          <span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink">
+            <svg class="ml-0.5 h-3 w-3 text-white" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+          </span>
+          <div class="min-w-0 flex-1">
+            <p class="text-[14px] font-medium text-ink">Grabación original</p>
+            <p class="font-mono text-[11.5px] text-ink-3">22:40</p>
+          </div>
+        </div>
+
+        {/* Línea de tiempo con los cortes */}
+        <div class="relative mt-5 h-9 overflow-hidden rounded-lg bg-surface">
+          {[9, 33, 49, 82].map((pos, i) => (
+            <span class="absolute top-0 h-full w-[9%] rounded bg-accent/25 ring-1 ring-inset ring-accent/40" style={`left:${pos}%`}></span>
+          ))}
+          <span class="absolute inset-y-0 left-0 flex items-center pl-3 font-mono text-[10.5px] text-ink-3">00:00</span>
+          <span class="absolute inset-y-0 right-0 flex items-center pr-3 font-mono text-[10.5px] text-ink-3">22:40</span>
+        </div>
+
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {CLIPS.map((c) => (
+            <div class="rounded-lg border border-line bg-bg p-3.5">
+              <p class="font-mono text-[11px] text-accent">{c.t}</p>
+              <p class="mt-1.5 text-[13px] leading-snug text-ink">{c.g}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+
+    <p class="mt-8 text-[12.5px] text-ink-3">
+      Los vídeos largos son piezas reales del canal de Philippe. Las maquetas de
+      vertical y clipping ilustran el formato, no una campaña de ningún cliente.
+    </p>
+  </div>
+</section>
+)}

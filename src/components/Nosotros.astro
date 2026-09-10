@@ -41,49 +41,43 @@ const socios = [
       </p>
     </div>
 
-    <div class="mt-14 grid gap-5 md:grid-cols-2">
+    <div class="mt-14 grid gap-10 md:grid-cols-2 md:gap-8">
       {socios.map((socio, i) => (
-        <article class="card reveal p-7" style={`transition-delay:${i * 80}ms`}>
-          <div class="flex items-center gap-4">
-            {socio.foto ? (
-              <img
-                src={socio.foto}
-                alt={socio.nombre}
-                width="64"
-                height="64"
-                loading="lazy"
-                class="h-16 w-16 rounded-full object-cover"
-              />
-            ) : (
-              <div class="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-accent/10 font-mono text-[15px] font-medium tracking-[0.04em] text-accent-deep">
-                {socio.iniciales}
-              </div>
-            )}
-            <div>
-              <h3 class="text-[18px] font-semibold tracking-[-0.02em] text-ink">{socio.nombre}</h3>
-              <p class="mt-0.5 text-[14px] text-accent">{socio.rol}</p>
+        <article class="reveal" style={`transition-delay:${i * 80}ms`}>
+          <div class="max-w-[240px] overflow-hidden rounded-2xl border border-line bg-bg">
+            <img
+              src={socio.foto}
+              alt={socio.nombre}
+              width="480"
+              height="480"
+              loading="lazy"
+              class="aspect-square w-full object-cover"
+            />
+          </div>
+
+          <div class="mt-6">
+            <h3 class="display-md">{socio.nombre}</h3>
+            <p class="mt-1.5 text-[15px] font-medium text-accent">{socio.rol}</p>
+            <p class="mt-4 text-[15px] leading-relaxed text-ink-2">{socio.bio}</p>
+
+            <div class="mt-5 flex flex-wrap gap-1.5">
+              {socio.tags.map((tag) => (
+                <span class="rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[11px] text-ink-3">{tag}</span>
+              ))}
             </div>
+
+            <a
+              href={socio.linkedin}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mt-5 inline-flex items-center gap-1.5 text-[14px] text-ink transition-colors hover:text-accent"
+            >
+              LinkedIn
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7m0 0H9m8 0v8" />
+              </svg>
+            </a>
           </div>
-
-          <p class="mt-6 text-[14.5px] leading-relaxed text-ink-2">{socio.bio}</p>
-
-          <div class="mt-6 flex flex-wrap gap-1.5">
-            {socio.tags.map((tag) => (
-              <span class="rounded-full border border-line bg-bg px-2.5 py-1 font-mono text-[11px] text-ink-3">{tag}</span>
-            ))}
-          </div>
-
-          <a
-            href={socio.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="mt-6 inline-flex items-center gap-1.5 text-[14px] text-ink transition-colors hover:text-accent"
-          >
-            LinkedIn
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7m0 0H9m8 0v8" />
-            </svg>
-          </a>
         </article>
       ))}
     </div>
