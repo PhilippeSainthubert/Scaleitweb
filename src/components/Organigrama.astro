@@ -1,39 +1,60 @@
 ---
+import { FIGURAS } from '../data/constelaciones';
+
 /**
- * Organigrama de agentes, animado.
+ * Organigrama de agentes, animado y alineado a los tres pilares de la casa.
  *
- * Cuenta el argumento entero de la casa: un orquestador reparte, los
- * especialistas derivan el trabajo en subagentes que se ejecutan en paralelo,
- * y las DOCE ramas convergen en un único punto que es una persona.
+ * Captar, Atraer y Operar son la misma estructura que la sección de servicios,
+ * así que quien baja por la home ya reconoce los nombres. Cada agente lleva su
+ * avatar: una silueta de animal dibujada como constelación, mismo lenguaje que
+ * la red neuronal de la portada.
  *
- * Esa convergencia es deliberada, visual y conceptualmente: doce hilos
- * entrando en un solo nodo es lo que explica por qué la revisión humana no es
- * un adorno del discurso, es el cuello de botella del sistema.
- *
- * SVG con viewBox para que escale sin perder nitidez, animado solo con CSS.
- * En móvil se sustituye por una versión apilada: un grafo de cuatro columnas
- * a 360 px no se lee.
+ * Las diez ramas de subagente convergen en un único nodo que es una persona.
+ * Esa convergencia es el argumento entero, y por eso es el centro visual.
  */
 
-const W = 1200;
-const H = 700;
+const W = 1400;
+const H = 800;
 
-const objetivo = { x: 600, y: 44 };
-const orq = { x: 600, y: 158 };
-const revision = { x: 600, y: 540 };
-const salida = { x: 600, y: 650 };
+const objetivo = { x: 700, y: 40 };
+const orq = { x: 700, y: 164 };
+const revision = { x: 700, y: 628 };
+const salida = { x: 700, y: 748 };
 
-const ESP_Y = 300;
-const SUB_Y = 410;
+const PILAR_Y = 344;
+const SUB_Y = 484;
 
-const especialistas = [
-  { x: 158, nombre: 'Investigación', sub: ['ICP', 'Señales', 'Enriquece'] },
-  { x: 452, nombre: 'Contenido', sub: ['Research', 'Redacta', 'Visual'] },
-  { x: 748, nombre: 'Outbound', sub: ['Listas', 'Copy', 'Envíos'] },
-  { x: 1042, nombre: 'Datos', sub: ['CRM', 'Atribuye', 'Panel'] },
+const ORQ_W = 340, ORQ_H = 104;
+const PIL_W = 274, PIL_H = 98;
+const SUB_H = 42;
+const SUB_AV = 26;
+const REV_W = 520, REV_H = 100;
+
+const anchoPildora = (t: string) => Math.max(96, t.length * 6.4 + 56);
+
+const pilares = [
+  { x: 285, nombre: 'Captar', animal: 'halcon', lema: 'Sale a buscar la demanda',
+    sub: [['Outbound','lobo'], ['LinkedIn','cuervo'], ['Paid','tiburon'], ['Influencers','pavoreal']] },
+  { x: 700, nombre: 'Atraer', animal: 'abeja', lema: 'Demanda que llega sola',
+    sub: [['SEO','arana'], ['Contenido','castor'], ['AEO','buho']] },
+  { x: 1115, nombre: 'Operar', animal: 'hormiga', lema: 'Sostiene a las otras dos',
+    sub: [['CRM','elefante'], ['Datos','libelula'], ['Automatización','escarabajo']] },
 ];
 
-/** Curva en S vertical entre dos puntos. */
+// Las píldoras se reparten centradas bajo su pilar, con su ancho real.
+const HUECO = 10;
+const subs = pilares.flatMap((p, i) => {
+  const anchos = p.sub.map(([t]) => anchoPildora(t));
+  const total = anchos.reduce((a, b) => a + b, 0) + HUECO * (anchos.length - 1);
+  let cursor = p.x - total / 2;
+  return p.sub.map(([etiqueta, animal], j) => {
+    const w = anchos[j];
+    const x = cursor + w / 2;
+    cursor += w + HUECO;
+    return { x, y: SUB_Y, w, etiqueta, animal, padre: { x: p.x, y: PILAR_Y + PIL_H / 2 }, indice: i * 4 + j };
+  });
+});
+
 const curva = (a: { x: number; y: number }, b: { x: number; y: number }) => {
   const dy = (b.y - a.y) * 0.5;
   return `M${a.x},${a.y} C${a.x},${a.y + dy} ${b.x},${b.y - dy} ${b.x},${b.y}`;
@@ -41,51 +62,29 @@ const curva = (a: { x: number; y: number }, b: { x: number; y: number }) => {
 const largo = (a: { x: number; y: number }, b: { x: number; y: number }) =>
   Math.round(Math.hypot(b.x - a.x, b.y - a.y) * 1.2);
 
-const ESP_W = 190;
-const ESP_H = 62;
-const ORQ_W = 300;
-const ORQ_H = 84;
-const REV_W = 486;
-const REV_H = 96;
-const SUB_H = 30;
-const anchoPildora = (t: string) => Math.max(58, t.length * 6.2 + 22);
-
-// Posición de cada subagente
-const subs = especialistas.flatMap((e, i) =>
-  e.sub.map((s, j) => ({
-    x: e.x + (j - 1) * 78,
-    y: SUB_Y,
-    etiqueta: s,
-    w: anchoPildora(s),
-    padre: { x: e.x, y: ESP_Y + ESP_H / 2 },
-    indice: i * 3 + j,
-  }))
-);
-
 const aristas = [
-  { d: curva({ x: objetivo.x, y: objetivo.y + 24 }, { x: orq.x, y: orq.y - ORQ_H / 2 }), l: 90, delay: 0, w: 2.6 },
-  ...especialistas.map((e, i) => ({
-    d: curva({ x: orq.x, y: orq.y + ORQ_H / 2 }, { x: e.x, y: ESP_Y - ESP_H / 2 }),
-    l: largo({ x: orq.x, y: orq.y }, { x: e.x, y: ESP_Y }),
-    delay: 0.45 + i * 0.12,
-    w: 2.4,
+  { d: curva({ x: objetivo.x, y: objetivo.y + 24 }, { x: orq.x, y: orq.y - ORQ_H / 2 }), l: 92, delay: 0, w: 2.8 },
+  ...pilares.map((p, i) => ({
+    d: curva({ x: orq.x, y: orq.y + ORQ_H / 2 }, { x: p.x, y: PILAR_Y - PIL_H / 2 }),
+    l: largo({ x: orq.x, y: orq.y }, { x: p.x, y: PILAR_Y }),
+    delay: 0.5 + i * 0.16,
+    w: 2.6,
   })),
   ...subs.map((s) => ({
     d: curva(s.padre, { x: s.x, y: s.y - SUB_H / 2 }),
     l: largo(s.padre, s),
-    delay: 1.0 + s.indice * 0.05,
-    w: 1.8,
+    delay: 1.1 + s.indice * 0.06,
+    w: 1.9,
   })),
   ...subs.map((s) => ({
     d: curva({ x: s.x, y: s.y + SUB_H / 2 }, { x: revision.x, y: revision.y - REV_H / 2 }),
     l: largo(s, revision),
-    delay: 1.7 + s.indice * 0.07,
-    w: 1.8,
+    delay: 1.9 + s.indice * 0.07,
+    w: 1.9,
   })),
-  { d: curva({ x: revision.x, y: revision.y + REV_H / 2 }, { x: salida.x, y: salida.y - 26 }), l: 80, delay: 3.1, w: 3 },
+  { d: curva({ x: revision.x, y: revision.y + REV_H / 2 }, { x: salida.x, y: salida.y - 26 }), l: 84, delay: 3.3, w: 3.2 },
 ];
 
-// Puntos de fondo, para que el panel respire como el resto del sitio
 function mulberry32(a: number) {
   return function () {
     a |= 0; a = (a + 0x6d2b79f5) | 0;
@@ -95,138 +94,157 @@ function mulberry32(a: number) {
   };
 }
 const rnd = mulberry32(4711);
-const fondo = Array.from({ length: 46 }, () => ({
-  x: +(rnd() * W).toFixed(0),
-  y: +(rnd() * H).toFixed(0),
-  r: +(0.8 + rnd() * 1.4).toFixed(1),
-  o: +(0.06 + rnd() * 0.12).toFixed(2),
+const fondo = Array.from({ length: 52 }, () => ({
+  x: +(rnd() * W).toFixed(0), y: +(rnd() * H).toFixed(0),
+  r: +(0.8 + rnd() * 1.5).toFixed(1), o: +(0.05 + rnd() * 0.11).toFixed(2),
 }));
+
+/** La constelación embebida dentro del SVG del organigrama. */
+const avatar = (animal: string, cx: number, cy: number, tam: number, claro = false) => {
+  const f = FIGURAS[animal];
+  const s = tam / 48;
+  return { f, t: `translate(${cx - tam / 2}, ${cy - tam / 2}) scale(${s})`, claro };
+};
 ---
 
 <section class="border-t border-line bg-surface py-24 sm:py-32">
   <div class="mx-auto max-w-6xl px-6">
     <div class="max-w-2xl">
       <p class="eyebrow">Cómo se reparte el trabajo</p>
-      <h2 class="display-lg mt-4 text-balance">Doce agentes trabajando, y una sola puerta de salida</h2>
+      <h2 class="display-lg mt-4 text-balance">Diez agentes trabajando, y una sola puerta de salida</h2>
       <p class="lede mt-5">
-        El orquestador reparte, cada especialista deriva en subagentes y todos
-        se ejecutan a la vez. Pero las doce ramas terminan en el mismo sitio:
-        una persona que lo lee antes de que salga.
+        El orquestador reparte entre los tres pilares, cada pilar deriva en sus
+        subagentes y todos se ejecutan a la vez. Pero las diez ramas terminan en
+        el mismo sitio: una persona que lo lee antes de que salga.
       </p>
     </div>
 
-    {/* ── Escritorio ─────────────────────────────────────────────── */}
     <div class="mt-14 hidden sm:block">
-      <div class="overflow-hidden rounded-2xl border border-line bg-bg">
-        <svg viewBox={`0 0 ${W} ${H}`} class="h-auto w-full" role="img" aria-label="Organigrama: el agente orquestador reparte el trabajo a cuatro agentes especialistas, cada uno deriva en tres subagentes, y las doce ramas convergen en una revisión humana antes de entregarse al cliente.">
+      <div class="relative overflow-hidden rounded-2xl border border-line bg-bg" data-org>
+        {/* Controles de navegación */}
+        <div class="absolute right-4 top-4 z-10 flex items-center gap-1.5">
+          <button type="button" data-org-zoom="-1" aria-label="Alejar" class="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-bg text-ink transition-colors hover:border-ink-3">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" d="M5 12h14" /></svg>
+          </button>
+          <button type="button" data-org-zoom="1" aria-label="Acercar" class="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-bg text-ink transition-colors hover:border-ink-3">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" d="M12 5v14M5 12h14" /></svg>
+          </button>
+          <button type="button" data-org-reset aria-label="Ver todo" class="flex h-9 items-center gap-1.5 rounded-lg border border-line bg-bg px-3 font-mono text-[11px] text-ink-2 transition-colors hover:border-ink-3">
+            Ver todo
+          </button>
+        </div>
+        <p class="pointer-events-none absolute bottom-4 left-5 z-10 font-mono text-[10.5px] text-ink-3" data-org-pista>
+          Arrastrá para moverte · ⌘ o Ctrl + rueda para acercar
+        </p>
+        <svg viewBox={`0 0 ${W} ${H}`} class="h-auto w-full" role="img" aria-label="Organigrama: el agente orquestador reparte el trabajo entre tres pilares, Captar, Atraer y Operar, cada uno con sus subagentes, y las diez ramas convergen en una revisión humana antes de entregarse al cliente.">
           <defs>
             <linearGradient id="orgFlujo" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#93b1ff" />
-              <stop offset="0.5" stop-color="#2f5cff" />
-              <stop offset="1" stop-color="#1633b8" />
+              <stop offset="0" stop-color="#93b1ff" /><stop offset="0.5" stop-color="#2f5cff" /><stop offset="1" stop-color="#1633b8" />
             </linearGradient>
             <radialGradient id="orgHalo">
-              <stop offset="0" stop-color="#2f5cff" stop-opacity="0.16" />
-              <stop offset="1" stop-color="#2f5cff" stop-opacity="0" />
+              <stop offset="0" stop-color="#2f5cff" stop-opacity="0.15" /><stop offset="1" stop-color="#2f5cff" stop-opacity="0" />
             </radialGradient>
-            <clipPath id="av1"><circle cx="0" cy="0" r="17" /></clipPath>
-            <clipPath id="av2"><circle cx="0" cy="0" r="17" /></clipPath>
+            <clipPath id="av1"><circle cx="0" cy="0" r="18" /></clipPath>
+            <clipPath id="av2"><circle cx="0" cy="0" r="18" /></clipPath>
           </defs>
 
           <rect width={W} height={H} fill="#ffffff" />
-          {fondo.map((p) => (
-            <circle cx={p.x} cy={p.y} r={p.r} fill="#2f5cff" opacity={p.o} />
-          ))}
+          <g class="org-vista">
+          {fondo.map((p) => <circle cx={p.x} cy={p.y} r={p.r} fill="#2f5cff" opacity={p.o} />)}
+          <circle cx={revision.x} cy={revision.y} r="250" fill="url(#orgHalo)" />
 
-          {/* Halo bajo la revisión: ahí es donde converge todo */}
-          <circle cx={revision.x} cy={revision.y} r="230" fill="url(#orgHalo)" />
-
-          {/* Conexiones */}
+          {aristas.map((a) => <path d={a.d} fill="none" stroke="#c8d3e4" stroke-width={a.w * 0.6} />)}
           {aristas.map((a) => (
-            <path d={a.d} fill="none" stroke="#c8d3e4" stroke-width={a.w * 0.62} />
-          ))}
-          {aristas.map((a) => (
-            <path
-              class="org-pulso"
-              d={a.d}
-              fill="none"
-              stroke="url(#orgFlujo)"
-              stroke-width={a.w}
-              stroke-linecap="round"
-              style={`--l:${a.l};--d:${a.delay}s`}
-            />
+            <path class="org-pulso" d={a.d} fill="none" stroke="url(#orgFlujo)" stroke-width={a.w} stroke-linecap="round" style={`--l:${a.l};--d:${a.delay}s`} />
           ))}
 
           {/* Objetivo */}
-          <g>
-            <rect x={objetivo.x - 140} y={objetivo.y - 24} width="280" height="48" rx="10" fill="#ffffff" stroke="#e4e9f2" />
-            <text x={objetivo.x} y={objetivo.y + 5} text-anchor="middle" class="org-t-nodo" fill="#0a1628">Objetivo del trimestre</text>
-          </g>
+          <rect x={objetivo.x - 145} y={objetivo.y - 24} width="290" height="48" rx="10" fill="#ffffff" stroke="#e4e9f2" />
+          <text x={objetivo.x} y={objetivo.y + 5} text-anchor="middle" class="org-t-nodo" fill="#0a1628">Objetivo del trimestre</text>
 
           {/* Orquestador */}
           <g>
-            <rect x={orq.x - ORQ_W / 2} y={orq.y - ORQ_H / 2} width={ORQ_W} height={ORQ_H} rx="14" fill="#0a1628" />
-            <circle class="org-latido" cx={orq.x - ORQ_W / 2 + 30} cy={orq.y} r="6" fill="#5C86FF" />
-            <text x={orq.x + 14} y={orq.y - 10} text-anchor="middle" class="org-t-mono" fill="#93b1ff">Agente</text>
-            <text x={orq.x + 14} y={orq.y + 16} text-anchor="middle" class="org-t-orq" fill="#ffffff">Orquestador</text>
+            <rect x={orq.x - ORQ_W / 2} y={orq.y - ORQ_H / 2} width={ORQ_W} height={ORQ_H} rx="16" fill="#0a1628" />
+            {(() => { const a = avatar('pulpo', orq.x - ORQ_W / 2 + 60, orq.y, 62); return (
+              <g transform={a.t}>
+                <g stroke="#5C86FF" stroke-width="1" opacity="0.55" fill="none" stroke-linecap="round">
+                  {a.f.e.map(([i, j]) => <line x1={a.f.p[i][0]} y1={a.f.p[i][1]} x2={a.f.p[j][0]} y2={a.f.p[j][1]} />)}
+                </g>
+                {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#93b1ff" style={`--d:${(k % 6) * 0.35}s`} />)}
+              </g>
+            ); })()}
+            <text x={orq.x + 46} y={orq.y - 12} text-anchor="middle" class="org-t-mono" fill="#93b1ff">Agente</text>
+            <text x={orq.x + 46} y={orq.y + 16} text-anchor="middle" class="org-t-orq" fill="#ffffff">Orquestador</text>
           </g>
 
-          {/* Especialistas */}
-          {especialistas.map((e, i) => (
+          {/* Pilares */}
+          {pilares.map((p, i) => (
             <g>
-              <rect x={e.x - ESP_W / 2} y={ESP_Y - ESP_H / 2} width={ESP_W} height={ESP_H} rx="11" fill="#ffffff" stroke="#e4e9f2" />
-              <circle class="org-activo" cx={e.x - ESP_W / 2 + 18} cy={ESP_Y - ESP_H / 2 + 17} r="3.5" fill="#2f5cff" style={`--d:${i * 0.4}s`} />
-              <text x={e.x} y={ESP_Y + 6} text-anchor="middle" class="org-t-nodo" fill="#0a1628">{e.nombre}</text>
+              <rect x={p.x - PIL_W / 2} y={PILAR_Y - PIL_H / 2} width={PIL_W} height={PIL_H} rx="13" fill="#ffffff" stroke="#e4e9f2" />
+              {(() => { const a = avatar(p.animal, p.x - PIL_W / 2 + 48, PILAR_Y, 56); return (
+                <g transform={a.t}>
+                  <g stroke="#2f5cff" stroke-width="1" opacity="0.45" fill="none" stroke-linecap="round">
+                    {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
+                  </g>
+                  {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#2f5cff" style={`--d:${(k % 6) * 0.35 + i * 0.2}s`} />)}
+                </g>
+              ); })()}
+              <text x={p.x + 38} y={PILAR_Y - 8} text-anchor="middle" class="org-t-pilar" fill="#0a1628">{p.nombre}</text>
+              <text x={p.x + 38} y={PILAR_Y + 14} text-anchor="middle" class="org-t-lema" fill="#7385a0">{p.lema}</text>
             </g>
           ))}
 
           {/* Subagentes */}
           {subs.map((s) => (
             <g>
-              <rect class="org-sub" x={s.x - s.w / 2} y={s.y - SUB_H / 2} width={s.w} height={SUB_H} rx={SUB_H / 2} fill="#f4f7fc" stroke="#c8d3e4" stroke-width="1.2" style={`--d:${s.indice * 0.16}s`} />
-              <text x={s.x} y={s.y + 4} text-anchor="middle" class="org-t-sub" fill="#42536b">{s.etiqueta}</text>
+              <rect class="org-sub" x={s.x - s.w / 2} y={s.y - SUB_H / 2} width={s.w} height={SUB_H} rx={SUB_H / 2} fill="#f4f7fc" stroke="#c8d3e4" stroke-width="1.2" style={`--d:${s.indice * 0.14}s`} />
+              {(() => { const a = avatar(s.animal, s.x - s.w / 2 + 22, s.y, SUB_AV); return (
+                <g transform={a.t}>
+                  <g stroke="#2f5cff" stroke-width="1.1" opacity="0.4" fill="none" stroke-linecap="round">
+                    {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
+                  </g>
+                  {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#2f5cff" style={`--d:${(k % 6) * 0.35 + s.indice * 0.1}s`} />)}
+                </g>
+              ); })()}
+              <text x={s.x + 16} y={s.y + 4} text-anchor="middle" class="org-t-sub" fill="#42536b">{s.etiqueta}</text>
             </g>
           ))}
 
           {/* Revisión humana */}
           <g>
-            <rect class="org-revision" x={revision.x - REV_W / 2} y={revision.y - REV_H / 2} width={REV_W} height={REV_H} rx="16" fill="#ffffff" stroke="#2f5cff" stroke-width="2" />
-
-            <g transform={`translate(${revision.x - 186}, ${revision.y})`}>
-              <circle r="18" fill="#eef3ff" />
-              <image href="/philippe.jpeg" x="-17" y="-17" width="34" height="34" clip-path="url(#av1)" preserveAspectRatio="xMidYMid slice" />
+            <rect class="org-revision" x={revision.x - REV_W / 2} y={revision.y - REV_H / 2} width={REV_W} height={REV_H} rx="18" fill="#ffffff" stroke="#2f5cff" stroke-width="2" />
+            <g transform={`translate(${revision.x - 200}, ${revision.y})`}>
+              <circle r="19" fill="#eef3ff" />
+              <image href="/philippe.jpeg" x="-18" y="-18" width="36" height="36" clip-path="url(#av1)" preserveAspectRatio="xMidYMid slice" />
             </g>
-            <g transform={`translate(${revision.x - 154}, ${revision.y})`}>
-              <circle r="18" fill="#eef3ff" stroke="#ffffff" stroke-width="2.5" />
-              <image href="/patrick.jpeg" x="-17" y="-17" width="34" height="34" clip-path="url(#av2)" preserveAspectRatio="xMidYMid slice" />
+            <g transform={`translate(${revision.x - 166}, ${revision.y})`}>
+              <circle r="19" fill="#eef3ff" stroke="#ffffff" stroke-width="2.5" />
+              <image href="/patrick.jpeg" x="-18" y="-18" width="36" height="36" clip-path="url(#av2)" preserveAspectRatio="xMidYMid slice" />
             </g>
-
-            <text x={revision.x + 14} y={revision.y - 8} text-anchor="middle" class="org-t-rev" fill="#0a1628">Revisión humana</text>
-            <text x={revision.x + 14} y={revision.y + 16} text-anchor="middle" class="org-t-mono" fill="#2f5cff">Nada sale sin pasar por aquí</text>
-
-            {/* Cola: el trabajo esperando aprobación */}
-            <g transform={`translate(${revision.x + REV_W / 2 - 52}, ${revision.y})`}>
-              <rect x="-30" y="-15" width="60" height="30" rx="15" fill="#eef3ff" />
+            <text x={revision.x + 22} y={revision.y - 8} text-anchor="middle" class="org-t-rev" fill="#0a1628">Revisión humana</text>
+            <text x={revision.x + 22} y={revision.y + 16} text-anchor="middle" class="org-t-mono" fill="#2f5cff">Nada sale sin pasar por aquí</text>
+            <g transform={`translate(${revision.x + REV_W / 2 - 54}, ${revision.y})`}>
+              <rect x="-34" y="-16" width="68" height="32" rx="16" fill="#eef3ff" />
               <text x="0" y="4" text-anchor="middle" class="org-t-mono" fill="#1633b8">3 en cola</text>
             </g>
           </g>
 
           {/* Salida */}
-          <g>
-            <rect x={salida.x - 130} y={salida.y - 26} width="260" height="52" rx="11" fill="#0f9960" />
-            <text x={salida.x} y={salida.y + 5} text-anchor="middle" class="org-t-nodo" fill="#ffffff">Sale al cliente</text>
+          <rect x={salida.x - 132} y={salida.y - 26} width="264" height="52" rx="11" fill="#0f9960" />
+          <text x={salida.x} y={salida.y + 5} text-anchor="middle" class="org-t-nodo" fill="#ffffff">Sale al cliente</text>
           </g>
         </svg>
       </div>
     </div>
 
-    {/* ── Móvil ──────────────────────────────────────────────────── */}
-    <div class="mt-12 sm:hidden">
+    {/* Móvil */}
+    <div class="mt-12 sm:hidden space-y-1">
       {[
         { t: 'Objetivo del trimestre', s: 'Entra', tipo: 'entrada' },
-        { t: 'Agente Orquestador', s: 'Reparte y coordina', tipo: 'orq' },
-        { t: '4 especialistas', s: 'Investigación · Contenido · Outbound · Datos', tipo: 'normal' },
-        { t: '12 subagentes en paralelo', s: 'Cada especialista deriva en tres', tipo: 'normal' },
+        { t: 'Agente Orquestador', s: 'Reparte entre los tres pilares', tipo: 'orq' },
+        { t: 'Captar', s: 'Outbound · LinkedIn · Paid · Influencers', tipo: 'normal' },
+        { t: 'Atraer', s: 'SEO · Contenido · AEO', tipo: 'normal' },
+        { t: 'Operar', s: 'CRM · Datos · Automatización', tipo: 'normal' },
         { t: 'Revisión humana', s: 'Nada sale sin pasar por aquí', tipo: 'humano' },
         { t: 'Sale al cliente', s: '', tipo: 'salida' },
       ].map((n, i, arr) => (
@@ -234,28 +252,149 @@ const fondo = Array.from({ length: 46 }, () => ({
           <div class={`rounded-xl border p-4 ${
             n.tipo === 'orq' ? 'border-ink bg-ink' :
             n.tipo === 'humano' ? 'border-accent bg-accent/[0.05]' :
-            n.tipo === 'salida' ? 'border-positive bg-positive' :
-            'border-line bg-bg'
+            n.tipo === 'salida' ? 'border-positive bg-positive' : 'border-line bg-bg'
           }`}>
             <p class={`text-[15px] font-semibold ${n.tipo === 'orq' || n.tipo === 'salida' ? 'text-white' : 'text-ink'}`}>{n.t}</p>
-            {n.s && (
-              <p class={`mt-1 font-mono text-[11.5px] ${
-                n.tipo === 'orq' ? 'text-[#93b1ff]' : n.tipo === 'humano' ? 'text-accent' : 'text-ink-3'
-              }`}>{n.s}</p>
-            )}
+            {n.s && <p class={`mt-1 font-mono text-[11.5px] ${
+              n.tipo === 'orq' ? 'text-[#93b1ff]' : n.tipo === 'humano' ? 'text-accent' : 'text-ink-3'
+            }`}>{n.s}</p>}
           </div>
-          {i < arr.length - 1 && (
-            <div class="flex justify-center py-1.5">
-              <span class="org-flecha h-6 w-px bg-line-2"></span>
-            </div>
-          )}
+          {i < arr.length - 1 && <div class="flex justify-center py-1"><span class="org-flecha h-5 w-px bg-line-2"></span></div>}
         </div>
       ))}
     </div>
 
     <p class="mt-6 text-[13px] leading-relaxed text-ink-3">
-      Los agentes se reparten el trabajo y se ejecutan a la vez. La revisión es
-      el único paso que no se automatiza, y es el que responde de lo que sale.
+      Cada agente lleva su constelación: una figura dibujada con los mismos
+      nodos y conexiones que el resto del sitio. La revisión es el único paso
+      que no se automatiza, y es el que responde de lo que sale.
     </p>
   </div>
 </section>
+
+<script>
+  /**
+   * Navegación del organigrama: arrastrar para moverse, zoom con rueda y
+   * botones, pellizco en táctil.
+   *
+   * La rueda a secas NO hace zoom: se deja para que la página siga
+   * desplazándose con normalidad. Hace falta Ctrl o Cmd, que es la convención
+   * de mapas y de los navegadores. Si no, el visitante se queda atrapado en el
+   * gráfico al intentar bajar por la página.
+   */
+  (function () {
+    const caja = document.querySelector('[data-org]');
+    if (!caja) return;
+    const svg = caja.querySelector('svg');
+    const vista = caja.querySelector('.org-vista');
+    if (!svg || !vista) return;
+
+    const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+    const ANCHO = vb[2];
+    const MIN = 0.75, MAX = 4;
+
+    let k = 1, tx = 0, ty = 0;
+    let arrastrando = false, ultimoX = 0, ultimoY = 0, movido = false;
+
+    const aplicar = () => {
+      vista.setAttribute('transform', `translate(${tx.toFixed(2)} ${ty.toFixed(2)}) scale(${k.toFixed(3)})`);
+      caja.dataset.orgZoomActivo = k > 1.02 ? 'si' : 'no';
+    };
+
+    // Cuántas unidades del viewBox mide un píxel de pantalla
+    const escala = () => ANCHO / svg.getBoundingClientRect().width;
+
+    const puntoEnSvg = (cx, cy) => {
+      const r = svg.getBoundingClientRect();
+      const e = escala();
+      return { x: (cx - r.left) * e, y: (cy - r.top) * e };
+    };
+
+    function zoomA(nuevoK, centro) {
+      const kk = Math.min(MAX, Math.max(MIN, nuevoK));
+      // El punto bajo el cursor se queda donde está
+      tx = centro.x - (centro.x - tx) * (kk / k);
+      ty = centro.y - (centro.y - ty) * (kk / k);
+      k = kk;
+      aplicar();
+    }
+
+    function reset() { k = 1; tx = 0; ty = 0; aplicar(); }
+
+    caja.querySelectorAll('[data-org-zoom]').forEach((b) => {
+      b.addEventListener('click', () => {
+        const r = svg.getBoundingClientRect();
+        const centro = puntoEnSvg(r.left + r.width / 2, r.top + r.height / 2);
+        zoomA(k * (Number(b.getAttribute('data-org-zoom')) > 0 ? 1.35 : 1 / 1.35), centro);
+      });
+    });
+    const btnReset = caja.querySelector('[data-org-reset]');
+    if (btnReset) btnReset.addEventListener('click', reset);
+
+    svg.addEventListener('wheel', (e) => {
+      if (!e.ctrlKey && !e.metaKey) return; // la página sigue desplazándose
+      e.preventDefault();
+      zoomA(k * (e.deltaY < 0 ? 1.12 : 1 / 1.12), puntoEnSvg(e.clientX, e.clientY));
+    }, { passive: false });
+
+    svg.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      zoomA(k > 1.8 ? 1 : 2.2, puntoEnSvg(e.clientX, e.clientY));
+    });
+
+    svg.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      arrastrando = true; movido = false;
+      ultimoX = e.clientX; ultimoY = e.clientY;
+      svg.setPointerCapture(e.pointerId);
+      svg.style.cursor = 'grabbing';
+    });
+    svg.addEventListener('pointermove', (e) => {
+      if (!arrastrando) return;
+      const s = escala();
+      tx += (e.clientX - ultimoX) * s;
+      ty += (e.clientY - ultimoY) * s;
+      ultimoX = e.clientX; ultimoY = e.clientY;
+      movido = true;
+      aplicar();
+    });
+    const soltar = (e) => {
+      if (!arrastrando) return;
+      arrastrando = false;
+      svg.style.cursor = '';
+      try { svg.releasePointerCapture(e.pointerId); } catch (err) {}
+    };
+    svg.addEventListener('pointerup', soltar);
+    svg.addEventListener('pointercancel', soltar);
+
+    // Pellizco en táctil
+    let dedos = new Map(), distancia0 = 0, k0 = 1;
+    svg.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        distancia0 = Math.hypot(
+          e.touches[0].clientX - e.touches[1].clientX,
+          e.touches[0].clientY - e.touches[1].clientY
+        );
+        k0 = k;
+      }
+    }, { passive: true });
+    svg.addEventListener('touchmove', (e) => {
+      if (e.touches.length !== 2 || !distancia0) return;
+      e.preventDefault();
+      const d = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const centro = puntoEnSvg(
+        (e.touches[0].clientX + e.touches[1].clientX) / 2,
+        (e.touches[0].clientY + e.touches[1].clientY) / 2
+      );
+      zoomA(k0 * (d / distancia0), centro);
+    }, { passive: false });
+    svg.addEventListener('touchend', () => { distancia0 = 0; }, { passive: true });
+
+    svg.style.cursor = 'grab';
+    svg.style.touchAction = 'pan-y';
+    aplicar();
+  })();
+</script>

@@ -282,6 +282,8 @@ p { text-wrap: pretty; }
 .org-t-nodo { font-family: var(--font-sans); font-size: 15px; font-weight: 600; letter-spacing: -0.012em; }
 .org-t-orq  { font-family: var(--font-sans); font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
 .org-t-rev  { font-family: var(--font-sans); font-size: 18px; font-weight: 600; letter-spacing: -0.018em; }
+.org-t-pilar { font-family: var(--font-sans); font-size: 19px; font-weight: 600; letter-spacing: -0.018em; }
+.org-t-lema  { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.01em; }
 .org-t-sub  { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.01em; }
 .org-t-mono { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; }
 
@@ -317,3 +319,10 @@ p { text-wrap: pretty; }
 @keyframes org-sub { 0%, 100% { stroke: #c8d3e4; fill: #f4f7fc; } 50% { stroke: #7ba0ff; fill: #eef3ff; } }
 /* El borde de la revisión respira: es donde se acumula el trabajo. */
 @keyframes org-revision { 0%, 100% { stroke-width: 2; } 45% { stroke-width: 3.4; } }
+
+/* ── Constelaciones: los avatares de agente ────────────────────── */
+.const-pt { opacity: .95; }
+@media (prefers-reduced-motion: no-preference) {
+  .const-pt { animation: const-brilla 3.6s ease-in-out infinite; animation-delay: var(--d); }
+}
+@keyframes const-brilla { 0%, 100% { opacity: .95; } 50% { opacity: .42; } }

@@ -1,0 +1,26 @@
+---
+import { FIGURAS } from '../data/constelaciones';
+
+interface Props {
+  animal: keyof typeof FIGURAS;
+  size?: number;
+  color?: string;
+  claro?: boolean;
+}
+const { animal, size = 44, color = '#2f5cff', claro = false } = Astro.props;
+
+const f = FIGURAS[animal];
+const trazo = claro ? '#5C86FF' : color;
+const punto = claro ? '#93b1ff' : color;
+---
+
+<svg viewBox="0 0 48 48" width={size} height={size} class="const-fig" aria-hidden="true">
+  <g stroke={trazo} stroke-width="1" opacity="0.5" fill="none" stroke-linecap="round">
+    {f.e.map(([a, b]) => (
+      <line x1={f.p[a][0]} y1={f.p[a][1]} x2={f.p[b][0]} y2={f.p[b][1]} />
+    ))}
+  </g>
+  {f.p.map((pt, i) => (
+    <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill={punto} style={`--d:${(i % 6) * 0.35}s`} />
+  ))}
+</svg>
