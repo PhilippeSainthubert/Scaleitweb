@@ -259,6 +259,87 @@ p { text-wrap: pretty; }
 }
 .post-body pre code { background: none; border: 0; padding: 0; color: inherit; }
 
+/* Los bloques se ajustan en vez de desbordar. En los artículos de skills el
+   código son comandos y skills que se leen antes de copiarlos, y con scroll
+   horizontal media línea quedaba fuera de la vista. */
+.post-body pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+
+/* Envoltorio que añade el script del artículo: etiqueta y botón de copiar. */
+.post-body .codigo { position: relative; }
+.post-body .codigo pre { margin: 0; padding-top: 2.7rem; }
+.post-body .codigo-barra {
+  position: absolute;
+  top: .65rem;
+  left: 1.3rem;
+  right: .65rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+.post-body .codigo-etiqueta {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .45);
+}
+.post-body .codigo-copiar {
+  pointer-events: auto;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, .88);
+  background: rgba(255, 255, 255, .08);
+  border: 1px solid rgba(255, 255, 255, .14);
+  border-radius: 7px;
+  padding: .32em .75em;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.post-body .codigo-copiar:hover { background: rgba(255, 255, 255, .16); }
+.post-body .codigo-copiar[data-copiado] { color: #7ee2b8; border-color: rgba(126, 226, 184, .45); }
+
+/* La skill entera pasa de cien líneas: plegada por defecto, con un degradado
+   que deja claro que sigue. Sin JavaScript se ve completa, y el texto está
+   siempre íntegro en el HTML para los rastreadores. El color del degradado
+   es el fondo que Shiki pone en línea al bloque, no el del tema. */
+.post-body .codigo--skill pre { max-height: 30rem; overflow-y: hidden; }
+.post-body .codigo--skill.is-abierto pre { max-height: none; }
+.post-body .codigo--skill::after {
+  content: '';
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 8rem;
+  border-radius: 0 0 12px 12px;
+  background: linear-gradient(to bottom, rgba(36, 41, 46, 0), #24292e 80%);
+  pointer-events: none;
+}
+.post-body .codigo--skill.is-abierto::after { display: none; }
+.post-body .codigo-desplegar {
+  position: absolute;
+  left: 50%;
+  bottom: 1.2rem;
+  z-index: 1;
+  transform: translateX(-50%);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+  background: #fff;
+  border-radius: 999px;
+  padding: .55em 1.2em;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .28);
+  cursor: pointer;
+}
+.post-body .codigo--skill.is-abierto .codigo-desplegar {
+  position: static;
+  display: block;
+  margin: .9rem auto 0;
+  transform: none;
+  background: var(--color-surface);
+  border: 1px solid var(--color-line);
+  box-shadow: none;
+}
+
 .post-body hr { border: 0; border-top: 1px solid var(--color-line); margin: 2.6em 0; }
 
 .post-body table {

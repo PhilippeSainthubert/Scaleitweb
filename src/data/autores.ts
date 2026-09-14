@@ -30,4 +30,6 @@ export const clusters = {
   outbound: 'Outbound',
   seo: 'SEO y contenido',
   revops: 'RevOps y datos',
+  paid: 'Paid media',
+  influencers: 'Influencers y UGC',
 } as const;

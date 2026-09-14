@@ -117,3 +117,78 @@ const schema = [
 
   <Footer />
 </Layout>
+
+<script>
+  // Bloques de código de los artículos: botón de copiar en todos, y la skill
+  // completa plegada con opción de verla entera. Se hace aquí y no en el
+  // markdown para que el texto siga íntegro en el HTML: los rastreadores y
+  // quien navegue sin JavaScript leen la skill entera.
+  const ETIQUETAS: Record<string, string> = { bash: 'Terminal', json: 'JSON', yaml: 'YAML' };
+
+  function prepararCodigo() {
+    document.querySelectorAll<HTMLPreElement>('.post-body pre:not([data-preparado])').forEach((pre) => {
+      pre.dataset.preparado = '';
+      const texto = (pre.querySelector('code') ?? pre).textContent ?? '';
+      const esSkill = /^---\s*\nname:/.test(texto.trimStart());
+
+      const caja = document.createElement('div');
+      caja.className = esSkill ? 'codigo codigo--skill' : 'codigo';
+      pre.replaceWith(caja);
+      caja.append(pre);
+
+      const barra = document.createElement('div');
+      barra.className = 'codigo-barra';
+      const etiqueta = document.createElement('span');
+      etiqueta.className = 'codigo-etiqueta';
+      etiqueta.textContent = esSkill ? 'SKILL.md' : ETIQUETAS[pre.dataset.language ?? ''] ?? '';
+
+      const copiar = document.createElement('button');
+      copiar.type = 'button';
+      copiar.className = 'codigo-copiar';
+      copiar.textContent = 'Copiar';
+      copiar.setAttribute('aria-live', 'polite');
+      copiar.addEventListener('click', async () => {
+        try {
+          await navigator.clipboard.writeText(texto);
+        } catch {
+          // Sin permiso de portapapeles: se selecciona el bloque y se copia
+          // a la antigua, que sigue funcionando en todos los navegadores.
+          const rango = document.createRange();
+          rango.selectNodeContents(pre);
+          const seleccion = getSelection();
+          seleccion?.removeAllRanges();
+          seleccion?.addRange(rango);
+          document.execCommand('copy');
+          seleccion?.removeAllRanges();
+        }
+        copiar.textContent = 'Copiado';
+        copiar.dataset.copiado = '';
+        setTimeout(() => {
+          copiar.textContent = 'Copiar';
+          delete copiar.dataset.copiado;
+        }, 1800);
+      });
+
+      barra.append(etiqueta, copiar);
+      caja.append(barra);
+
+      if (esSkill) {
+        const desplegar = document.createElement('button');
+        desplegar.type = 'button';
+        desplegar.className = 'codigo-desplegar';
+        desplegar.textContent = 'Ver la skill entera';
+        desplegar.setAttribute('aria-expanded', 'false');
+        desplegar.addEventListener('click', () => {
+          const abierto = caja.classList.toggle('is-abierto');
+          desplegar.textContent = abierto ? 'Plegar' : 'Ver la skill entera';
+          desplegar.setAttribute('aria-expanded', String(abierto));
+          if (!abierto) caja.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+        caja.append(desplegar);
+      }
+    });
+  }
+
+  prepararCodigo();
+  document.addEventListener('astro:page-load', prepararCodigo);
+</script>
