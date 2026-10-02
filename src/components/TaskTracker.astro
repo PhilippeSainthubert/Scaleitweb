@@ -1,28 +1,36 @@
 ---
+import Constelacion from './Constelacion.astro';
+
+// Nombre visible de cada agente: la consola enseña quién ejecuta cada tarea.
+const nombres: Record<string, string> = {
+  castor: 'Castor', lobo: 'Lobo', tiburon: 'Tiburón', libelula: 'Libélula',
+  elefante: 'Elefante', escarabajo: 'Escarabajo',
+};
+
 const columns = [
   {
     label: 'En cola',
     dot: 'bg-ink-3',
     tasks: [
-      { title: 'Landing B2B: borrador de copy', agent: 'strategy', time: '09:12' },
-      { title: 'Secuencia outbound: 200 cuentas', agent: 'outreach', time: '09:40' },
+      { title: 'Landing B2B: borrador de copy', agent: 'castor', time: '09:12' },
+      { title: 'Secuencia outbound: 200 cuentas', agent: 'lobo', time: '09:40' },
     ],
   },
   {
     label: 'Ejecutando',
     dot: 'bg-accent animate-pulse',
     tasks: [
-      { title: 'Optimización de pujas en LinkedIn Ads', agent: 'paid', time: '10:03' },
-      { title: 'Dashboard de atribución en GA4', agent: 'analytics', time: '10:18' },
-      { title: 'Scoring de leads en el CRM', agent: 'revops', time: '10:26' },
+      { title: 'Optimización de pujas en LinkedIn Ads', agent: 'tiburon', time: '10:03' },
+      { title: 'Dashboard de atribución en GA4', agent: 'libelula', time: '10:18' },
+      { title: 'Scoring de leads en el CRM', agent: 'elefante', time: '10:26' },
     ],
   },
   {
     label: 'Revisado y entregado',
     dot: 'bg-positive',
     tasks: [
-      { title: 'Cualificación automática de leads', agent: 'automation', time: '08:55' },
-      { title: 'Test A/B en página de precios', agent: 'strategy', time: '08:31' },
+      { title: 'Cualificación automática de leads', agent: 'escarabajo', time: '08:55' },
+      { title: 'Test A/B en página de precios', agent: 'libelula', time: '08:31' },
     ],
   },
 ];
@@ -69,7 +77,10 @@ const columns = [
                 <div class="rounded-lg border border-line bg-bg p-3.5 transition-colors hover:border-line-2">
                   <p class="text-[13.5px] leading-snug text-ink">{task.title}</p>
                   <div class="mt-2.5 flex items-center gap-2 font-mono text-[11px] text-ink-3">
-                    <span class="rounded bg-surface px-1.5 py-0.5 text-accent">{task.agent}</span>
+                    <span class="inline-flex items-center gap-1.5 rounded-md bg-surface py-0.5 pl-1 pr-2 text-accent-deep">
+                      <Constelacion animal={task.agent} size={18} />
+                      {nombres[task.agent]}
+                    </span>
                     <span>{task.time}</span>
                   </div>
                 </div>

@@ -1,4 +1,9 @@
 ---
+import Logo from './Logo.astro';
+
+const ruta = Astro.url.pathname;
+const activo = (href: string) => !href.startsWith('/#') && (ruta === href || ruta.startsWith(`${href}/`));
+
 const links = [
   { label: 'Cómo funciona', href: '/#agentes' },
   { label: 'Servicios', href: '/#servicios' },
@@ -12,13 +17,17 @@ const links = [
 
 <nav id="site-nav" class="fixed inset-x-0 top-0 z-50 border-b border-transparent bg-bg/80 backdrop-blur-xl transition-[border-color,box-shadow] duration-300">
   <div class="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
-    <a href="/" class="text-[17px] font-semibold tracking-[-0.02em] text-ink">
-      Scale It
+    <a href="/" aria-label="Scale It, inicio">
+      <Logo />
     </a>
 
     <div class="hidden items-center gap-7 lg:flex">
       {links.map((link) => (
-        <a href={link.href} class="text-[14px] text-ink-2 transition-colors hover:text-ink">
+        <a
+          href={link.href}
+          aria-current={activo(link.href) ? 'page' : undefined}
+          class="nav-enlace text-[14px] text-ink-2 transition-colors hover:text-ink"
+        >
           {link.label}
         </a>
       ))}
