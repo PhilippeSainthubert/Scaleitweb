@@ -55,7 +55,9 @@ Un agente sin gobierno no es un producto, es un riesgo con factura mensual. Tres
 
 **Trazabilidad.** Qué hizo, cuándo, con qué información y por qué. Sin esto no puedes depurar nada, y el día que algo salga mal no vas a saber ni por dónde empezar.
 
-Estas tres cosas son la parte aburrida y son también la que separa un sistema que aguanta un año de una demo bonita que se abandona en el mes tres.
+Hay una cuarta que no es de gobierno pero lo condiciona: dónde vive el agente. Un servicio cerrado se monta en una tarde y escala en coste; un servidor propio da control sobre los datos y coste fijo. La comparación está bien planteada en [este artículo sobre alojar agentes en servidor propio o en la nube](https://www.rianex.es/blog/agentes-de-ia-vps-propio-o-nube), y la decisión importa especialmente si el agente maneja datos sensibles.
+
+Estas cosas son la parte aburrida y son también la que separa un sistema que aguanta un año de una demo bonita que se abandona en el mes tres.
 
 ## Entonces, ¿qué conviene montar primero?
 

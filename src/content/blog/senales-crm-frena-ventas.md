@@ -59,6 +59,8 @@ Normalmente es porque los datos están sucios y nadie confía en ellos. Y con ra
 
 **Cambiar de herramienta.** Si migras el mismo proceso roto a un CRM nuevo, tendrás el mismo problema con una factura distinta y seis meses perdidos.
 
+Dicho esto, a veces el cambio sí está justificado, normalmente cuando pagas por funciones que no usas o el coste crece con cada contacto. Si llegas ahí, conviene saber antes qué se lleva y qué no sobrevive a la mudanza: hay una [guía de migración de HubSpot a GoHighLevel](https://www.rianex.es/blog/migrar-de-hubspot-a-gohighlevel-sin-perder-historico) que lo detalla bien, incluido lo que nunca viaja.
+
 **Añadir campos obligatorios.** Cada campo nuevo baja la adopción. Si los datos están mal, es que nadie ve para qué sirven, y forzar la mano lo empeora.
 
 **Comprar una capa de IA encima.** Sobre datos malos, produce conclusiones malas más deprisa.
