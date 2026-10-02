@@ -5,6 +5,9 @@ import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
 import Formulario from '../../components/Formulario.astro';
 import { autores, clusters, personId } from '../../data/autores';
+import PageHero from '../../components/PageHero.astro';
+import TarjetaArticulo from '../../components/TarjetaArticulo.astro';
+import { AGENTE_CLUSTER } from '../../data/agentes';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -12,6 +15,14 @@ export async function getStaticPaths() {
 }
 
 const { post } = Astro.props;
+const todos = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
+);
+const relacionados = [
+  ...todos.filter((p) => p.id !== post.id && p.data.cluster === post.data.cluster),
+  ...todos.filter((p) => p.id !== post.id && p.data.cluster !== post.data.cluster),
+].slice(0, 3);
+const imagen = `/og/${post.id}.jpg`;
 const { Content, headings } = await render(post);
 const autor = autores[post.data.author];
 const base = 'https://www.growth-scaleit.com';
@@ -19,6 +30,8 @@ const base = 'https://www.growth-scaleit.com';
 // la lleva. Con barra, mainEntityOfPage y el breadcrumb apuntaban a una URL
 // que redirige con 308, contradiciendo al canonical de la propia página.
 const url = `${base}/blog/${post.id}`;
+
+const indice = headings.filter((h) => h.depth === 2);
 
 const fecha = (d: Date) =>
   d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
@@ -36,7 +49,7 @@ const schema = [
     isPartOf: { '@id': `${base}/#website` },
     mainEntityOfPage: url,
     url,
-    image: `${base}/og-default.png`,
+    image: `${base}${imagen}`,
     articleSection: clusters[post.data.cluster],
     keywords: post.data.tags.join(', '),
     inLanguage: 'es-ES',
@@ -53,64 +66,76 @@ const schema = [
 ];
 ---
 
-<Layout title={`${post.data.title} | Scale It`} description={post.data.description} schema={schema}>
+<Layout title={`${post.data.title} | Scale It`} description={post.data.description} schema={schema} image={imagen}>
   <Navbar />
 
   <main>
     <article>
-      <header class="border-b border-line pb-12 pt-36 sm:pt-44">
-        <div class="mx-auto max-w-3xl px-6">
-          <nav aria-label="Ruta" class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
-            <a href="/" class="transition-colors hover:text-ink">Inicio</a>
-            <span>/</span>
-            <a href="/blog" class="transition-colors hover:text-ink">Blog</a>
-            <span>/</span>
-            <span class="text-accent">{clusters[post.data.cluster]}</span>
-          </nav>
-
-          <h1 class="display-lg mt-6 text-balance">{post.data.title}</h1>
-          <p class="lede mt-5">{post.data.description}</p>
-
-          <div class="mt-8 flex items-center gap-3">
-            {autor.foto ? (
-              <img src={autor.foto} alt={post.data.author} width="40" height="40" class="h-10 w-10 rounded-full object-cover" />
-            ) : (
-              <div class="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10 font-mono text-[12px] text-accent-deep">
-                {autor.iniciales}
-              </div>
-            )}
-            <div class="text-[13.5px] leading-tight">
-              <a href={autor.linkedin} target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent">
-                {post.data.author}
-              </a>
-              <p class="mt-0.5 text-ink-3">
-                <time datetime={post.data.pubDate.toISOString()}>{fecha(post.data.pubDate)}</time>
-                {post.data.updatedDate && <span> · actualizado el {fecha(post.data.updatedDate)}</span>}
-              </p>
-            </div>
+      <PageHero
+        titularLargo
+        titulo={post.data.title}
+        entradilla={post.data.description}
+        figuras={[AGENTE_CLUSTER[post.data.cluster] ?? 'pulpo']}
+        ruta={[{ texto: 'Inicio', href: '/' }, { texto: 'Blog', href: '/blog' }, { texto: clusters[post.data.cluster] }]}
+      >
+        <div class="mt-8 flex items-center gap-3">
+          <img src={autor.foto} alt="" width="40" height="40" class="h-10 w-10 rounded-full object-cover ring-2 ring-white" />
+          <div class="text-[13.5px] leading-tight">
+            <a href={autor.linkedin} target="_blank" rel="noopener noreferrer" class="font-medium text-ink hover:text-accent">
+              {post.data.author}
+            </a>
+            <p class="mt-0.5 text-ink-3">
+              <time datetime={post.data.pubDate.toISOString()}>{fecha(post.data.pubDate)}</time>
+              {post.data.updatedDate && <span> · actualizado el {fecha(post.data.updatedDate)}</span>}
+            </p>
           </div>
         </div>
-      </header>
+      </PageHero>
 
-      <div class="mx-auto max-w-3xl px-6 py-14">
-        {headings.filter((h) => h.depth === 2).length > 2 && (
-          <nav aria-label="Contenidos" class="mb-12 rounded-xl border border-line bg-surface p-6">
-            <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">En esta página</p>
-            <ul class="mt-3.5 space-y-2">
-              {headings.filter((h) => h.depth === 2).map((h) => (
-                <li>
-                  <a href={`#${h.slug}`} class="text-[14px] text-ink-2 transition-colors hover:text-accent">{h.text}</a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+      <div class="mx-auto max-w-6xl px-6 py-10 sm:py-14 lg:grid lg:grid-cols-12 lg:gap-12">
+        {/* En escritorio el índice acompaña la lectura en un lateral fijo; en
+            móvil va arriba, que es donde se busca. */}
+        {indice.length > 2 && (
+          <aside class="mb-10 lg:order-2 lg:col-span-3 lg:mb-0">
+            {/* Móvil: desplegable cerrado, para no poner seis enlaces entre el
+                titular y el primer párrafo. Escritorio: lateral fijo. */}
+            <details class="indice-movil lg:hidden">
+              <summary>En esta página <span class="font-mono text-[11px] text-ink-3">{indice.length}</span></summary>
+              <ul class="mt-3 space-y-2.5">
+                {indice.map((h) => (
+                  <li><a href={`#${h.slug}`} class="indice-enlace">{h.text}</a></li>
+                ))}
+              </ul>
+            </details>
+            <nav aria-label="Contenidos" class="indice-articulo hidden lg:block">
+              <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">En esta página</p>
+              <ul class="mt-3.5 space-y-2.5">
+                {indice.map((h) => (
+                  <li>
+                    <a href={`#${h.slug}`} data-indice={h.slug} class="indice-enlace">{h.text}</a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </aside>
         )}
 
-        <div class="post-body">
+        <div class="post-body lg:order-1 lg:col-span-8 lg:col-start-1">
           <Content />
         </div>
       </div>
     </article>
+
+    {relacionados.length > 0 && (
+      <section class="border-t border-line bg-surface py-16 sm:py-20">
+        <div class="mx-auto max-w-6xl px-6">
+          <h2 class="display-md">Sigue leyendo</h2>
+          <div class="mt-10 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+            {relacionados.map((r) => <TarjetaArticulo post={r} />)}
+          </div>
+        </div>
+      </section>
+    )}
 
     <Formulario origen="blog" titulo="¿Te suena de algo lo que acabás de leer?" texto="Media hora, miramos tu caso concreto y te decimos por dónde empezaríamos." />
   </main>
@@ -191,4 +216,24 @@ const schema = [
 
   prepararCodigo();
   document.addEventListener('astro:page-load', prepararCodigo);
+</script>
+
+<script>
+  // Resalta en el índice la sección que se está leyendo.
+  const enlaces = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-indice]'));
+  if (enlaces.length) {
+    const secciones = enlaces
+      .map((a) => document.getElementById(a.dataset.indice!))
+      .filter((s): s is HTMLElement => !!s);
+    const marcar = (id: string) =>
+      enlaces.forEach((a) => a.setAttribute('aria-current', String(a.dataset.indice === id)));
+    const io = new IntersectionObserver(
+      (entradas) => {
+        const visible = entradas.filter((e) => e.isIntersecting).sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top)[0];
+        if (visible) marcar(visible.target.id);
+      },
+      { rootMargin: '-96px 0px -65% 0px' }
+    );
+    secciones.forEach((s) => io.observe(s));
+  }
 </script>

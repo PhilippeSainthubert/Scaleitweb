@@ -3,14 +3,20 @@ import { getCollection } from 'astro:content';
 import Layout from '../../layouts/Layout.astro';
 import Navbar from '../../components/Navbar.astro';
 import Footer from '../../components/Footer.astro';
-import { clusters, autores } from '../../data/autores';
+import PageHero from '../../components/PageHero.astro';
+import TarjetaArticulo from '../../components/TarjetaArticulo.astro';
+import { clusters } from '../../data/autores';
+import { AGENTE_CLUSTER } from '../../data/agentes';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()
 );
+const [destacado, ...resto] = posts;
 
-const fecha = (d: Date) =>
-  d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+// Solo los temas que tienen artículos, en el orden en que los presenta la web.
+const temas = Object.entries(clusters)
+  .map(([slug, nombre]) => ({ slug, nombre, total: posts.filter((p) => p.data.cluster === slug).length }))
+  .filter((t) => t.total > 0);
 
 const schema = {
   '@context': 'https://schema.org',
@@ -29,42 +35,66 @@ const schema = {
   <Navbar />
 
   <main>
-    <section class="border-b border-line pb-16 pt-36 sm:pt-44">
-      <div class="mx-auto max-w-6xl px-6">
-        <p class="eyebrow">Blog</p>
-        <h1 class="display-xl mt-5 max-w-3xl text-balance">Cómo se construye una máquina de adquisición</h1>
-        <p class="lede mt-6">
-          Lo que aprendemos montando y operando estos sistemas. Sin recetas de
-          manual y sin métricas de vanidad.
-        </p>
-      </div>
-    </section>
+    <PageHero
+      eyebrow="Blog"
+      titulo="Cómo se construye una máquina de adquisición"
+      entradilla="Lo que aprendemos montando y operando estos sistemas. Sin recetas de manual y sin métricas de vanidad. Cada tema lo firma el agente que se ocupa de él."
+      figuras={temas.map((t) => AGENTE_CLUSTER[t.slug] ?? 'pulpo')}
+    />
 
-    <section class="py-16 sm:py-20">
-      <div class="mx-auto max-w-6xl px-6">
-        {posts.length === 0 ? (
-          <p class="text-[15px] text-ink-2">Todavía no hay publicaciones. Vuelve pronto.</p>
-        ) : (
-          <div class="grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <a href={`/blog/${post.id}`} class="group bg-bg p-7 transition-colors hover:bg-surface">
-                <div class="flex items-center gap-2.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
-                  <span class="text-accent">{clusters[post.data.cluster]}</span>
-                  <span class="h-1 w-1 rounded-full bg-line-2"></span>
-                  <time datetime={post.data.pubDate.toISOString()}>{fecha(post.data.pubDate)}</time>
-                </div>
-                <h2 class="mt-4 text-[19px] font-semibold leading-snug tracking-[-0.02em] text-ink">
-                  {post.data.title}
-                </h2>
-                <p class="mt-3 text-[14px] leading-relaxed text-ink-2">{post.data.description}</p>
-                <p class="mt-5 font-mono text-[11px] text-ink-3">{autores[post.data.author].rol}</p>
-              </a>
-            ))}
+    {posts.length === 0 ? (
+      <section class="py-20">
+        <p class="mx-auto max-w-6xl px-6 text-[15px] text-ink-2">Todavía no hay publicaciones. Vuelve pronto.</p>
+      </section>
+    ) : (
+      <section class="py-14 sm:py-20" data-blog>
+        <div class="mx-auto max-w-6xl px-6">
+          {destacado && <TarjetaArticulo post={destacado} destacado />}
+
+          <div class="mt-14 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
+            <h2 class="text-[15px] font-semibold tracking-[-0.01em] text-ink">Todos los artículos</h2>
+            <div class="flex flex-wrap gap-2" role="group" aria-label="Filtrar por tema">
+              <button type="button" class="chip-tema" data-tema="" aria-pressed="true">
+                Todos <span class="chip-total">{resto.length}</span>
+              </button>
+              {temas.map((t) => (
+                <button type="button" class="chip-tema" data-tema={t.slug} aria-pressed="false">
+                  {t.nombre} <span class="chip-total">{resto.filter((p) => p.data.cluster === t.slug).length}</span>
+                </button>
+              ))}
+            </div>
           </div>
-        )}
-      </div>
-    </section>
+
+          <div class="mt-8 grid gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3" data-rejilla>
+            {resto.map((post) => <TarjetaArticulo post={post} />)}
+          </div>
+          <p class="mt-10 hidden text-[15px] text-ink-2" data-vacio>No hay más artículos de este tema por ahora.</p>
+        </div>
+      </section>
+    )}
   </main>
 
   <Footer />
 </Layout>
+
+<script>
+  // Filtro por tema. Sin JavaScript se ven todos, que es un estado válido.
+  document.querySelectorAll<HTMLElement>('[data-blog]').forEach((raiz) => {
+    const chips = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-tema]'));
+    const tarjetas = Array.from(raiz.querySelectorAll<HTMLElement>('[data-rejilla] [data-cluster]'));
+    const vacio = raiz.querySelector<HTMLElement>('[data-vacio]');
+    chips.forEach((chip) =>
+      chip.addEventListener('click', () => {
+        const tema = chip.dataset.tema ?? '';
+        chips.forEach((c) => c.setAttribute('aria-pressed', String(c === chip)));
+        let visibles = 0;
+        tarjetas.forEach((t) => {
+          const ver = !tema || t.dataset.cluster === tema;
+          t.hidden = !ver;
+          if (ver) visibles++;
+        });
+        vacio?.classList.toggle('hidden', visibles > 0);
+      })
+    );
+  });
+</script>
