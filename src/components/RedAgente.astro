@@ -26,8 +26,12 @@ import { AGENTES, type ClaveAgente } from '../data/agentes';
 interface Props {
   figuras: ClaveAgente[];
   class?: string;
+  /** dia: tinta azul sobre blanco. noche: estrellas claras sobre cielo oscuro. */
+  tema?: 'dia' | 'noche';
+  /** Rotar sola entre figuras. Desactivado cuando la dirige el scroll. */
+  auto?: boolean;
 }
-const { figuras, class: className = '' } = Astro.props;
+const { figuras, class: className = '', tema = 'dia', auto = true } = Astro.props;
 
 const datos = figuras.map((k) => ({
   p: FIGURAS_GRANDES[k].p,
@@ -40,6 +44,8 @@ const datos = figuras.map((k) => ({
 <canvas
   data-red-agente
   data-figuras={JSON.stringify(datos)}
+  data-tema={tema}
+  data-auto={auto ? 'si' : 'no'}
   class={`block h-full w-full ${className}`}
   aria-hidden="true"
 ></canvas>
@@ -58,8 +64,11 @@ const datos = figuras.map((k) => ({
   interface Pulso { a: number; b: number; t: number; v: number; }
 
   const TAU = Math.PI * 2;
-  const AZUL = '47, 92, 255';
-  const TINTA = '22, 51, 184';
+  // De día, tinta azul sobre blanco; de noche, estrellas claras sobre cielo.
+  const PALETAS = {
+    dia: { linea: '47, 92, 255', estrella: '22, 51, 184', polvo: '47, 92, 255', suelto: '22, 51, 184', halo: '47, 92, 255' },
+    noche: { linea: '126, 160, 255', estrella: '244, 247, 255', polvo: '147, 177, 255', suelto: '147, 177, 255', halo: '147, 177, 255' },
+  };
   const ENLACE = 128;
   const CURSOR = 150;
   const CICLO_MS = 5600;
@@ -70,8 +79,16 @@ const datos = figuras.map((k) => ({
     if (!ctx) return;
     const figs: Figura[] = JSON.parse(canvas.dataset.figuras || '[]');
     if (!figs.length) return;
+    const pal = PALETAS[canvas.dataset.tema === 'noche' ? 'noche' : 'dia'];
+    const AZUL = pal.linea;
+    const TINTA = pal.estrella;
+    const autoRotar = canvas.dataset.auto !== 'no';
+    // De noche cualquier línea brilla más: la red de fondo se atenúa y enlaza
+    // más corto para no competir con la figura.
+    const FONDO = canvas.dataset.tema === 'noche' ? 0.5 : 1;
+    const ENLACE_L = canvas.dataset.tema === 'noche' ? 104 : ENLACE;
 
-    const raiz = canvas.closest('[data-cabecera]') ?? canvas.parentElement!;
+    const raiz = canvas.closest('[data-red-raiz]') ?? canvas.closest('[data-cabecera]') ?? canvas.parentElement!;
     const hueco = raiz.querySelector<HTMLElement>('[data-figura-hueco]');
     const nombre = raiz.querySelector<HTMLElement>('[data-figura-nombre]');
     const rol = raiz.querySelector<HTMLElement>('[data-figura-rol]');
@@ -167,7 +184,15 @@ const datos = figuras.map((k) => ({
     }
 
     function rotular(i: number) {
-      botones.forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
+      // Control desde fuera: la sección del sistema lo dirige con el scroll.
+    canvas.addEventListener('figura:ir', (ev) => {
+      const k = (ev as CustomEvent<number>).detail;
+      if (k === actual || k < 0 || k >= figs.length) return;
+      asignar(k, !reducido);
+      if (reducido) { colocarYa(); dibujar(); }
+    });
+
+    botones.forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
       if (!nombre || !rol) return;
       leyenda?.classList.add('cambiando');
       window.setTimeout(() => {
@@ -286,7 +311,7 @@ const datos = figuras.map((k) => ({
           if (b.t >= 0) continue;
           const dx = a.x + a.ox - (b.x + b.ox);
           const dy = a.y + a.oy - (b.y + b.oy);
-          if (dx * dx + dy * dy < ENLACE * ENLACE) vecinos[i].push(j);
+          if (dx * dx + dy * dy < ENLACE_L * ENLACE_L) vecinos[i].push(j);
         }
       }
 
@@ -300,7 +325,7 @@ const datos = figuras.map((k) => ({
       }
       if (armado > 0.8 && azar() < 0.1) lanzar();
 
-      if (figs.length > 1 && performance.now() - ultimoCambio > CICLO_MS) {
+      if (autoRotar && figs.length > 1 && performance.now() - ultimoCambio > CICLO_MS) {
         asignar((actual + 1) % figs.length, true);
       }
     }
@@ -315,9 +340,9 @@ const datos = figuras.map((k) => ({
         for (const j of vecinos[i] ?? []) {
           const b = ps[j];
           const bx = b.x + b.ox, by = b.y + b.oy;
-          const prox = 1 - Math.hypot(bx - ax, by - ay) / ENLACE;
+          const prox = 1 - Math.hypot(bx - ax, by - ay) / ENLACE_L;
           const calor = Math.max(a.carga, b.carga);
-          let alfa = prox * (0.24 + calor * 0.5);
+          let alfa = prox * (0.24 + calor * 0.5) * FONDO;
           if (enCaja(ax, ay) || enCaja(bx, by)) alfa *= 0.3;
           if (alfa <= 0.004) continue;
           ctx!.strokeStyle = `rgba(${AZUL}, ${alfa.toFixed(3)})`;
@@ -374,8 +399,8 @@ const datos = figuras.map((k) => ({
           const esEstrella = p.t < f.p.length;
           if (o.ancla && armado > 0.1) {
             const g = ctx!.createRadialGradient(x, y, 0, x, y, 16);
-            g.addColorStop(0, `rgba(${AZUL}, ${(0.26 * armado).toFixed(3)})`);
-            g.addColorStop(1, `rgba(${AZUL}, 0)`);
+            g.addColorStop(0, `rgba(${pal.halo}, ${(0.32 * armado).toFixed(3)})`);
+            g.addColorStop(1, `rgba(${pal.halo}, 0)`);
             ctx!.fillStyle = g;
             ctx!.beginPath();
             ctx!.arc(x, y, 16, 0, TAU);
@@ -383,13 +408,13 @@ const datos = figuras.map((k) => ({
           }
           ctx!.fillStyle = esEstrella
             ? `rgba(${TINTA}, ${(0.62 + 0.36 * armado).toFixed(3)})`
-            : `rgba(${AZUL}, ${(0.45 + 0.4 * armado).toFixed(3)})`;
+            : `rgba(${pal.polvo}, ${(0.45 + 0.4 * armado).toFixed(3)})`;
           ctx!.beginPath();
           ctx!.arc(x, y, p.r * (1 + p.carga), 0, TAU);
           ctx!.fill();
         } else {
           const atenuar = enCaja(x, y) ? 0.35 : 1;
-          ctx!.fillStyle = `rgba(${TINTA}, ${((0.4 + p.carga * 0.5) * atenuar).toFixed(3)})`;
+          ctx!.fillStyle = `rgba(${pal.suelto}, ${((0.4 + p.carga * 0.5) * atenuar).toFixed(3)})`;
           ctx!.beginPath();
           ctx!.arc(x, y, p.r * (1 + p.carga * 1.4), 0, TAU);
           ctx!.fill();
@@ -425,6 +450,14 @@ const datos = figuras.map((k) => ({
     }
 
     reconstruir();
+
+    // Control desde fuera: la sección del sistema lo dirige con el scroll.
+    canvas.addEventListener('figura:ir', (ev) => {
+      const k = (ev as CustomEvent<number>).detail;
+      if (k === actual || k < 0 || k >= figs.length) return;
+      asignar(k, !reducido);
+      if (reducido) { colocarYa(); dibujar(); }
+    });
 
     botones.forEach((b, k) =>
       b.addEventListener('click', () => {

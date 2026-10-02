@@ -60,14 +60,37 @@ const links = [
     // La barra solo se separa del fondo cuando hay contenido detrás.
     var nav = document.getElementById('site-nav');
     if (nav) {
+      var ultimoY = window.scrollY;
       var onScroll = function () {
-        var scrolled = window.scrollY > 8;
+        var y = window.scrollY;
+        var scrolled = y > 8;
         nav.classList.toggle('border-line', scrolled);
         nav.classList.toggle('border-transparent', !scrolled);
         nav.classList.toggle('shadow-sm', scrolled);
+        // Al bajar se aparta para dejar leer; al subir vuelve, que es cuando
+        // se busca. Con el menú móvil abierto no se mueve.
+        var menuAbierto = document.getElementById('mobile-menu') && !document.getElementById('mobile-menu').classList.contains('hidden');
+        if (!menuAbierto && y > 420 && y > ultimoY + 4) nav.setAttribute('data-oculta', '');
+        else if (y < ultimoY - 4 || y <= 420) nav.removeAttribute('data-oculta');
+        ultimoY = y;
       };
       onScroll();
       window.addEventListener('scroll', onScroll, { passive: true });
+
+      // Modo noche: cuando una sección .noche pasa por debajo de la barra.
+      // La barra se pinta antes que el resto de la página: hay que esperar a que
+      // existan las secciones de noche para poder vigilarlas.
+      var vigilarNoche = function () {
+        if (!('IntersectionObserver' in window)) return;
+        var debajo = new Set();
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (e) { e.isIntersecting ? debajo.add(e.target) : debajo.delete(e.target); });
+          debajo.size ? nav.setAttribute('data-noche', '') : nav.removeAttribute('data-noche');
+        }, { rootMargin: '0px 0px -94% 0px' });
+        document.querySelectorAll('.noche').forEach(function (s) { io.observe(s); });
+      };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', vigilarNoche);
+      else vigilarNoche();
     }
 
     var btn = document.getElementById('mobile-menu-btn');

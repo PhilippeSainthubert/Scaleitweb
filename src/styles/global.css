@@ -592,3 +592,157 @@ p { text-wrap: pretty; }
   transition: transform .2s ease;
 }
 .indice-movil[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+
+/* ════════════════════════════════════════════════════════════════
+   MOVIMIENTO
+   Un solo lenguaje para toda la web: salida rápida y frenada larga
+   (ease-out exponencial), recorridos cortos y escalonado de 80 ms.
+   Todo se desactiva con prefers-reduced-motion.
+   ════════════════════════════════════════════════════════════════ */
+:root {
+  --ease-salida: cubic-bezier(.16, 1, .3, 1);
+  --ease-suave: cubic-bezier(.45, 0, .2, 1);
+}
+
+/* Revelado al entrar en pantalla. Solo se oculta si hay JavaScript
+   (clase .js en <html>): sin JS el contenido se ve igual. */
+.js [data-revelar] {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition:
+    opacity .9s var(--ease-salida) var(--retraso, 0ms),
+    transform 1.1s var(--ease-salida) var(--retraso, 0ms),
+    filter .9s var(--ease-salida) var(--retraso, 0ms);
+}
+.js [data-revelar='escala'] { transform: scale(.94); }
+.js [data-revelar='izquierda'] { transform: translate3d(-28px, 0, 0); }
+.js [data-revelar='derecha'] { transform: translate3d(28px, 0, 0); }
+.js [data-revelar='desenfoque'] { transform: translate3d(0, 14px, 0); filter: blur(10px); }
+.js [data-revelar].is-in { opacity: 1; transform: none; filter: none; }
+
+/* ════════════════════════════════════════════════════════════════
+   NOCHE
+   La máquina por dentro se cuenta de noche, que es donde viven las
+   constelaciones. Cualquier sección con .noche cambia de cielo y
+   arrastra tipografía, botones y bordes sin tocar cada componente.
+   ════════════════════════════════════════════════════════════════ */
+.noche {
+  --color-line: rgba(147, 177, 255, .14);
+  --color-line-2: rgba(147, 177, 255, .24);
+  --color-surface: rgba(255, 255, 255, .035);
+  --color-surface-2: rgba(147, 177, 255, .08);
+  --color-bg: #0c1a33;
+  --color-ink: #f4f7ff;
+  --color-ink-2: #a9b8d6;
+  --color-ink-3: #7385a8;
+  --color-accent: #7ea0ff;
+  --color-accent-deep: #b8caff;
+  --color-accent-soft: #3d5cbf;
+  position: relative;
+  isolation: isolate;
+  background: #0a1628;
+  color: var(--color-ink-2);
+}
+.noche .btn-primary { background: #fff; color: #0a1628; }
+.noche .btn-primary:hover { background: #dbe5ff; color: #0a1628; }
+.noche .btn-ghost { background: rgba(255, 255, 255, .04); color: #eef3ff; border-color: rgba(147, 177, 255, .26); }
+.noche .btn-ghost:hover { background: rgba(255, 255, 255, .08); border-color: rgba(147, 177, 255, .45); }
+.noche ::selection { background: rgba(126, 160, 255, .35); color: #fff; }
+
+/* Brillo de horizonte: el cielo es más claro arriba, como de madrugada. */
+.noche-brillo {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 45% at 50% 0%, rgba(47, 92, 255, .22), transparent 70%),
+    radial-gradient(40% 30% at 85% 100%, rgba(47, 92, 255, .12), transparent 70%);
+}
+
+/* Estrellas que titilan: pocas y lentas, para que se note el cielo
+   vivo sin distraer de la lectura. */
+.estrella-titila { animation: titila var(--dur, 5s) ease-in-out var(--d, 0s) infinite; }
+@keyframes titila { 0%, 100% { opacity: var(--o, .5); } 50% { opacity: calc(var(--o, .5) * .25); } }
+
+/* ════════════════════════════════════════════════════════════════
+   TRANSICIONES ENTRE PÁGINAS
+   Nativas del navegador (cross-document view transitions): sin
+   router en JavaScript ni scripts que reiniciar. Donde no hay
+   soporte, se navega como siempre.
+   ════════════════════════════════════════════════════════════════ */
+@view-transition { navigation: auto; }
+#site-nav { view-transition-name: navegacion; }
+::view-transition-old(root) { animation: .32s var(--ease-suave) both salir-pagina; }
+::view-transition-new(root) { animation: .55s var(--ease-salida) both entrar-pagina; }
+@keyframes salir-pagina { to { opacity: 0; transform: translateY(-10px); } }
+@keyframes entrar-pagina { from { opacity: 0; transform: translateY(14px); } }
+
+/* ════════════════════════════════════════════════════════════════
+   BARRA
+   Se esconde al bajar y vuelve al subir, y cambia a noche cuando
+   pasa por encima de una sección oscura.
+   ════════════════════════════════════════════════════════════════ */
+#site-nav { transition: transform .45s var(--ease-salida), background-color .35s ease, border-color .35s ease, box-shadow .35s ease; }
+#site-nav[data-oculta] { transform: translateY(-105%); }
+#site-nav[data-noche] { background: rgba(10, 22, 40, .72); border-color: rgba(147, 177, 255, .12) !important; box-shadow: none !important; }
+#site-nav[data-noche] .nav-enlace,
+#site-nav[data-noche] .logo-nombre,
+#site-nav[data-noche] #mobile-menu-btn { color: #dbe5ff; }
+#site-nav[data-noche] .nav-enlace:hover { color: #fff; }
+#site-nav[data-noche] .btn-primary { background: #fff; color: #0a1628; }
+
+/* Flecha de los botones: se adelanta un poco al pasar el ratón. */
+.btn svg { transition: transform .35s var(--ease-salida); }
+.btn:hover svg { transform: translateX(3px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .js [data-revelar] { opacity: 1; transform: none; filter: none; transition: none; }
+  .estrella-titila { animation: none; }
+  @view-transition { navigation: none; }
+  #site-nav[data-oculta] { transform: none; }
+  .btn:hover svg { transform: none; }
+}
+
+/* ── Constelación que se dibuja sola ──────────────────────────── */
+.figura-svg { overflow: visible; }
+.figura-svg[data-tema='dia'] .figura-lineas { stroke: #2f5cff; stroke-opacity: .5; stroke-width: .5; }
+.figura-svg[data-tema='dia'] .figura-polvo { fill: #93b1ff; }
+.figura-svg[data-tema='dia'] .estrella { fill: #1633b8; }
+.figura-svg[data-tema='dia'] .figura-halo-c { stop-color: #2f5cff; stop-opacity: .28; }
+.figura-svg[data-tema='noche'] .figura-lineas { stroke: #7ea0ff; stroke-opacity: .62; stroke-width: .5; }
+.figura-svg[data-tema='noche'] .figura-polvo { fill: #93b1ff; fill-opacity: .8; }
+.figura-svg[data-tema='noche'] .estrella { fill: #f4f7ff; }
+.figura-svg[data-tema='noche'] .figura-halo-c { stop-color: #93b1ff; stop-opacity: .5; }
+.figura-halo-b { stop-color: #93b1ff; stop-opacity: 0; }
+
+/* La figura no se oculta entera: se dibuja. */
+.js [data-revelar='figura'] { opacity: 1; transform: none; filter: none; }
+.js .figura-svg line { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.js .figura-svg .figura-polvo circle,
+.js .figura-svg .figura-halos circle { opacity: 0; }
+.js .figura-svg .estrella { transform: scale(0); transform-box: fill-box; transform-origin: center; }
+.figura-svg.is-in line {
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset .7s var(--ease-salida) calc(var(--inicio) + var(--o) * var(--paso));
+}
+.figura-svg.is-in .figura-polvo circle {
+  opacity: 1;
+  transition: opacity .6s ease calc(var(--inicio) + var(--o) * var(--paso) + 250ms);
+}
+.figura-svg.is-in .estrella {
+  transform: scale(1);
+  transition: transform .55s var(--ease-salida) calc(var(--inicio) + var(--o) * var(--paso) + 120ms);
+}
+.figura-svg.is-in .figura-halos circle {
+  opacity: 1;
+  transition: opacity 1.2s ease calc(var(--inicio) + 900ms);
+  animation: respira 4.5s ease-in-out calc(var(--inicio) + 2.1s) infinite;
+}
+@keyframes respira { 50% { opacity: .45; } }
+@media (prefers-reduced-motion: reduce) {
+  .js .figura-svg line { stroke-dashoffset: 0; }
+  .js .figura-svg .figura-polvo circle, .js .figura-svg .figura-halos circle { opacity: 1; }
+  .js .figura-svg .estrella { transform: none; }
+  .figura-svg.is-in .figura-halos circle { animation: none; }
+}

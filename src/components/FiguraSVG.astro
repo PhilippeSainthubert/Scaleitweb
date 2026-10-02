@@ -1,0 +1,92 @@
+---
+/**
+ * La constelación de un agente que se dibuja sola al entrar en pantalla.
+ *
+ * Las aristas se trazan en orden de recorrido desde la estrella principal del
+ * animal hacia fuera, así que la figura crece desde su centro en lugar de
+ * aparecer de golpe; después se encienden las estrellas y el polvo entre ellas.
+ *
+ * Es la versión ligera de RedAgente: SVG con transiciones de CSS, sin bucle de
+ * JavaScript, para usarla en secciones, tarjetas y móvil. Se revela con el
+ * mismo motor que el resto de la página ([data-revelar]).
+ */
+import { FIGURAS_GRANDES } from '../data/constelaciones-grandes';
+
+interface Props {
+  animal: string;
+  tema?: 'dia' | 'noche';
+  class?: string;
+  /** Retraso antes de empezar a dibujar, en ms. */
+  retraso?: number;
+}
+const { animal, tema = 'dia', class: className = '', retraso = 0 } = Astro.props;
+const f = FIGURAS_GRANDES[animal] ?? FIGURAS_GRANDES.pulpo;
+
+// Recorrido en anchura desde la estrella más grande: profundidad de cada nodo.
+const ady: number[][] = f.p.map(() => []);
+f.e.forEach(([a, b]) => { ady[a].push(b); ady[b].push(a); });
+const raiz = f.p.reduce((m, p, i) => (p[2] > f.p[m][2] ? i : m), 0);
+const prof = f.p.map(() => Infinity);
+prof[raiz] = 0;
+const cola = [raiz];
+while (cola.length) {
+  const n = cola.shift()!;
+  for (const v of ady[n]) if (prof[v] === Infinity) { prof[v] = prof[n] + 1; cola.push(v); }
+}
+const maxProf = Math.max(1, ...prof.filter((d) => d !== Infinity));
+const profN = prof.map((d) => (d === Infinity ? maxProf : d));
+const aristas = f.e
+  .map(([a, b]) => ({ a, b, orden: Math.min(profN[a], profN[b]) }))
+  .sort((x, y) => x.orden - y.orden);
+
+// Polvo a lo largo de las aristas, como en la cabecera y las portadas.
+const polvo: { x: number; y: number; orden: number }[] = [];
+let semilla = animal.length * 97;
+const azar = () => ((semilla = (semilla * 9301 + 49297) % 233280) / 233280);
+for (const { a, b, orden } of aristas) {
+  const [ax, ay] = f.p[a];
+  const [bx, by] = f.p[b];
+  const n = Math.floor(Math.hypot(bx - ax, by - ay) / 3.4);
+  for (let i = 1; i < n; i++) {
+    const t = i / n;
+    polvo.push({ x: ax + (bx - ax) * t + (azar() - 0.5) * 0.5, y: ay + (by - ay) * t + (azar() - 0.5) * 0.5, orden });
+  }
+}
+
+const id = `fg-${animal}-${Math.random().toString(36).slice(2, 8)}`;
+const paso = 1100 / Math.max(1, maxProf);
+---
+
+<svg
+  viewBox="-4 -4 108 108"
+  class={`figura-svg ${className}`}
+  data-revelar="figura"
+  data-tema={tema}
+  style={`--inicio:${retraso}ms;--paso:${paso.toFixed(0)}ms`}
+  aria-hidden="true"
+>
+  <defs>
+    <radialGradient id={id}>
+      <stop offset="0" class="figura-halo-c" />
+      <stop offset="1" class="figura-halo-b" />
+    </radialGradient>
+  </defs>
+  <g class="figura-lineas" fill="none" stroke-linecap="round">
+    {aristas.map(({ a, b, orden }) => (
+      <line
+        x1={f.p[a][0]} y1={f.p[a][1]} x2={f.p[b][0]} y2={f.p[b][1]}
+        pathLength="1"
+        style={`--o:${orden}`}
+      />
+    ))}
+  </g>
+  <g class="figura-polvo">
+    {polvo.map((d) => <circle cx={d.x.toFixed(2)} cy={d.y.toFixed(2)} r="0.32" style={`--o:${d.orden}`} />)}
+  </g>
+  <g class="figura-halos">
+    {f.p.filter((p) => p[2] >= 2).map((p) => <circle cx={p[0]} cy={p[1]} r={p[2] * 3.4} fill={`url(#${id})`} />)}
+  </g>
+  <g class="figura-estrellas">
+    {f.p.map((p, i) => <circle class="estrella" cx={p[0]} cy={p[1]} r={(p[2] * 0.62).toFixed(2)} style={`--o:${profN[i]}`} />)}
+  </g>
+</svg>

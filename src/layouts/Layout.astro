@@ -146,6 +146,7 @@ const graphs = [organization, website, ...personas, ...(schema ? (Array.isArray(
 
     {/* Consent Mode v2: denegado por defecto en el EEE. Debe ir ANTES
         de cualquier etiqueta de Google. El banner lo actualiza al aceptar. */}
+    <script is:inline>document.documentElement.classList.add('js');</script>
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
       function gtag() { dataLayer.push(arguments); }
@@ -189,9 +190,21 @@ const graphs = [organization, website, ...personas, ...(schema ? (Array.isArray(
     <Analytics />
 
     <script is:inline>
-      // Revelado por scroll. Barato, respeta prefers-reduced-motion vía CSS.
+      // Revelado al entrar en pantalla.
+      //   [data-revelar]        un bloque suelto (variantes: escala, izquierda,
+      //                         derecha, desenfoque).
+      //   [data-revelar-grupo]  sus hijos entran escalonados, 80 ms entre uno
+      //                         y otro, sin tener que marcar cada hijo.
+      //   .reveal               el sistema antiguo, que sigue funcionando.
       (function () {
-        var els = document.querySelectorAll('.reveal');
+        document.querySelectorAll('[data-revelar-grupo]').forEach(function (g) {
+          var paso = parseInt(g.getAttribute('data-revelar-grupo'), 10) || 80;
+          Array.prototype.forEach.call(g.children, function (hijo, i) {
+            if (!hijo.hasAttribute('data-revelar')) hijo.setAttribute('data-revelar', g.getAttribute('data-revelar-variante') || '');
+            hijo.style.setProperty('--retraso', i * paso + 'ms');
+          });
+        });
+        var els = document.querySelectorAll('.reveal, [data-revelar]');
         if (!('IntersectionObserver' in window)) {
           els.forEach(function (el) { el.classList.add('is-in'); });
           return;
@@ -200,7 +213,7 @@ const graphs = [organization, website, ...personas, ...(schema ? (Array.isArray(
           entries.forEach(function (e) {
             if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
           });
-        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+        }, { rootMargin: '0px 0px -8% 0px', threshold: 0.06 });
         els.forEach(function (el) { io.observe(el); });
       })();
     </script>
