@@ -1,5 +1,6 @@
 ---
 import { FIGURAS } from '../data/constelaciones';
+import CieloEstrellado from './CieloEstrellado.astro';
 
 /**
  * Organigrama de agentes, animado y alineado a los tres pilares de la casa.
@@ -11,6 +12,10 @@ import { FIGURAS } from '../data/constelaciones';
  *
  * Las diez ramas de subagente convergen en un único nodo que es una persona.
  * Esa convergencia es el argumento entero, y por eso es el centro visual.
+ *
+ * Va de noche, como el resto de la máquina por dentro. Las máquinas son luz
+ * azul y las personas luz cálida: el ámbar marca la revisión humana aquí y en
+ * la consola, y el verde lo que ya salió.
  */
 
 const W = 1400;
@@ -107,9 +112,10 @@ const avatar = (animal: string, cx: number, cy: number, tam: number, claro = fal
 };
 ---
 
-<section class="border-t border-line bg-surface py-24 sm:py-32">
+<section class="noche overflow-clip py-28 sm:py-36">
+  <CieloEstrellado semilla={5} densidad={0.6} />
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-revelar-grupo>
       <p class="eyebrow">Cómo se reparte el trabajo</p>
       <h2 class="display-lg mt-4 text-balance">Diez agentes trabajando, y una sola puerta de salida</h2>
       <p class="lede mt-5">
@@ -119,8 +125,8 @@ const avatar = (animal: string, cx: number, cy: number, tam: number, claro = fal
       </p>
     </div>
 
-    <div class="mt-14 hidden sm:block">
-      <div class="relative overflow-hidden rounded-2xl border border-line bg-bg" data-org>
+    <div class="mt-14 hidden sm:block" data-revelar="escala">
+      <div class="org-caja relative overflow-hidden rounded-2xl border border-line-2" data-org>
         {/* Controles de navegación */}
         <div class="absolute right-4 top-4 z-10 flex items-center gap-1.5">
           <button type="button" data-org-zoom="-1" aria-label="Alejar" class="flex h-9 w-9 items-center justify-center rounded-lg border border-line bg-bg text-ink transition-colors hover:border-ink-3">
@@ -136,99 +142,98 @@ const avatar = (animal: string, cx: number, cy: number, tam: number, claro = fal
         <svg viewBox={`0 0 ${W} ${H}`} class="h-auto w-full" role="img" aria-label="Organigrama: el agente orquestador reparte el trabajo entre tres pilares, Captar, Atraer y Operar, cada uno con sus subagentes, y las diez ramas convergen en una revisión humana antes de entregarse al cliente.">
           <defs>
             <linearGradient id="orgFlujo" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0" stop-color="#93b1ff" /><stop offset="0.5" stop-color="#2f5cff" /><stop offset="1" stop-color="#1633b8" />
+              <stop offset="0" stop-color="#ffffff" /><stop offset="0.5" stop-color="#93b1ff" /><stop offset="1" stop-color="#5c86ff" />
             </linearGradient>
             <radialGradient id="orgHalo">
-              <stop offset="0" stop-color="#2f5cff" stop-opacity="0.15" /><stop offset="1" stop-color="#2f5cff" stop-opacity="0" />
+              <stop offset="0" stop-color="#f5c26b" stop-opacity="0.16" /><stop offset="1" stop-color="#f5c26b" stop-opacity="0" />
             </radialGradient>
             <clipPath id="av1"><circle cx="0" cy="0" r="18" /></clipPath>
             <clipPath id="av2"><circle cx="0" cy="0" r="18" /></clipPath>
           </defs>
 
-          <rect width={W} height={H} fill="#ffffff" />
-          <g class="org-vista">
-          {fondo.map((p) => <circle cx={p.x} cy={p.y} r={p.r} fill="#2f5cff" opacity={p.o} />)}
+                    <g class="org-vista">
+          {fondo.map((p) => <circle cx={p.x} cy={p.y} r={p.r * 0.7} fill="#dbe5ff" opacity={p.o * 2.6} />)}
           <circle cx={revision.x} cy={revision.y} r="250" fill="url(#orgHalo)" />
 
-          {aristas.map((a) => <path d={a.d} fill="none" stroke="#c8d3e4" stroke-width={a.w * 0.6} />)}
+          {aristas.map((a) => <path d={a.d} fill="none" stroke="#93b1ff" stroke-opacity="0.2" stroke-width={a.w * 0.6} />)}
           {aristas.map((a) => (
             <path class="org-pulso" d={a.d} fill="none" stroke="url(#orgFlujo)" stroke-width={a.w} stroke-linecap="round" style={`--l:${a.l};--d:${a.delay}s`} />
           ))}
 
           {/* Objetivo */}
-          <rect x={objetivo.x - 145} y={objetivo.y - 24} width="290" height="48" rx="10" fill="#ffffff" stroke="#e4e9f2" />
-          <text x={objetivo.x} y={objetivo.y + 5} text-anchor="middle" class="org-t-nodo" fill="#0a1628">Objetivo del trimestre</text>
+          <rect x={objetivo.x - 145} y={objetivo.y - 24} width="290" height="48" rx="10" fill="#12223f" stroke="#93b1ff" stroke-opacity="0.26" />
+          <text x={objetivo.x} y={objetivo.y + 5} text-anchor="middle" class="org-t-nodo" fill="#f4f7ff">Objetivo del trimestre</text>
 
           {/* Orquestador */}
           <g>
-            <rect x={orq.x - ORQ_W / 2} y={orq.y - ORQ_H / 2} width={ORQ_W} height={ORQ_H} rx="16" fill="#0a1628" />
+            <rect x={orq.x - ORQ_W / 2} y={orq.y - ORQ_H / 2} width={ORQ_W} height={ORQ_H} rx="16" fill="#2f5cff" />
             {(() => { const a = avatar('pulpo', orq.x - ORQ_W / 2 + 60, orq.y, 62); return (
               <g transform={a.t}>
-                <g stroke="#5C86FF" stroke-width="1" opacity="0.55" fill="none" stroke-linecap="round">
+                <g stroke="#dbe5ff" stroke-width="1" opacity="0.6" fill="none" stroke-linecap="round">
                   {a.f.e.map(([i, j]) => <line x1={a.f.p[i][0]} y1={a.f.p[i][1]} x2={a.f.p[j][0]} y2={a.f.p[j][1]} />)}
                 </g>
-                {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#93b1ff" style={`--d:${(k % 6) * 0.35}s`} />)}
+                {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#ffffff" style={`--d:${(k % 6) * 0.35}s`} />)}
               </g>
             ); })()}
-            <text x={orq.x + 46} y={orq.y - 12} text-anchor="middle" class="org-t-mono" fill="#93b1ff">Agente</text>
+            <text x={orq.x + 46} y={orq.y - 12} text-anchor="middle" class="org-t-mono" fill="#cfdcff">Agente</text>
             <text x={orq.x + 46} y={orq.y + 16} text-anchor="middle" class="org-t-orq" fill="#ffffff">Orquestador</text>
           </g>
 
           {/* Pilares */}
           {pilares.map((p, i) => (
             <g>
-              <rect x={p.x - PIL_W / 2} y={PILAR_Y - PIL_H / 2} width={PIL_W} height={PIL_H} rx="13" fill="#ffffff" stroke="#e4e9f2" />
+              <rect x={p.x - PIL_W / 2} y={PILAR_Y - PIL_H / 2} width={PIL_W} height={PIL_H} rx="13" fill="#12223f" stroke="#93b1ff" stroke-opacity="0.26" />
               {(() => { const a = avatar(p.animal, p.x - PIL_W / 2 + 48, PILAR_Y, 56); return (
                 <g transform={a.t}>
-                  <g stroke="#2f5cff" stroke-width="1" opacity="0.45" fill="none" stroke-linecap="round">
+                  <g stroke="#7ea0ff" stroke-width="1" opacity="0.55" fill="none" stroke-linecap="round">
                     {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
                   </g>
-                  {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#2f5cff" style={`--d:${(k % 6) * 0.35 + i * 0.2}s`} />)}
+                  {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#dbe5ff" style={`--d:${(k % 6) * 0.35 + i * 0.2}s`} />)}
                 </g>
               ); })()}
-              <text x={p.x + 38} y={PILAR_Y - 8} text-anchor="middle" class="org-t-pilar" fill="#0a1628">{p.nombre}</text>
-              <text x={p.x + 38} y={PILAR_Y + 14} text-anchor="middle" class="org-t-lema" fill="#7385a0">{p.lema}</text>
+              <text x={p.x + 38} y={PILAR_Y - 8} text-anchor="middle" class="org-t-pilar" fill="#f4f7ff">{p.nombre}</text>
+              <text x={p.x + 38} y={PILAR_Y + 14} text-anchor="middle" class="org-t-lema" fill="#8fa0c4">{p.lema}</text>
             </g>
           ))}
 
           {/* Subagentes */}
           {subs.map((s) => (
             <g>
-              <rect class="org-sub" x={s.x - s.w / 2} y={s.y - SUB_H / 2} width={s.w} height={SUB_H} rx={SUB_H / 2} fill="#f4f7fc" stroke="#c8d3e4" stroke-width="1.2" style={`--d:${s.indice * 0.14}s`} />
+              <rect class="org-sub" x={s.x - s.w / 2} y={s.y - SUB_H / 2} width={s.w} height={SUB_H} rx={SUB_H / 2} fill="#0f1f3b" stroke="#93b1ff" stroke-opacity="0.3" stroke-width="1.2" style={`--d:${s.indice * 0.14}s`} />
               {(() => { const a = avatar(s.animal, s.x - s.w / 2 + 22, s.y, SUB_AV); return (
                 <g transform={a.t}>
-                  <g stroke="#2f5cff" stroke-width="1.1" opacity="0.4" fill="none" stroke-linecap="round">
+                  <g stroke="#7ea0ff" stroke-width="1.1" opacity="0.5" fill="none" stroke-linecap="round">
                     {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
                   </g>
-                  {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#2f5cff" style={`--d:${(k % 6) * 0.35 + s.indice * 0.1}s`} />)}
+                  {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#b8caff" style={`--d:${(k % 6) * 0.35 + s.indice * 0.1}s`} />)}
                 </g>
               ); })()}
-              <text x={s.x + 16} y={s.y + 4} text-anchor="middle" class="org-t-sub" fill="#42536b">{s.etiqueta}</text>
+              <text x={s.x + 16} y={s.y + 4} text-anchor="middle" class="org-t-sub" fill="#c4d0ea">{s.etiqueta}</text>
             </g>
           ))}
 
           {/* Revisión humana */}
           <g>
-            <rect class="org-revision" x={revision.x - REV_W / 2} y={revision.y - REV_H / 2} width={REV_W} height={REV_H} rx="18" fill="#ffffff" stroke="#2f5cff" stroke-width="2" />
+            <rect class="org-revision" x={revision.x - REV_W / 2} y={revision.y - REV_H / 2} width={REV_W} height={REV_H} rx="18" fill="#16233d" stroke="#f5c26b" stroke-width="2" />
             <g transform={`translate(${revision.x - 200}, ${revision.y})`}>
-              <circle r="19" fill="#eef3ff" />
+              <circle r="19" fill="#1b2a48" />
               <image href="/philippe.jpeg" x="-18" y="-18" width="36" height="36" clip-path="url(#av1)" preserveAspectRatio="xMidYMid slice" />
             </g>
             <g transform={`translate(${revision.x - 166}, ${revision.y})`}>
-              <circle r="19" fill="#eef3ff" stroke="#ffffff" stroke-width="2.5" />
+              <circle r="19" fill="#1b2a48" stroke="#16233d" stroke-width="2.5" />
               <image href="/patrick.jpeg" x="-18" y="-18" width="36" height="36" clip-path="url(#av2)" preserveAspectRatio="xMidYMid slice" />
             </g>
-            <text x={revision.x + 22} y={revision.y - 8} text-anchor="middle" class="org-t-rev" fill="#0a1628">Revisión humana</text>
-            <text x={revision.x + 22} y={revision.y + 16} text-anchor="middle" class="org-t-mono" fill="#2f5cff">Nada sale sin pasar por aquí</text>
+            <text x={revision.x + 22} y={revision.y - 8} text-anchor="middle" class="org-t-rev" fill="#ffffff">Revisión humana</text>
+            <text x={revision.x + 22} y={revision.y + 16} text-anchor="middle" class="org-t-mono" fill="#f5c26b">Nada sale sin pasar por aquí</text>
             <g transform={`translate(${revision.x + REV_W / 2 - 54}, ${revision.y})`}>
-              <rect x="-34" y="-16" width="68" height="32" rx="16" fill="#eef3ff" />
-              <text x="0" y="4" text-anchor="middle" class="org-t-mono" fill="#1633b8">3 en cola</text>
+              <rect x="-34" y="-16" width="68" height="32" rx="16" fill="#f5c26b" fill-opacity="0.14" />
+              <text x="0" y="4" text-anchor="middle" class="org-t-mono" fill="#f5c26b">3 en cola</text>
             </g>
           </g>
 
           {/* Salida */}
-          <rect x={salida.x - 132} y={salida.y - 26} width="264" height="52" rx="11" fill="#0f9960" />
-          <text x={salida.x} y={salida.y + 5} text-anchor="middle" class="org-t-nodo" fill="#ffffff">Sale al cliente</text>
+          <rect x={salida.x - 132} y={salida.y - 26} width="264" height="52" rx="11" fill="#6fe0a8" />
+          <text x={salida.x} y={salida.y + 5} text-anchor="middle" class="org-t-nodo" fill="#062a1b">Sale al cliente</text>
           </g>
         </svg>
       </div>
@@ -247,13 +252,13 @@ const avatar = (animal: string, cx: number, cy: number, tam: number, claro = fal
       ].map((n, i, arr) => (
         <div>
           <div class={`rounded-xl border p-4 ${
-            n.tipo === 'orq' ? 'border-ink bg-ink' :
-            n.tipo === 'humano' ? 'border-accent bg-accent/[0.05]' :
-            n.tipo === 'salida' ? 'border-positive bg-positive' : 'border-line bg-bg'
+            n.tipo === 'orq' ? 'border-[#2f5cff] bg-[#2f5cff]' :
+            n.tipo === 'humano' ? 'border-[#f5c26b] bg-[#f5c26b]/[0.06]' :
+            n.tipo === 'salida' ? 'border-[#6fe0a8] bg-[#6fe0a8]' : 'border-line bg-surface'
           }`}>
-            <p class={`text-[15px] font-semibold ${n.tipo === 'orq' || n.tipo === 'salida' ? 'text-white' : 'text-ink'}`}>{n.t}</p>
+            <p class={`text-[15px] font-semibold ${n.tipo === 'orq' ? 'text-white' : n.tipo === 'salida' ? 'text-[#062a1b]' : 'text-ink'}`}>{n.t}</p>
             {n.s && <p class={`mt-1 font-mono text-[11.5px] ${
-              n.tipo === 'orq' ? 'text-[#93b1ff]' : n.tipo === 'humano' ? 'text-accent' : 'text-ink-3'
+              n.tipo === 'orq' ? 'text-[#dbe5ff]' : n.tipo === 'humano' ? 'text-[#f5c26b]' : 'text-ink-3'
             }`}>{n.s}</p>}
           </div>
           {i < arr.length - 1 && <div class="flex justify-center py-1"><span class="org-flecha h-5 w-px bg-line-2"></span></div>}

@@ -1,4 +1,6 @@
 ---
+import Logo from './Logo.astro';
+
 const rows = [
   {
     axis: 'Alcance',
@@ -33,20 +35,20 @@ const rows = [
 ];
 ---
 
-<section class="border-t border-line bg-surface py-24 sm:py-32">
+<section class="border-t border-line bg-surface py-28 sm:py-36">
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-revelar-grupo>
       <p class="eyebrow">Comparativa</p>
       <h2 class="display-lg mt-4 text-balance">Ni la lentitud de una agencia, ni la soledad de las herramientas</h2>
     </div>
 
-    <div class="reveal mt-12 overflow-x-auto">
+    <div class="comparativa mt-14 overflow-x-auto" data-revelar>
       <table class="w-full min-w-[700px] border-separate border-spacing-0 text-left">
         <thead>
           <tr>
             <th class="w-[16%] pb-4 pr-4"></th>
-            <th class="w-[30%] rounded-t-xl border border-b-0 border-accent/25 bg-bg px-5 pb-4 pt-5">
-              <span class="text-[15px] font-semibold text-ink">Scale It</span>
+            <th class="comparativa-nuestra w-[30%] rounded-t-2xl px-5 pb-4 pt-5">
+              <Logo />
             </th>
             <th class="w-[27%] px-5 pb-4 pt-5 text-[15px] font-medium text-ink-3">Herramientas sueltas</th>
             <th class="w-[27%] px-5 pb-4 pt-5 text-[15px] font-medium text-ink-3">Agencia tradicional</th>
@@ -54,12 +56,15 @@ const rows = [
         </thead>
         <tbody>
           {rows.map((row, i) => (
-            <tr>
+            <tr style={`--fila:${i}`}>
               <th scope="row" class="border-t border-line py-5 pr-4 align-top font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
                 {row.axis}
               </th>
-              <td class={`border-x border-t border-accent/25 bg-bg px-5 py-5 align-top text-[14.5px] leading-relaxed text-ink ${i === rows.length - 1 ? 'rounded-b-xl border-b' : ''}`}>
-                {row.scaleIt}
+              <td class={`comparativa-nuestra px-5 py-5 align-top text-[14.5px] leading-relaxed text-ink ${i === rows.length - 1 ? 'rounded-b-2xl' : ''}`}>
+                <span class="flex gap-2.5">
+                  <svg class="mt-[5px] h-3.5 w-3.5 shrink-0 text-accent" viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                  {row.scaleIt}
+                </span>
               </td>
               <td class="border-t border-line px-5 py-5 align-top text-[14.5px] leading-relaxed text-ink-2">{row.tools}</td>
               <td class="border-t border-line px-5 py-5 align-top text-[14.5px] leading-relaxed text-ink-2">{row.agency}</td>

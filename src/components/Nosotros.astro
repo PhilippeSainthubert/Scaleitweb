@@ -6,11 +6,14 @@
  * outbound. No se le atribuyen años, cifras ni clientes que nadie ha
  * verificado, porque es exactamente el tipo de detalle que un comprador B2B
  * comprueba en LinkedIn antes de la primera llamada.
+ *
+ * En toda la web las personas llevan luz cálida (la revisión humana de la
+ * consola y del organigrama, las fotos del contacto). Aquí es donde esa luz
+ * tiene cara: retratos grandes, con el mismo ámbar al pasar el ratón.
  */
 const socios = [
   {
     nombre: 'Philippe Saint-Hubert',
-    iniciales: 'PS',
     rol: 'Sistemas, estrategia y agentes',
     foto: '/philippe.jpeg',
     bio: 'Consultor de growth para empresas tech y fintech. Diseña la arquitectura del sistema de adquisición y construye los agentes que lo operan.',
@@ -19,7 +22,6 @@ const socios = [
   },
   {
     nombre: 'Patrick Saint-Hubert',
-    iniciales: 'PS',
     rol: 'Outbound y generación de demanda',
     foto: '/patrick.jpeg',
     bio: 'Especialista en outbound B2B. Define el ICP, encuentra las señales de compra y convierte esa lista en conversaciones: secuencias multicanal, LinkedIn y deliverability.',
@@ -29,54 +31,49 @@ const socios = [
 ];
 ---
 
-<section id="nosotros" class="border-t border-line bg-surface py-24 sm:py-32">
+<section id="nosotros" class="border-t border-line py-28 sm:py-36">
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
-      <p class="eyebrow">Nosotros</p>
-      <h2 class="display-lg mt-4 text-balance">Somos dos hermanos, y los vas a tener a los dos</h2>
-      <p class="lede mt-5">
+    <div class="grid gap-8 lg:grid-cols-12 lg:items-end">
+      <div class="lg:col-span-7" data-revelar-grupo>
+        <p class="eyebrow">Nosotros</p>
+        <h2 class="display-lg mt-4 text-balance">Somos dos hermanos, y los vas a tener a los dos</h2>
+      </div>
+      <p class="lede lg:col-span-5" data-revelar>
         Sin cuentas delegadas en un junior ni gestores que rotan cada seis meses.
         Uno diseña y construye el sistema, el otro lo llena de demanda. Nos
         conocés por nombre desde la primera llamada.
       </p>
     </div>
 
-    <div class="mt-14 grid gap-10 md:grid-cols-2 md:gap-8">
-      {socios.map((socio, i) => (
-        <article class="reveal" style={`transition-delay:${i * 80}ms`}>
-          <div class="max-w-[240px] overflow-hidden rounded-2xl border border-line bg-bg">
-            <img
-              src={socio.foto}
-              alt={socio.nombre}
-              width="480"
-              height="480"
-              loading="lazy"
-              class="aspect-square w-full object-cover"
-            />
+    <div class="mt-16 grid gap-12 md:grid-cols-2 md:gap-8" data-revelar-grupo="140">
+      {socios.map((socio) => (
+        <article class="socio">
+          <div class="socio-retrato">
+            <img src={socio.foto} alt={socio.nombre} width="480" height="480" loading="lazy" />
+            <p class="socio-rol">{socio.rol}</p>
           </div>
 
-          <div class="mt-6">
-            <h3 class="display-md">{socio.nombre}</h3>
-            <p class="mt-1.5 text-[15px] font-medium text-accent">{socio.rol}</p>
-            <p class="mt-4 text-[15px] leading-relaxed text-ink-2">{socio.bio}</p>
-
+          <div class="mt-7">
+            <div class="flex items-baseline justify-between gap-4">
+              <h3 class="display-md">{socio.nombre}</h3>
+              <a
+                href={socio.linkedin}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex shrink-0 items-center gap-1.5 text-[14px] text-ink-2 transition-colors hover:text-accent"
+              >
+                LinkedIn
+                <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7m0 0H9m8 0v8" />
+                </svg>
+              </a>
+            </div>
+            <p class="mt-4 max-w-[50ch] text-[15.5px] leading-relaxed text-ink-2">{socio.bio}</p>
             <div class="mt-5 flex flex-wrap gap-1.5">
               {socio.tags.map((tag) => (
                 <span class="rounded-full border border-line bg-surface px-2.5 py-1 font-mono text-[11px] text-ink-3">{tag}</span>
               ))}
             </div>
-
-            <a
-              href={socio.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="mt-5 inline-flex items-center gap-1.5 text-[14px] text-ink transition-colors hover:text-accent"
-            >
-              LinkedIn
-              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M7 17 17 7m0 0H9m8 0v8" />
-              </svg>
-            </a>
           </div>
         </article>
       ))}

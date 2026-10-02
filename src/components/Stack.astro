@@ -1,36 +1,38 @@
 ---
-const groups = [
-  { category: 'IA y agentes', tools: ['Claude', 'MCP', 'n8n', 'Make'] },
-  { category: 'CRM y RevOps', tools: ['GoHighLevel', 'HubSpot', 'Pipedrive'] },
-  { category: 'Datos', tools: ['GA4', 'GTM', 'BigQuery', 'Looker Studio'] },
-  { category: 'Adquisición', tools: ['Google Ads', 'Meta Ads', 'LinkedIn Ads'] },
-  { category: 'Web', tools: ['Astro', 'Vercel', 'Cloudflare'] },
-  { category: 'Operación', tools: ['Slack', 'Notion', 'Linear'] },
+/**
+ * Las herramientas a las que se enganchan los agentes, en una cinta que corre.
+ *
+ * Va pegada a la cabecera porque responde a la primera objeción ("¿tengo que
+ * cambiar de herramientas?") antes de que nadie la piense. La lista se repite
+ * dos veces para que la cinta no tenga costura; la copia va oculta a lectores
+ * de pantalla. Se para al pasar el ratón y queda quieta con movimiento reducido.
+ */
+const grupos = [
+  { categoria: 'IA y agentes', herramientas: ['Claude', 'MCP', 'n8n', 'Make'] },
+  { categoria: 'CRM y RevOps', herramientas: ['GoHighLevel', 'HubSpot', 'Pipedrive'] },
+  { categoria: 'Datos', herramientas: ['GA4', 'GTM', 'BigQuery', 'Looker Studio'] },
+  { categoria: 'Adquisición', herramientas: ['Google Ads', 'Meta Ads', 'LinkedIn Ads'] },
+  { categoria: 'Web', herramientas: ['Astro', 'Vercel', 'Cloudflare'] },
+  { categoria: 'Operación', herramientas: ['Slack', 'Notion', 'Linear'] },
 ];
 ---
 
-<section class="border-t border-line py-24 sm:py-32">
-  <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
-      <p class="eyebrow">Stack</p>
-      <h2 class="display-lg mt-4 text-balance">Nos conectamos a lo que ya usás</h2>
-      <p class="lede mt-5">
-        No hay que migrar nada para empezar. Los agentes se enganchan a tus
-        herramientas actuales; si algo falta, lo montamos.
-      </p>
-    </div>
-
-    <div class="mt-14 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-      {groups.map((group) => (
-        <div class="bg-bg p-6">
-          <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{group.category}</p>
-          <div class="mt-3.5 flex flex-wrap gap-1.5">
-            {group.tools.map((tool) => (
-              <span class="rounded-md border border-line bg-surface px-2.5 py-1 text-[13px] text-ink">{tool}</span>
-            ))}
-          </div>
-        </div>
-      ))}
+<section class="border-b border-line bg-bg" aria-labelledby="stack-titulo">
+  <div class="mx-auto flex max-w-6xl flex-col gap-5 px-6 py-9 lg:flex-row lg:items-center lg:gap-10">
+    <p id="stack-titulo" class="shrink-0 text-[14px] leading-snug text-ink-2 lg:max-w-[13rem]">
+      <span class="font-medium text-ink">Nada que migrar.</span> Los agentes se conectan a lo que ya usás.
+    </p>
+    <div class="cinta" data-cinta>
+      <ul class="cinta-pista">
+        {[0, 1].map((copia) =>
+          grupos.map((g) => (
+            <li class="cinta-grupo" aria-hidden={copia === 1 ? 'true' : undefined}>
+              <span class="cinta-categoria">{g.categoria}</span>
+              {g.herramientas.map((h) => <span class="cinta-herramienta">{h}</span>)}
+            </li>
+          ))
+        )}
+      </ul>
     </div>
   </div>
 </section>

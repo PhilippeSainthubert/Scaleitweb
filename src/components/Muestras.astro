@@ -2,15 +2,25 @@
 /**
  * Anticipo de los ejemplos, en la home.
  *
- * La home tenía la consola de agentes y nada más. Los ejemplos buenos vivían
- * escondidos en las landings, que es donde llega menos gente. Esto enseña tres
- * de ellos en miniatura y empuja a la landing que corresponde.
+ * Tres piezas reales en miniatura, cada una en el sitio donde vive: el anuncio
+ * dentro de una búsqueda, el correo dentro de una bandeja de entrada y el
+ * agente con su lista de permisos. Se animan al entrar en pantalla para que se
+ * vea el momento que importa: la búsqueda que se escribe y el anuncio que
+ * aparece, el correo que llega entre los genéricos, los permisos que se
+ * cierran. Cada una lleva a la landing con el ejemplo entero.
  */
+const permisos = [
+  { t: 'Redactar respuestas', ok: true },
+  { t: 'Actualizar el CRM', ok: true },
+  { t: 'Enviar sin revisión', ok: false },
+  { t: 'Borrar registros', ok: false },
+  { t: 'Acceder a facturación', ok: false },
+];
 ---
 
-<section class="border-t border-line py-24 sm:py-32">
+<section class="border-t border-line py-28 sm:py-36">
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-revelar-grupo>
       <p class="eyebrow">El trabajo</p>
       <h2 class="display-lg mt-4 text-balance">Esto es lo que sale de nuestra parte</h2>
       <p class="lede mt-5">
@@ -19,79 +29,89 @@
       </p>
     </div>
 
-    <div class="mt-14 grid gap-5 lg:grid-cols-3">
-      {/* Paid */}
-      <a href="/servicios/paid" class="card group flex flex-col p-6">
-        <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Paid</p>
-        <div class="mt-4 flex-1 rounded-lg border border-line bg-surface p-4">
-          <div class="flex items-center gap-2">
-            <span class="rounded border border-ink px-1 py-px text-[9.5px] font-semibold text-ink">Anuncio</span>
-            <span class="text-[11.5px] text-ink-3">fabricante-componentes.es</span>
+    <div class="mt-14 grid gap-5 lg:grid-cols-3" data-revelar-grupo>
+      {/* Paid: la búsqueda se escribe y aparece el anuncio */}
+      <div>
+      <a href="/servicios/paid" class="muestra group">
+        <div class="muestra-escena">
+          <div class="serp-busqueda">
+            <svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8" /><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" /></svg>
+            <span class="serp-texto">mecanizado de precisión bajo plano</span>
           </div>
-          <p class="mt-2 text-[14.5px] leading-snug text-accent">
-            Mecanizado de precisión bajo plano | Entrega en 15 días
-          </p>
-          <p class="mt-1.5 text-[12px] leading-relaxed text-ink-2">
-            Series cortas desde 50 piezas. Presupuesto en 24 h con tu plano.
-          </p>
+          <div class="serp-anuncio">
+            <div class="flex items-center gap-2">
+              <span class="rounded border border-ink px-1 py-px text-[9.5px] font-semibold text-ink">Anuncio</span>
+              <span class="text-[11.5px] text-ink-3">fabricante-componentes.es</span>
+            </div>
+            <p class="mt-1.5 text-[15px] leading-snug text-accent">Mecanizado de precisión bajo plano | Entrega en 15 días</p>
+            <p class="mt-1 text-[12px] leading-relaxed text-ink-2">Series cortas desde 50 piezas. Presupuesto en 24 h con tu plano.</p>
+          </div>
+          <div class="serp-organico" aria-hidden="true"><i></i><i></i><i></i></div>
         </div>
-        <p class="mt-4 text-[13.5px] leading-relaxed text-ink-2">
-          El titular promete un plazo, no adjetivos.
-        </p>
-        <span class="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent">
-          Ver el ejemplo entero
-          <svg class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
-          </svg>
-        </span>
-      </a>
-
-      {/* Outbound */}
-      <a href="/servicios/outbound" class="card group flex flex-col p-6">
-        <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Outbound</p>
-        <div class="mt-4 flex-1 rounded-lg border border-line bg-surface p-4">
-          <p class="font-mono text-[11px] text-ink-3">Asunto</p>
-          <p class="mt-1 text-[13.5px] font-medium text-ink">34 días buscando marketing</p>
-          <p class="mt-3 border-t border-line pt-3 text-[12px] leading-relaxed text-ink-2">
-            Vi que lleváis mes y pico con la oferta abierta. De paso miré vuestra
-            web: no tiene analítica, así que no hay forma de saber de dónde llegan
-            los presupuestos...
-          </p>
+        <div class="muestra-pie">
+          <p class="muestra-etiqueta">Paid</p>
+          <p class="muestra-nota">El titular promete un plazo, no adjetivos.</p>
+          <span class="muestra-enlace">Ver el ejemplo entero <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" /></svg></span>
         </div>
-        <p class="mt-4 text-[13.5px] leading-relaxed text-ink-2">
-          Sin "espero que estés muy bien". Abre con algo comprobable.
-        </p>
-        <span class="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent">
-          Ver el ejemplo entero
-          <svg class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
-          </svg>
-        </span>
       </a>
+      </div>
 
-      {/* Agentes */}
-      <a href="/servicios/agentes-de-ia" class="card group flex flex-col p-6">
-        <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Agentes de IA</p>
-        <div class="mt-4 flex-1 rounded-lg border border-line bg-surface p-4">
-          <p class="font-mono text-[10.5px] uppercase tracking-[0.1em] text-[#c0392b]">No puede</p>
-          <ul class="mt-2 space-y-1.5">
-            {['Enviar nada al cliente sin revisión','Borrar registros del CRM','Acceder a facturación'].map((x) => (
-              <li class="flex gap-2 text-[12.5px] leading-snug text-ink-2">
-                <span class="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[#c0392b]"></span>{x}
+      {/* Outbound: el correo llega a la bandeja entre los genéricos */}
+      <div>
+      <a href="/servicios/outbound" class="muestra group">
+        <div class="muestra-escena">
+          <p class="flex items-center justify-between font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3">
+            <span>Bandeja de Marta</span><span>3 sin leer</span>
+          </p>
+          <ul class="bandeja">
+            <li class="bandeja-nuevo">
+              <span class="bandeja-punto" aria-hidden="true"></span>
+              <div class="min-w-0">
+                <p class="flex justify-between gap-2 text-[13px] font-semibold text-ink"><span>34 días buscando marketing</span><span class="font-mono text-[10.5px] font-normal text-accent">09:02</span></p>
+                <p class="mt-0.5 line-clamp-2 text-[11.5px] leading-snug text-ink-2">Vi que lleváis mes y pico con la oferta abierta. De paso miré vuestra web: no tiene analítica, así que...</p>
+              </div>
+            </li>
+            <li class="bandeja-generico">
+              <p class="text-[12px] font-medium text-ink-3">Una oportunidad para tu empresa</p>
+              <p class="truncate text-[12px] text-ink-3">Espero que estés muy bien. Quería presentarte...</p>
+            </li>
+            <li class="bandeja-generico">
+              <p class="text-[12px] font-medium text-ink-3">¿15 minutos esta semana?</p>
+              <p class="truncate text-[12px] text-ink-3">Ayudamos a empresas como la tuya a crecer...</p>
+            </li>
+          </ul>
+        </div>
+        <div class="muestra-pie">
+          <p class="muestra-etiqueta">Outbound</p>
+          <p class="muestra-nota">Sin "espero que estés muy bien". Abre con algo comprobable.</p>
+          <span class="muestra-enlace">Ver el ejemplo entero <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" /></svg></span>
+        </div>
+      </a>
+      </div>
+
+      {/* Agentes: los permisos que se cierran */}
+      <div>
+      <a href="/servicios/agentes-de-ia" class="muestra group">
+        <div class="muestra-escena">
+          <p class="flex items-center justify-between font-mono text-[10.5px] uppercase tracking-[0.12em] text-ink-3">
+            <span>Agente de respuestas</span><span>Permisos</span>
+          </p>
+          <ul class="permisos">
+            {permisos.map((p, i) => (
+              <li data-ok={p.ok ? 'si' : 'no'} style={`--i:${i}`}>
+                <span class:list={['text-[12.5px]', p.ok ? 'text-ink' : 'text-ink-2']}>{p.t}</span>
+                <span class="permiso-interruptor" aria-label={p.ok ? 'Permitido' : 'Bloqueado'}><i></i></span>
               </li>
             ))}
           </ul>
         </div>
-        <p class="mt-4 text-[13.5px] leading-relaxed text-ink-2">
-          Lo primero que se escribe de un agente es lo que no puede tocar.
-        </p>
-        <span class="mt-4 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent">
-          Ver el ejemplo entero
-          <svg class="h-3 w-3 transition-transform group-hover:translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
-          </svg>
-        </span>
+        <div class="muestra-pie">
+          <p class="muestra-etiqueta">Agentes de IA</p>
+          <p class="muestra-nota">Lo primero que se escribe de un agente es lo que no puede tocar.</p>
+          <span class="muestra-enlace">Ver el ejemplo entero <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" /></svg></span>
+        </div>
       </a>
+      </div>
     </div>
   </div>
 </section>
