@@ -2,6 +2,7 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import PageHero from '../components/PageHero.astro';
 
 const enlaces = [
   { label: 'Servicios', href: '/#servicios' },
@@ -14,22 +15,21 @@ const enlaces = [
 <Layout title="Página no encontrada | Scale It" description="Esta página no existe." noindex={true}>
   <Navbar />
 
-  <main class="flex min-h-[72vh] items-center">
-    <div class="mx-auto max-w-2xl px-6 py-24 text-center">
-      <p class="font-mono text-[13px] uppercase tracking-[0.16em] text-accent">Error 404</p>
-      <h1 class="display-lg mt-5 text-balance">Esta página no existe</h1>
-      <p class="lede mx-auto mt-5 text-balance">
-        O la movimos, o el enlace venía roto. Por aquí sí hay cosas:
-      </p>
-
-      <div class="mt-9 flex flex-wrap justify-center gap-2.5">
+  <main>
+    <PageHero
+      compacta
+      eyebrow="Error 404"
+      titulo="Esta página no existe"
+      entradilla="O la movimos, o el enlace venía roto. Por aquí sí hay cosas:"
+      figuras={['pulpo']}
+    >
+      <div class="mt-8 flex flex-wrap gap-2.5">
         {enlaces.map((e) => (
           <a href={e.href} class="btn btn-ghost">{e.label}</a>
         ))}
       </div>
-
-      <a href="/" class="btn btn-primary mt-8">Volver al inicio</a>
-    </div>
+      <a href="/" class="btn btn-primary mt-6">Volver al inicio</a>
+    </PageHero>
   </main>
 
   <Footer />

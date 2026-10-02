@@ -6,7 +6,8 @@ import Formulario from '../../components/Formulario.astro';
 import Ejemplos from '../../components/Ejemplos.astro';
 import Formatos from '../../components/Formatos.astro';
 import FirmaSocio from '../../components/FirmaSocio.astro';
-import NeuralField from '../../components/NeuralField.astro';
+import PageHero from '../../components/PageHero.astro';
+import { AGENTE_SERVICIO } from '../../data/agentes';
 import { servicios } from '../../data/servicios';
 
 export function getStaticPaths() {
@@ -58,34 +59,22 @@ const schema = [
   <Navbar />
 
   <main>
-    <section class="relative overflow-hidden">
-      <div class="pointer-events-none absolute inset-0 -z-10">
-        <div class="absolute inset-0 bg-gradient-to-b from-surface-2 via-bg to-bg"></div>
-        <NeuralField class="absolute inset-0 opacity-80 [mask-image:radial-gradient(120%_100%_at_50%_40%,#000_52%,transparent_90%)]" />
-        <div class="absolute inset-0 bg-[radial-gradient(70%_62%_at_50%_38%,#fff_44%,rgba(255,255,255,.9)_70%,rgba(255,255,255,0)_100%)]"></div>
+    <PageHero
+      titulo={servicio.h1}
+      entradilla={servicio.entradilla}
+      figuras={[AGENTE_SERVICIO[servicio.slug] ?? 'pulpo']}
+      ruta={[{ texto: 'Inicio', href: '/' }, { texto: servicio.pilar, href: '/#servicios' }, { texto: servicio.nombre }]}
+    >
+      <div class="mt-9 flex flex-wrap gap-3">
+        <a href="#agenda" class="btn btn-primary">
+          Agenda una llamada
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
+          </svg>
+        </a>
+        <a href="#incluye" class="btn btn-ghost">Qué incluye</a>
       </div>
-
-      <div class="mx-auto max-w-4xl px-6 pb-24 pt-36 sm:pb-28 sm:pt-44">
-        <nav aria-label="Ruta" class="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
-          <a href="/" class="transition-colors hover:text-ink">Inicio</a>
-          <span>/</span>
-          <a href="/#servicios" class="transition-colors hover:text-ink">{servicio.pilar}</a>
-        </nav>
-
-        <h1 class="display-xl mt-6 text-balance">{servicio.h1}</h1>
-        <p class="lede mt-6">{servicio.entradilla}</p>
-
-        <div class="mt-9 flex flex-wrap gap-3">
-          <a href="#agenda" class="btn btn-primary">
-            Agenda una llamada
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
-            </svg>
-          </a>
-          <a href="#incluye" class="btn btn-ghost">Qué incluye</a>
-        </div>
-      </div>
-    </section>
+    </PageHero>
 
     <section class="border-t border-line py-20 sm:py-24">
       <div class="mx-auto max-w-4xl px-6">

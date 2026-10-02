@@ -1,16 +1,122 @@
 ---
+/**
+ * Cabecera común de toda la web: el texto a la izquierda y, a la derecha, la
+ * red que se organiza en el agente que se encarga de la página.
+ *
+ * Es la misma en la portada, en cada servicio, en el blog y en cada artículo,
+ * para que lo primero que se ve en cualquier URL diga lo mismo: esto lo opera
+ * un sistema de agentes, y este es el que se ocupa de lo que estás leyendo.
+ *
+ * La figura no se pinta aquí: el canvas de RedAgente cubre toda la sección y
+ * dibuja la constelación encima de [data-figura-hueco]. Este componente solo
+ * reserva el sitio y pone la leyenda.
+ */
+import RedAgente from './RedAgente.astro';
+import { AGENTES, type ClaveAgente } from '../data/agentes';
+
 interface Props {
-  eyebrow: string;
   titulo: string;
+  figuras: ClaveAgente[];
+  eyebrow?: string;
   entradilla?: string;
+  ruta?: { texto: string; href?: string }[];
+  /** Portada: titular más grande y más aire. */
+  portada?: boolean;
+  /** Páginas legales y de sistema: menos altura y figura más pequeña. */
+  compacta?: boolean;
+  /** Titulares largos (artículos): un escalón menos de cuerpo. */
+  titularLargo?: boolean;
 }
-const { eyebrow, titulo, entradilla } = Astro.props;
+
+const {
+  titulo,
+  figuras,
+  eyebrow,
+  entradilla,
+  ruta,
+  portada = false,
+  compacta = false,
+  titularLargo = false,
+} = Astro.props;
+
+const primera = AGENTES[figuras[0]];
+const claseTitulo = titularLargo || compacta ? 'display-lg' : 'display-xl';
 ---
 
-<section class="border-b border-line pb-14 pt-36 sm:pt-44">
-  <div class="mx-auto max-w-6xl px-6">
-    <p class="eyebrow">{eyebrow}</p>
-    <h1 class="display-xl mt-5 max-w-3xl text-balance">{titulo}</h1>
-    {entradilla && <p class="lede mt-6">{entradilla}</p>}
+<section data-cabecera class="cabecera relative isolate overflow-hidden border-b border-line">
+  <div class="pointer-events-none absolute inset-0 -z-10">
+    <div class="absolute inset-0 bg-gradient-to-b from-surface-2 via-bg to-bg"></div>
+    <RedAgente figuras={figuras} class="absolute inset-0" />
+    <div class="cabecera-velo absolute inset-0"></div>
+  </div>
+
+  <div
+    class:list={[
+      'mx-auto grid max-w-6xl items-center px-6 lg:grid-cols-12 lg:gap-6',
+      titularLargo || compacta ? 'gap-6' : 'gap-10',
+      compacta ? 'pb-12 pt-32 sm:pt-36' : portada ? 'pb-16 pt-32 sm:pb-24 sm:pt-40' : 'pb-14 pt-32 sm:pb-20 sm:pt-40',
+    ]}
+  >
+    <div class:list={[compacta ? 'lg:col-span-8' : 'lg:col-span-7']}>
+      {ruta && (
+        <nav aria-label="Ruta" class="flex flex-wrap items-center gap-x-2 gap-y-1 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+          {ruta.map((paso, i) => (
+            <>
+              {i > 0 && <span aria-hidden="true">/</span>}
+              {paso.href ? (
+                <a href={paso.href} class="transition-colors hover:text-ink">{paso.texto}</a>
+              ) : (
+                <span class="text-accent" aria-current="page">{paso.texto}</span>
+              )}
+            </>
+          ))}
+        </nav>
+      )}
+      {eyebrow && <p class="eyebrow">{eyebrow}</p>}
+
+      <h1 class:list={[claseTitulo, 'mt-5 text-balance']}>{titulo}</h1>
+      {entradilla && <p class="lede mt-6 text-pretty">{entradilla}</p>}
+
+      <slot />
+    </div>
+
+    <figure class:list={['m-0', compacta ? 'lg:col-span-4' : 'lg:col-span-5']}>
+      <div
+        data-figura-hueco
+        class:list={[
+          'mx-auto aspect-square w-full',
+          compacta
+            ? 'max-w-[200px] lg:max-w-[260px]'
+            : portada
+              ? 'max-w-[300px] sm:max-w-[400px] lg:max-w-[460px]'
+              : titularLargo
+                // En un artículo lo que se viene a hacer es leer: en móvil la
+                // figura se queda pequeña para no empujar el texto hacia abajo.
+                ? 'max-w-[190px] sm:max-w-[300px] lg:max-w-[400px]'
+                : 'max-w-[280px] sm:max-w-[360px] lg:max-w-[420px]',
+        ]}
+      ></div>
+      <figcaption class="mt-3 flex flex-col items-center gap-3">
+        <span data-figura-leyenda class="figura-leyenda">
+          <span class="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+          <span data-figura-nombre class="text-ink">{primera.nombre}</span>
+          <span aria-hidden="true">·</span>
+          <span data-figura-rol>{primera.rol}</span>
+        </span>
+        {figuras.length > 1 && (
+          <span class="flex items-center gap-2.5">
+            {figuras.map((k, i) => (
+              <button
+                type="button"
+                class="punto-figura"
+                data-figura-ir={i}
+                aria-label={`Ver al agente ${AGENTES[k].nombre}`}
+                aria-current={i === 0 ? 'true' : 'false'}
+              ></button>
+            ))}
+          </span>
+        )}
+      </figcaption>
+    </figure>
   </div>
 </section>
