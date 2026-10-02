@@ -34,17 +34,20 @@ const fundadores = [
       entradilla="Podríamos rellenar esta página con tres historias de una fintech anónima y unos porcentajes bonitos. Lo hace medio sector. Preferimos decirte dónde estamos."
     />
 
-    <section class="py-20 sm:py-24">
-      <div class="mx-auto max-w-3xl px-6">
-        <div class="prose-measure text-[16px] leading-relaxed text-ink-2">
-          <p>
+    <section class="py-28 sm:py-36">
+      <div class="mx-auto grid max-w-6xl gap-16 px-6 lg:grid-cols-12 lg:gap-10">
+        <div class="lg:col-span-6" data-revelar-grupo>
+          <p class="text-[22px] font-medium leading-[1.45] tracking-[-0.018em] text-ink sm:text-[26px]">
             Scale It como agencia de los dos es nueva. Lo que no es nuevo es el
-            trabajo: Philippe lleva años montando sistemas de growth para
-            empresas tech y fintech, y Patrick viene de outbound. Esa trayectoria
-            está en nuestros perfiles de LinkedIn, que es donde podés
-            comprobarla, y no en un testimonio que nadie puede verificar.
+            trabajo.
           </p>
-          <p class="mt-5">
+          <p class="mt-6 text-[16px] leading-relaxed text-ink-2">
+            Philippe lleva años montando sistemas de growth para empresas tech y
+            fintech, y Patrick viene de outbound. Esa trayectoria está en nuestros
+            perfiles de LinkedIn, que es donde podés comprobarla, y no en un
+            testimonio que nadie puede verificar.
+          </p>
+          <p class="mt-5 text-[16px] leading-relaxed text-ink-2">
             Cuando publiquemos un caso será uno real, con permiso del cliente y
             con las cifras que se puedan enseñar. Mientras tanto, esta página
             dice la verdad, que nos parece mejor carta de presentación que un
@@ -52,41 +55,47 @@ const fundadores = [
           </p>
         </div>
 
-        <div class="mt-14 rounded-xl border border-line bg-surface p-8">
-          <h2 class="display-md">Qué va a llevar cada caso</h2>
-          <ul class="mt-6 space-y-3">
-            {contenido.map((c) => (
-              <li class="flex items-start gap-3 text-[15px] leading-relaxed text-ink-2">
-                <svg class="mt-1 h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-                {c}
-              </li>
-            ))}
-          </ul>
-          <p class="mt-6 text-[14.5px] leading-relaxed text-ink-3">
+        <!-- La plantilla del caso, esperando al primero -->
+        <figure class="lg:col-span-6" data-revelar="escala">
+          <div class="plantilla">
+            <p class="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">
+              <span>Caso 01</span>
+              <span class="flex items-center gap-1.5 text-accent"><span class="plantilla-pulso" aria-hidden="true"></span>Esperando cliente</span>
+            </p>
+            <h2 class="mt-5 text-[22px] font-semibold tracking-[-0.025em] text-ink">Qué va a llevar cada caso</h2>
+            <ol class="plantilla-secciones mt-6">
+              {contenido.map((c, i) => (
+                <li style={`--i:${i}`}>
+                  <p class="text-[14.5px] text-ink">{c}</p>
+                  <span class="plantilla-lineas" aria-hidden="true"><i></i><i></i></span>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <figcaption class="mt-5 max-w-[46ch] text-[14.5px] leading-relaxed text-ink-3">
             Incluido lo que salió mal. Un caso donde todo funciona a la primera
             no es un caso, es un anuncio.
-          </p>
-        </div>
+          </figcaption>
+        </figure>
       </div>
     </section>
 
-    <section class="border-t border-line py-20 sm:py-24">
+    <section class="border-t border-line bg-surface py-28 sm:py-36">
       <div class="mx-auto max-w-6xl px-6">
-        <p class="eyebrow">Clientes fundadores</p>
-        <h2 class="display-lg mt-4 max-w-2xl text-balance">Tres plazas, y quien entra ahora entra mejor</h2>
-        <p class="lede mt-5">
-          Necesitamos casos y vos necesitás resultados. El trato es explícito y
-          no tiene letra pequeña.
-        </p>
+        <div class="max-w-2xl" data-revelar-grupo>
+          <p class="eyebrow">Clientes fundadores</p>
+          <h2 class="display-lg mt-4 text-balance">Tres plazas, y quien entra ahora entra mejor</h2>
+          <p class="lede mt-5">
+            Necesitamos casos y vos necesitás resultados. El trato es explícito y
+            no tiene letra pequeña.
+          </p>
+        </div>
 
-        <div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-3">
-          {fundadores.map((f, i) => (
-            <div class="bg-bg p-7">
-              <span class="font-mono text-[11px] text-accent">0{i + 1}</span>
-              <h3 class="mt-3 text-[17px] font-semibold tracking-[-0.02em] text-ink">{f.t}</h3>
-              <p class="mt-2.5 text-[14px] leading-relaxed text-ink-2">{f.d}</p>
+        <div class="mt-14 grid gap-5 md:grid-cols-3" data-revelar-grupo="110">
+          {fundadores.map((f) => (
+            <div class="fundador">
+              <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">{f.t}</h3>
+              <p class="mt-3 text-[15px] leading-relaxed text-ink-2">{f.d}</p>
             </div>
           ))}
         </div>

@@ -7,7 +7,11 @@ import Ejemplos from '../../components/Ejemplos.astro';
 import Formatos from '../../components/Formatos.astro';
 import FirmaSocio from '../../components/FirmaSocio.astro';
 import PageHero from '../../components/PageHero.astro';
-import { AGENTE_SERVICIO } from '../../data/agentes';
+import FiguraSVG from '../../components/FiguraSVG.astro';
+import CieloEstrellado from '../../components/CieloEstrellado.astro';
+import Constelacion from '../../components/Constelacion.astro';
+import Acordeon from '../../components/Acordeon.astro';
+import { AGENTES, AGENTE_SERVICIO } from '../../data/agentes';
 import { servicios } from '../../data/servicios';
 
 export function getStaticPaths() {
@@ -18,6 +22,7 @@ export function getStaticPaths() {
 }
 
 const { servicio } = Astro.props;
+const agente = AGENTE_SERVICIO[servicio.slug] ?? 'pulpo';
 const otros = servicios.filter((s) => s.slug !== servicio.slug).slice(0, 3);
 const base = 'https://www.growth-scaleit.com';
 
@@ -62,11 +67,11 @@ const schema = [
     <PageHero
       titulo={servicio.h1}
       entradilla={servicio.entradilla}
-      figuras={[AGENTE_SERVICIO[servicio.slug] ?? 'pulpo']}
+      figuras={[agente]}
       ruta={[{ texto: 'Inicio', href: '/' }, { texto: servicio.pilar, href: '/#servicios' }, { texto: servicio.nombre }]}
     >
       <div class="mt-9 flex flex-wrap gap-3">
-        <a href="#agenda" class="btn btn-primary">
+        <a href="#contacto" class="btn btn-primary">
           Agenda una llamada
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
@@ -76,53 +81,77 @@ const schema = [
       </div>
     </PageHero>
 
-    <section class="border-t border-line py-20 sm:py-24">
-      <div class="mx-auto max-w-4xl px-6">
-        <p class="eyebrow">El problema</p>
-        <h2 class="display-md mt-4 max-w-2xl text-balance">{servicio.problema.titulo}</h2>
-        <p class="prose-measure mt-5 text-[16px] leading-relaxed text-ink-2">{servicio.problema.texto}</p>
+    <!-- El problema: una sola idea, a tamaño de titular -->
+    <section class="py-28 sm:py-36">
+      <div class="mx-auto grid max-w-6xl gap-6 px-6 lg:grid-cols-12 lg:gap-8">
+        <p class="eyebrow lg:col-span-3 lg:pt-4" data-revelar>El problema</p>
+        <div class="lg:col-span-9" data-revelar-grupo>
+          <h2 class="display-lg text-balance">{servicio.problema.titulo}</h2>
+          <p class="lede mt-7 text-pretty">{servicio.problema.texto}</p>
+        </div>
       </div>
     </section>
 
-    <section id="incluye" class="border-t border-line bg-surface py-20 sm:py-24">
-      <div class="mx-auto max-w-6xl px-6">
-        <p class="eyebrow">Qué incluye</p>
-        <h2 class="display-lg mt-4 max-w-2xl text-balance">Lo que hacemos, sin letra pequeña</h2>
-
-        <div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-3">
-          {servicio.incluye.map((item) => (
-            <div class="bg-bg p-6">
-              <h3 class="text-[16px] font-semibold tracking-[-0.015em] text-ink">{item.titulo}</h3>
-              <p class="mt-2.5 text-[14px] leading-relaxed text-ink-2">{item.texto}</p>
+    <!-- Qué incluye: de noche, con el agente del servicio dibujándose al lado -->
+    <section id="incluye" class="noche overflow-clip py-28 sm:py-36">
+      <CieloEstrellado semilla={servicio.slug.length * 7 + 2} />
+      <div class="mx-auto grid max-w-6xl gap-14 px-6 lg:grid-cols-12 lg:gap-10">
+        <div class="lg:col-span-5">
+          <div class="lg:sticky lg:top-28">
+            <div data-revelar-grupo>
+              <p class="eyebrow">Qué incluye</p>
+              <h2 class="display-lg mt-4 text-balance">Lo que hacemos, sin letra pequeña</h2>
             </div>
-          ))}
+            <figure class="mt-10 hidden lg:block">
+              <FiguraSVG animal={agente} tema="noche" class="w-full max-w-[380px]" retraso={200} />
+              <figcaption class="figura-leyenda mt-2">
+                <span class="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+                <span class="text-ink">{AGENTES[agente].nombre}</span>
+                <span aria-hidden="true">·</span>
+                <span>{AGENTES[agente].rol}</span>
+              </figcaption>
+            </figure>
+          </div>
         </div>
+
+        <ul class="incluye lg:col-span-7" data-revelar-grupo="90">
+          {servicio.incluye.map((item) => (
+            <li class="incluye-item">
+              <span class="incluye-estrella" aria-hidden="true"></span>
+              <div>
+                <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">{item.titulo}</h3>
+                <p class="mt-2 max-w-[54ch] text-[15.5px] leading-relaxed text-ink-2">{item.texto}</p>
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
 
-    <section class="border-t border-line py-20 sm:py-24">
-      <div class="mx-auto max-w-6xl px-6">
-        <div class="grid gap-12 lg:grid-cols-2">
-          <div>
+    <!-- Entregables y para quién -->
+    <section class="py-28 sm:py-36">
+      <div class="mx-auto grid max-w-6xl gap-14 px-6 lg:grid-cols-12 lg:gap-10">
+        <div class="lg:col-span-7">
+          <div data-revelar-grupo>
             <p class="eyebrow">Entregables</p>
-            <h2 class="display-md mt-4 text-balance">Qué te llevás, exactamente</h2>
-            <ul class="mt-7 space-y-3.5">
-              {servicio.entregables.map((e) => (
-                <li class="flex items-start gap-3 text-[15px] leading-relaxed text-ink-2">
-                  <svg class="mt-1 h-4 w-4 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                  </svg>
-                  {e}
-                </li>
-              ))}
-            </ul>
+            <h2 class="display-lg mt-4 text-balance">Qué te llevás, exactamente</h2>
           </div>
-
-          <div class="card h-fit p-7">
-            <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Para quién es</p>
-            <p class="mt-4 text-[15px] leading-relaxed text-ink-2">{servicio.paraQuien}</p>
-          </div>
+          <ul class="entregables mt-10" data-revelar-grupo="70">
+            {servicio.entregables.map((e) => (
+              <li>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" /><path d="m7.5 12.5 3 3 6-7" pathLength="1" /></svg>
+                <span>{e}</span>
+              </li>
+            ))}
+          </ul>
         </div>
+
+        <aside class="lg:col-span-5 lg:pt-24" data-revelar="derecha">
+          <div class="para-quien">
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">Para quién es</p>
+            <p class="mt-5 text-[19px] leading-relaxed tracking-[-0.012em] text-ink">{servicio.paraQuien}</p>
+          </div>
+        </aside>
       </div>
     </section>
 
@@ -132,22 +161,38 @@ const schema = [
 
     <Formatos servicio={servicio.slug} />
 
-    <section class="border-t border-line py-20 sm:py-24">
-      <div class="mx-auto max-w-3xl px-6">
-        <p class="eyebrow">Preguntas</p>
-        <h2 class="display-md mt-4 text-balance">Lo que nos preguntan siempre</h2>
+    <section class="border-t border-line py-28 sm:py-36">
+      <div class="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-4" data-revelar-grupo>
+          <p class="eyebrow">Preguntas</p>
+          <h2 class="display-lg mt-4 text-balance">Lo que nos preguntan siempre</h2>
+        </div>
+        <div class="lg:col-span-8" data-revelar>
+          <Acordeon preguntas={servicio.faq} />
+        </div>
+      </div>
+    </section>
 
-        <div class="mt-10 divide-y divide-line overflow-hidden rounded-xl border border-line bg-bg">
-          {servicio.faq.map((f) => (
-            <details class="group">
-              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-[15.5px] font-medium text-ink">
-                {f.q}
-                <svg class="h-4 w-4 shrink-0 text-ink-3 transition-transform duration-300 group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </summary>
-              <p class="px-6 pb-6 text-[14.5px] leading-relaxed text-ink-2">{f.a}</p>
-            </details>
+    <!-- Otros servicios, antes del contacto para que el cierre sea de noche -->
+    <section class="border-t border-line bg-surface py-20 sm:py-24">
+      <div class="mx-auto max-w-6xl px-6">
+        <p class="eyebrow">Seguir mirando</p>
+        <div class="mt-8 grid gap-5 sm:grid-cols-3" data-revelar-grupo>
+          {otros.map((o) => (
+            <div>
+              <a href={`/servicios/${o.slug}`} class="otro-servicio group">
+                <span class="flex items-center justify-between">
+                  <span class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{o.pilar}</span>
+                  <Constelacion animal={AGENTE_SERVICIO[o.slug] ?? 'pulpo'} size={34} />
+                </span>
+                <span class="mt-5 block text-[18px] font-semibold tracking-[-0.02em] text-ink">{o.nombre}</span>
+                <span class="mt-2 block text-[14px] leading-relaxed text-ink-2">{o.entradilla.slice(0, 92)}...</span>
+                <span class="mt-5 inline-flex items-center gap-1.5 text-[13.5px] font-medium text-accent">
+                  Ver servicio
+                  <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" /></svg>
+                </span>
+              </a>
+            </div>
           ))}
         </div>
       </div>
@@ -158,21 +203,6 @@ const schema = [
       titulo={`¿Hablamos de ${servicio.nombre.toLowerCase()}?`}
       texto="Media hora sobre tu caso concreto. Te decimos qué haríamos primero, en qué orden y cuánto costaría. Si no somos la solución, también te lo decimos."
     />
-
-    <section class="border-t border-line py-20">
-      <div class="mx-auto max-w-6xl px-6">
-        <p class="eyebrow">Seguir mirando</p>
-        <div class="mt-8 grid gap-5 sm:grid-cols-3">
-          {otros.map((o) => (
-            <a href={`/servicios/${o.slug}`} class="card p-6">
-              <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{o.pilar}</p>
-              <h2 class="mt-3 text-[17px] font-semibold tracking-[-0.02em] text-ink">{o.nombre}</h2>
-              <p class="mt-2 text-[14px] leading-relaxed text-ink-2">{o.entradilla.slice(0, 92)}...</p>
-            </a>
-          ))}
-        </div>
-      </div>
-    </section>
   </main>
 
   <Footer />

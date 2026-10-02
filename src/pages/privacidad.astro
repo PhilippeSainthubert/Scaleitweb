@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import PageHero from '../components/PageHero.astro';
+import DocumentoLegal from '../components/DocumentoLegal.astro';
 ---
 
 <Layout title="Política de Privacidad | Scale It">
@@ -11,9 +12,8 @@ import PageHero from '../components/PageHero.astro';
     <PageHero compacta titulo="Política de privacidad" figuras={['pulpo']} ruta={[{ texto: 'Inicio', href: '/' }, { texto: 'Legal' }]}>
       <p class="mt-5 font-mono text-[12px] uppercase tracking-[0.1em] text-ink-3">Última actualización: 27 de marzo de 2026</p>
     </PageHero>
-    <div class="mx-auto max-w-3xl px-6 py-14">
-
-      <div class="space-y-8 text-ink-2 leading-relaxed">
+    <DocumentoLegal>
+      <div class="space-y-12 text-ink-2 leading-relaxed">
         <section>
           <h2 class="text-xl font-semibold text-ink mb-3">1. Responsable del tratamiento</h2>
           <ul class="space-y-1">
@@ -101,7 +101,7 @@ import PageHero from '../components/PageHero.astro';
           </p>
         </section>
       </div>
-    </div>
+    </DocumentoLegal>
   </main>
   <Footer />
 </Layout>
