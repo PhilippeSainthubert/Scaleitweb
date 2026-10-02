@@ -1,52 +1,23 @@
 ---
-import NeuralField from './NeuralField.astro';
-
-const pillars = ['Diseñamos', 'Construimos', 'Operamos'];
+import PageHero from './PageHero.astro';
 ---
 
-<section class="relative overflow-hidden">
-  <!-- La red neuronal: nodos que derivan, sinapsis que aparecen al acercarse y
-       señales encadenándose de nodo en nodo. Reacciona al cursor. El contenedor
-       no captura eventos para no robarle los clics a los botones; el canvas
-       escucha el puntero en la ventana. -->
-  <div class="pointer-events-none absolute inset-0 -z-10">
-    <div class="absolute inset-0 bg-gradient-to-b from-surface-2 via-bg to-bg"></div>
-    <NeuralField class="absolute inset-0 [mask-image:radial-gradient(125%_115%_at_50%_45%,#000_66%,transparent_97%)]" />
-    <!-- Velo radial: el texto se apoya sobre blanco, la red respira alrededor. -->
-    <div class="absolute inset-0 bg-[radial-gradient(50%_42%_at_50%_40%,#fff_30%,rgba(255,255,255,.74)_58%,rgba(255,255,255,0)_100%)]"></div>
+<!-- La portada rota por los cuatro agentes que mandan: el pulpo que orquesta
+     y los tres pilares. Es la misma cabecera que el resto de la web. -->
+<PageHero
+  portada
+  eyebrow="Agentes de IA · supervisión humana"
+  titulo="Tu máquina de adquisición, operada por agentes de IA"
+  entradilla="No vendemos horas. Construimos el sistema que capta, convierte y mide, y lo operamos con agentes supervisados por nosotros dos, todos los días."
+  figuras={['pulpo', 'halcon', 'abeja', 'hormiga']}
+>
+  <div class="mt-9 flex flex-wrap items-center gap-3">
+    <a href="/#contacto" class="btn btn-primary">
+      Agenda una llamada
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
+      </svg>
+    </a>
+    <a href="/#agentes" class="btn btn-ghost">Ver el sistema por dentro</a>
   </div>
-
-  <div class="mx-auto max-w-6xl px-6 pb-32 pt-36 sm:pb-40 sm:pt-44">
-    <div class="mx-auto max-w-4xl text-center">
-      <p class="eyebrow">Agentes de IA · supervisión humana</p>
-
-      <h1 class="display-xl mt-5 text-balance">
-        Tu máquina de adquisición, operada por agentes de IA
-      </h1>
-
-      <p class="lede mx-auto mt-6 text-balance">
-        No vendemos horas. Construimos el sistema que capta, convierte y mide,
-        y lo operamos con agentes supervisados por nosotros dos, todos los días.
-      </p>
-
-      <div class="mt-9 flex flex-wrap items-center justify-center gap-3">
-        <a href="/#contacto" class="btn btn-primary">
-          Agenda una llamada
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" />
-          </svg>
-        </a>
-        <a href="/#agentes" class="btn btn-ghost">Ver el sistema por dentro</a>
-      </div>
-
-      <div class="mt-14 flex items-center justify-center gap-3 font-mono text-[11px] uppercase tracking-[0.16em] text-ink-2">
-        {pillars.map((p, i) => (
-          <>
-            {i > 0 && <span class="h-1 w-1 rounded-full bg-line-2"></span>}
-            <span>{p}</span>
-          </>
-        ))}
-      </div>
-    </div>
-  </div>
-</section>
+</PageHero>

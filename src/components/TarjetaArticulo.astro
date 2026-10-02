@@ -1,0 +1,74 @@
+---
+/**
+ * Tarjeta de artículo con su portada. Dos variantes: la normal, para la
+ * rejilla, y la destacada, a todo el ancho para el último publicado.
+ *
+ * Antes la cabecera de la tarjeta partía en dos líneas el tema y la fecha
+ * ("INFLUENCERS Y / UGC", "28 DE SEPTIEMBRE DE / 2026") y al pie ponía el cargo
+ * del autor sin su nombre. Ahora la fecha va en formato corto, cada dato no se
+ * parte por dentro y firma la persona.
+ */
+import type { CollectionEntry } from 'astro:content';
+import { autores, clusters } from '../data/autores';
+import { AGENTES, AGENTE_CLUSTER } from '../data/agentes';
+
+interface Props {
+  post: CollectionEntry<'blog'>;
+  destacado?: boolean;
+}
+const { post, destacado = false } = Astro.props;
+
+const autor = autores[post.data.author];
+const agente = AGENTES[AGENTE_CLUSTER[post.data.cluster] ?? 'pulpo'];
+const fechaCorta = post.data.pubDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' });
+const href = `/blog/${post.id}`;
+---
+
+<article
+  data-cluster={post.data.cluster}
+  class:list={['tarjeta-articulo group relative', destacado && 'grid items-center gap-8 lg:grid-cols-12 lg:gap-12']}
+>
+  <div class:list={['portada-marco', destacado && 'lg:col-span-7']}>
+    <img
+      src={`/portadas/${post.id}.svg`}
+      alt=""
+      width="1200"
+      height="630"
+      loading={destacado ? 'eager' : 'lazy'}
+      decoding="async"
+      class="portada-img"
+    />
+    <span class="portada-agente" aria-hidden="true">{agente.nombre}</span>
+  </div>
+
+  <div class:list={[destacado ? 'lg:col-span-5' : 'mt-5']}>
+    <p class="flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">
+      {destacado && <span class="whitespace-nowrap text-ink">Último artículo</span>}
+      {destacado && <span class="h-1 w-1 rounded-full bg-line-2" aria-hidden="true"></span>}
+      <span class="whitespace-nowrap text-accent">{clusters[post.data.cluster]}</span>
+      <span class="h-1 w-1 rounded-full bg-line-2" aria-hidden="true"></span>
+      <time class="whitespace-nowrap" datetime={post.data.pubDate.toISOString()}>{fechaCorta}</time>
+    </p>
+
+    <h3
+      class:list={[
+        'mt-3 font-semibold text-ink text-balance',
+        destacado ? 'text-[clamp(1.6rem,1.2rem+1.4vw,2.25rem)] leading-[1.12] tracking-[-0.028em]' : 'text-[19px] leading-snug tracking-[-0.02em]',
+      ]}
+    >
+      <!-- El enlace cubre toda la tarjeta con un pseudo-elemento: un solo
+           destino para el teclado y el lector de pantalla, toda la superficie
+           pulsable con el ratón. -->
+      <a href={href} class="enlace-tarjeta">{post.data.title}</a>
+    </h3>
+
+    <p class:list={['mt-3 text-pretty text-ink-2', destacado ? 'text-[16px] leading-relaxed' : 'text-[14px] leading-relaxed line-clamp-3']}>
+      {post.data.description}
+    </p>
+
+    <p class="mt-5 flex items-center gap-2.5 text-[13px] text-ink-2">
+      <img src={autor.foto} alt="" width="22" height="22" loading="lazy" class="h-[22px] w-[22px] rounded-full object-cover" />
+      <span>{post.data.author}</span>
+    </p>
+  </div>
+</article>

@@ -2,30 +2,25 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import PageHero from '../components/PageHero.astro';
 ---
 
 <Layout title="Gracias | Scale It" description="Hemos recibido tu mensaje." noindex={true}>
   <Navbar />
 
-  <main class="flex min-h-[72vh] items-center">
-    <div class="mx-auto max-w-2xl px-6 py-24 text-center">
-      <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-positive/10">
-        <svg class="h-6 w-6 text-positive" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-        </svg>
-      </div>
-
-      <h1 class="display-lg mt-8 text-balance">Recibido. Te respondemos en menos de 24 horas</h1>
-      <p class="lede mx-auto mt-5 text-balance">
-        Lo lee uno de los dos, no un filtro automático. Si es urgente, escribinos
-        directamente por LinkedIn y lo adelantamos.
-      </p>
-
-      <div class="mt-9 flex flex-wrap justify-center gap-3">
+  <main>
+    <PageHero
+      compacta
+      eyebrow="Mensaje recibido"
+      titulo="Recibido. Te respondemos en menos de 24 horas"
+      entradilla="Lo lee uno de los dos, no un filtro automático. Si es urgente, escribinos directamente por LinkedIn y lo adelantamos."
+      figuras={['pulpo']}
+    >
+      <div class="mt-8 flex flex-wrap gap-3">
         <a href="/" class="btn btn-primary">Volver al inicio</a>
         <a href="/blog" class="btn btn-ghost">Leer el blog mientras tanto</a>
       </div>
-    </div>
+    </PageHero>
   </main>
 
   <Footer />

@@ -2,25 +2,25 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import PageHero from '../components/PageHero.astro';
 ---
 
 <Layout title="Error del servidor | Scale It" description="Algo ha fallado por nuestra parte." noindex={true}>
   <Navbar />
 
-  <main class="flex min-h-[72vh] items-center">
-    <div class="mx-auto max-w-2xl px-6 py-24 text-center">
-      <p class="font-mono text-[13px] uppercase tracking-[0.16em] text-accent">Error 500</p>
-      <h1 class="display-lg mt-5 text-balance">Se rompió algo de nuestro lado</h1>
-      <p class="lede mx-auto mt-5 text-balance">
-        No es cosa tuya. Probá a recargar en un minuto; si sigue igual, escribinos
-        y lo miramos.
-      </p>
-
-      <div class="mt-9 flex flex-wrap justify-center gap-3">
+  <main>
+    <PageHero
+      compacta
+      eyebrow="Error 500"
+      titulo="Se rompió algo de nuestro lado"
+      entradilla="No es cosa tuya. Probá a recargar en un minuto; si sigue igual, escribinos y lo miramos."
+      figuras={['pulpo']}
+    >
+      <div class="mt-8 flex flex-wrap gap-3">
         <a href="/" class="btn btn-primary">Volver al inicio</a>
         <a href="/#contacto" class="btn btn-ghost">Avisarnos</a>
       </div>
-    </div>
+    </PageHero>
   </main>
 
   <Footer />

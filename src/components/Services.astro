@@ -1,4 +1,15 @@
 ---
+import Constelacion from './Constelacion.astro';
+
+// Cada pilar con su agente, el mismo que aparece en la cabecera y en el
+// organigrama. Sustituye a la numeración 01/02/03, que sugería un orden que no
+// existe: los tres pilares funcionan a la vez.
+const animales: Record<string, { animal: string; nombre: string }> = {
+  captar: { animal: 'halcon', nombre: 'Halcón' },
+  atraer: { animal: 'abeja', nombre: 'Abeja' },
+  operar: { animal: 'hormiga', nombre: 'Hormiga' },
+};
+
 const pillars = [
   {
     key: 'captar',
@@ -51,9 +62,14 @@ const pillars = [
     <div class="mt-14 grid gap-5 lg:grid-cols-3">
       {pillars.map((pillar, i) => (
         <article class={`card reveal p-7`} style={`transition-delay:${i * 70}ms`}>
-          <div class="flex items-baseline gap-3">
-            <span class="font-mono text-[11px] text-ink-3">0{i + 1}</span>
+          <div class="flex items-center justify-between gap-3">
             <h3 class="display-md">{pillar.title}</h3>
+            <span class="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.14em] text-ink-3">
+              {animales[pillar.key].nombre}
+              <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-surface-2">
+                <Constelacion animal={animales[pillar.key].animal} size={34} />
+              </span>
+            </span>
           </div>
           <p class="mt-2 text-[15px] font-medium text-accent">{pillar.lead}</p>
           <p class="mt-4 text-[14.5px] leading-relaxed text-ink-2">{pillar.description}</p>

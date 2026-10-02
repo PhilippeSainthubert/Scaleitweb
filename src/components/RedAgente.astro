@@ -1,0 +1,466 @@
+---
+/**
+ * La firma de Scale It: la red neuronal que se organiza en un agente.
+ *
+ * Es la misma red de siempre (nodos que derivan, sinapsis que aparecen al
+ * acercarse, señales encadenándose), pero una parte de los nodos se reúne y
+ * dibuja la constelación del agente que se encarga de la página: el lobo en
+ * outbound, la araña en SEO, el búho en las preguntas. Ruido que se ordena en
+ * un sistema, que es literalmente lo que vendemos.
+ *
+ * Si se le pasan varias figuras, se deshace y se recompone en la siguiente
+ * cada pocos segundos, y los puntos de debajo permiten elegir.
+ *
+ * El canvas ocupa toda la cabecera y la figura se coloca sobre el elemento
+ * [data-figura-hueco] de esa misma cabecera: la maqueta la decide el CSS y el
+ * canvas solo se alinea con ella, así que funciona igual en escritorio, donde
+ * va a la derecha del texto, y en móvil, donde va debajo.
+ *
+ * Cuidados heredados de la red original: se pausa fuera de pantalla y con la
+ * pestaña oculta, con prefers-reduced-motion se queda en un fotograma fijo y
+ * no rota sola, y en pantallas táctiles no hay interacción con el puntero.
+ */
+import { FIGURAS_GRANDES } from '../data/constelaciones-grandes';
+import { AGENTES, type ClaveAgente } from '../data/agentes';
+
+interface Props {
+  figuras: ClaveAgente[];
+  class?: string;
+}
+const { figuras, class: className = '' } = Astro.props;
+
+const datos = figuras.map((k) => ({
+  p: FIGURAS_GRANDES[k].p,
+  e: FIGURAS_GRANDES[k].e,
+  nombre: AGENTES[k].nombre,
+  rol: AGENTES[k].rol,
+}));
+---
+
+<canvas
+  data-red-agente
+  data-figuras={JSON.stringify(datos)}
+  class={`block h-full w-full ${className}`}
+  aria-hidden="true"
+></canvas>
+
+<script>
+  type Punto = [number, number, number];
+  interface Figura { p: Punto[]; e: [number, number][]; nombre: string; rol: string; }
+  interface Objetivo { x: number; y: number; r: number; ancla: boolean; }
+  interface Particula {
+    x: number; y: number; vx: number; vy: number;
+    ox: number; oy: number;       // desplazamiento por el cursor
+    t: number;                    // objetivo asignado, -1 si va suelta
+    r: number; base: number;      // radio actual y radio en reposo
+    fase: number; carga: number;
+  }
+  interface Pulso { a: number; b: number; t: number; v: number; }
+
+  const TAU = Math.PI * 2;
+  const AZUL = '47, 92, 255';
+  const TINTA = '22, 51, 184';
+  const ENLACE = 128;
+  const CURSOR = 150;
+  const CICLO_MS = 5600;
+  const MAX_FIGURA = 300; // partículas de figura como mucho, para no ahogar un portátil
+
+  function iniciar(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext('2d', { alpha: true });
+    if (!ctx) return;
+    const figs: Figura[] = JSON.parse(canvas.dataset.figuras || '[]');
+    if (!figs.length) return;
+
+    const raiz = canvas.closest('[data-cabecera]') ?? canvas.parentElement!;
+    const hueco = raiz.querySelector<HTMLElement>('[data-figura-hueco]');
+    const nombre = raiz.querySelector<HTMLElement>('[data-figura-nombre]');
+    const rol = raiz.querySelector<HTMLElement>('[data-figura-rol]');
+    const leyenda = raiz.querySelector<HTMLElement>('[data-figura-leyenda]');
+    const botones = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-figura-ir]'));
+
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const fino = window.matchMedia('(pointer: fine)').matches;
+    const azar = Math.random;
+
+    let w = 0, h = 0, dpr = 1;
+    let caja = { x: 0, y: 0, s: 0 };
+    let objetivos: Objetivo[][] = [];
+    let ady: number[][][] = [];
+    let ps: Particula[] = [];
+    let capacidad = 0;
+    let actual = 0;
+    let asignado: number[] = [];
+    let armado = 0;
+    let ultimoCambio = performance.now();
+    let pulsos: Pulso[] = [];
+    let vecinos: number[][] = [];
+    const raton = { x: -9999, y: -9999, activo: false };
+
+    function medir() {
+      const rc = canvas.getBoundingClientRect();
+      w = Math.max(rc.width, 1);
+      h = Math.max(rc.height, 1);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const rh = hueco?.getBoundingClientRect();
+      if (rh && rh.width > 40 && rh.height > 40) {
+        const s = Math.min(rh.width, rh.height);
+        caja = { x: rh.left - rc.left + (rh.width - s) / 2, y: rh.top - rc.top + (rh.height - s) / 2, s };
+      } else {
+        const s = Math.min(w, h) * 0.78;
+        caja = { x: (w - s) / 2, y: (h - s) / 2, s };
+      }
+    }
+
+    // Las estrellas de la figura y, entre ellas, polvo a lo largo de cada
+    // arista: así la constelación se lee como una silueta y no como puntos sueltos.
+    function construirObjetivos() {
+      const esc = caja.s / 100;
+      objetivos = figs.map((f) => {
+        const out: Objetivo[] = f.p.map(([x, y, r]) => ({
+          x: caja.x + x * esc,
+          y: caja.y + y * esc,
+          r: Math.min(5.2, Math.max(1.5, r * esc * 0.42)),
+          ancla: r >= 2,
+        }));
+        const largos = f.e.map(([a, b]) => Math.hypot(out[b].x - out[a].x, out[b].y - out[a].y));
+        const total = largos.reduce((s, l) => s + l, 0);
+        const paso = Math.max(7, esc * 2.2, total / Math.max(1, MAX_FIGURA - f.p.length));
+        f.e.forEach(([a, b], k) => {
+          const n = Math.floor(largos[k] / paso);
+          for (let i = 1; i < n; i++) {
+            const t = i / n;
+            out.push({
+              x: out[a].x + (out[b].x - out[a].x) * t + (azar() - 0.5) * 1.3,
+              y: out[a].y + (out[b].y - out[a].y) * t + (azar() - 0.5) * 1.3,
+              r: 0.7 + azar() * 0.55,
+              ancla: false,
+            });
+          }
+        });
+        return out;
+      });
+      ady = figs.map((f) => {
+        const lista: number[][] = f.p.map(() => []);
+        f.e.forEach(([a, b]) => { lista[a].push(b); lista[b].push(a); });
+        return lista;
+      });
+    }
+
+    function nueva(): Particula {
+      return {
+        x: azar() * w, y: azar() * h,
+        vx: (azar() - 0.5) * 0.18, vy: (azar() - 0.5) * 0.18,
+        ox: 0, oy: 0, t: -1, r: 1.4, base: 1.1 + azar() * 1.5,
+        fase: azar() * 1000, carga: 0,
+      };
+    }
+
+    function prepararParticulas() {
+      const maxObj = Math.max(...objetivos.map((o) => o.length));
+      const ambiente = Math.round(Math.min(120, Math.max(34, (w * h) / 11000)));
+      while (ps.length < maxObj + ambiente) ps.push(nueva());
+      ps.length = maxObj + ambiente;
+      capacidad = maxObj;
+    }
+
+    function rotular(i: number) {
+      botones.forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
+      if (!nombre || !rol) return;
+      leyenda?.classList.add('cambiando');
+      window.setTimeout(() => {
+        nombre.textContent = figs[i].nombre;
+        rol.textContent = figs[i].rol;
+        leyenda?.classList.remove('cambiando');
+      }, reducido ? 0 : 220);
+    }
+
+    // Reparto aleatorio de partículas a estrellas: al recomponerse cruzan la
+    // caja en vez de deslizarse en paralelo, que es lo que da el efecto.
+    function asignar(i: number, sacudir: boolean) {
+      actual = i;
+      const obj = objetivos[i];
+      const orden = Array.from({ length: capacidad }, (_, k) => k);
+      for (let k = orden.length - 1; k > 0; k--) {
+        const j = Math.floor(azar() * (k + 1));
+        [orden[k], orden[j]] = [orden[j], orden[k]];
+      }
+      for (let k = 0; k < capacidad; k++) ps[k].t = -1;
+      asignado = new Array(obj.length);
+      obj.forEach((_, ti) => { ps[orden[ti]].t = ti; asignado[ti] = orden[ti]; });
+      for (let k = 0; k < capacidad; k++) {
+        const p = ps[k];
+        if (sacudir) {
+          const a = azar() * TAU;
+          const v = 1.5 + azar() * 3.5;
+          p.vx += Math.cos(a) * v;
+          p.vy += Math.sin(a) * v;
+        } else if (p.t === -1) {
+          p.vx = (azar() - 0.5) * 0.4;
+          p.vy = (azar() - 0.5) * 0.4;
+        }
+      }
+      pulsos = [];
+      ultimoCambio = performance.now();
+      rotular(i);
+    }
+
+    function colocarYa() {
+      const obj = objetivos[actual];
+      for (const p of ps) if (p.t >= 0) { p.x = obj[p.t].x; p.y = obj[p.t].y; p.r = obj[p.t].r; }
+      armado = 1;
+    }
+
+    function lanzar(desde?: number) {
+      if (pulsos.length >= 10) return;
+      const lista = ady[actual];
+      const a = desde ?? Math.floor(azar() * lista.length);
+      const opciones = lista[a];
+      if (!opciones?.length) return;
+      pulsos.push({ a, b: opciones[Math.floor(azar() * opciones.length)], t: 0, v: 0.012 + azar() * 0.016 });
+    }
+
+    function enCaja(x: number, y: number) {
+      const m = caja.s * 0.08;
+      return x > caja.x - m && x < caja.x + caja.s + m && y > caja.y - m && y < caja.y + caja.s + m;
+    }
+
+    function paso() {
+      const obj = objetivos[actual];
+      const ahora = performance.now() * 0.001;
+      let suma = 0, cuenta = 0;
+
+      for (const p of ps) {
+        if (p.t >= 0) {
+          const o = obj[p.t];
+          const tx = o.x + Math.sin(ahora * 1.1 + p.fase) * 0.7;
+          const ty = o.y + Math.cos(ahora * 0.9 + p.fase) * 0.7;
+          p.vx = (p.vx + (tx - p.x) * 0.02) * 0.86;
+          p.vy = (p.vy + (ty - p.y) * 0.02) * 0.86;
+          p.r += (o.r - p.r) * 0.08;
+          suma += Math.hypot(tx - p.x, ty - p.y);
+          cuenta++;
+        } else {
+          if (Math.hypot(p.vx, p.vy) > 0.22) { p.vx *= 0.97; p.vy *= 0.97; }
+          p.r += (p.base - p.r) * 0.05;
+        }
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.t < 0) {
+          if (p.x < -20) p.x = w + 20;
+          if (p.x > w + 20) p.x = -20;
+          if (p.y < -20) p.y = h + 20;
+          if (p.y > h + 20) p.y = -20;
+        }
+
+        let empuje = 0;
+        if (raton.activo) {
+          const dx = p.x + p.ox - raton.x;
+          const dy = p.y + p.oy - raton.y;
+          const d = Math.hypot(dx, dy);
+          if (d < CURSOR && d > 0.01) {
+            const f = (1 - d / CURSOR) ** 2;
+            empuje = f;
+            p.ox += (dx / d) * f * 3.6;
+            p.oy += (dy / d) * f * 3.6;
+          }
+        }
+        p.ox *= 0.88;
+        p.oy *= 0.88;
+        p.carga += (empuje - p.carga) * 0.12;
+      }
+
+      const media = cuenta ? suma / cuenta : 0;
+      const meta = media < 3 ? 1 : media > 40 ? 0 : 1 - (media - 3) / 37;
+      armado += (meta - armado) * 0.08;
+
+      // Sinapsis solo entre los nodos sueltos: la figura ya tiene las suyas.
+      vecinos = ps.map(() => []);
+      for (let i = 0; i < ps.length; i++) {
+        const a = ps[i];
+        if (a.t >= 0) continue;
+        for (let j = i + 1; j < ps.length; j++) {
+          const b = ps[j];
+          if (b.t >= 0) continue;
+          const dx = a.x + a.ox - (b.x + b.ox);
+          const dy = a.y + a.oy - (b.y + b.oy);
+          if (dx * dx + dy * dy < ENLACE * ENLACE) vecinos[i].push(j);
+        }
+      }
+
+      for (let i = pulsos.length - 1; i >= 0; i--) {
+        const q = pulsos[i];
+        q.t += q.v;
+        if (q.t >= 1) {
+          pulsos.splice(i, 1);
+          if (azar() < 0.78) lanzar(q.b);
+        }
+      }
+      if (armado > 0.8 && azar() < 0.1) lanzar();
+
+      if (figs.length > 1 && performance.now() - ultimoCambio > CICLO_MS) {
+        asignar((actual + 1) % figs.length, true);
+      }
+    }
+
+    function dibujar() {
+      ctx!.clearRect(0, 0, w, h);
+
+      // La red de fondo. Cerca de la figura se apaga para que esta se lea limpia.
+      for (let i = 0; i < ps.length; i++) {
+        const a = ps[i];
+        const ax = a.x + a.ox, ay = a.y + a.oy;
+        for (const j of vecinos[i] ?? []) {
+          const b = ps[j];
+          const bx = b.x + b.ox, by = b.y + b.oy;
+          const prox = 1 - Math.hypot(bx - ax, by - ay) / ENLACE;
+          const calor = Math.max(a.carga, b.carga);
+          let alfa = prox * (0.24 + calor * 0.5);
+          if (enCaja(ax, ay) || enCaja(bx, by)) alfa *= 0.3;
+          if (alfa <= 0.004) continue;
+          ctx!.strokeStyle = `rgba(${AZUL}, ${alfa.toFixed(3)})`;
+          ctx!.lineWidth = 0.5 + prox * 0.55 + calor * 0.7;
+          ctx!.beginPath();
+          ctx!.moveTo(ax, ay);
+          ctx!.lineTo(bx, by);
+          ctx!.stroke();
+        }
+      }
+
+      // Las aristas de la figura: aparecen a medida que se monta.
+      const f = figs[actual];
+      if (armado > 0.02) {
+        ctx!.lineWidth = 1;
+        ctx!.strokeStyle = `rgba(${AZUL}, ${(0.4 * armado).toFixed(3)})`;
+        ctx!.beginPath();
+        for (const [a, b] of f.e) {
+          const A = ps[asignado[a]], B = ps[asignado[b]];
+          if (!A || !B) continue;
+          ctx!.moveTo(A.x + A.ox, A.y + A.oy);
+          ctx!.lineTo(B.x + B.ox, B.y + B.oy);
+        }
+        ctx!.stroke();
+      }
+
+      // Señales recorriendo la constelación
+      for (const q of pulsos) {
+        const A = ps[asignado[q.a]], B = ps[asignado[q.b]];
+        if (!A || !B) continue;
+        const e = q.t * q.t * (3 - 2 * q.t);
+        const x = A.x + A.ox + (B.x + B.ox - A.x - A.ox) * e;
+        const y = A.y + A.oy + (B.y + B.oy - A.y - A.oy) * e;
+        const fade = Math.sin(q.t * Math.PI) * armado;
+        const g = ctx!.createRadialGradient(x, y, 0, x, y, 12);
+        g.addColorStop(0, `rgba(${AZUL}, ${(0.55 * fade).toFixed(3)})`);
+        g.addColorStop(1, `rgba(${AZUL}, 0)`);
+        ctx!.fillStyle = g;
+        ctx!.beginPath();
+        ctx!.arc(x, y, 12, 0, TAU);
+        ctx!.fill();
+        ctx!.fillStyle = `rgba(${TINTA}, ${(0.95 * fade).toFixed(3)})`;
+        ctx!.beginPath();
+        ctx!.arc(x, y, 1.9, 0, TAU);
+        ctx!.fill();
+      }
+
+      // Nodos
+      const obj = objetivos[actual];
+      for (const p of ps) {
+        const x = p.x + p.ox, y = p.y + p.oy;
+        if (p.t >= 0) {
+          const o = obj[p.t];
+          const esEstrella = p.t < f.p.length;
+          if (o.ancla && armado > 0.1) {
+            const g = ctx!.createRadialGradient(x, y, 0, x, y, 16);
+            g.addColorStop(0, `rgba(${AZUL}, ${(0.26 * armado).toFixed(3)})`);
+            g.addColorStop(1, `rgba(${AZUL}, 0)`);
+            ctx!.fillStyle = g;
+            ctx!.beginPath();
+            ctx!.arc(x, y, 16, 0, TAU);
+            ctx!.fill();
+          }
+          ctx!.fillStyle = esEstrella
+            ? `rgba(${TINTA}, ${(0.62 + 0.36 * armado).toFixed(3)})`
+            : `rgba(${AZUL}, ${(0.45 + 0.4 * armado).toFixed(3)})`;
+          ctx!.beginPath();
+          ctx!.arc(x, y, p.r * (1 + p.carga), 0, TAU);
+          ctx!.fill();
+        } else {
+          const atenuar = enCaja(x, y) ? 0.35 : 1;
+          ctx!.fillStyle = `rgba(${TINTA}, ${((0.4 + p.carga * 0.5) * atenuar).toFixed(3)})`;
+          ctx!.beginPath();
+          ctx!.arc(x, y, p.r * (1 + p.carga * 1.4), 0, TAU);
+          ctx!.fill();
+        }
+      }
+    }
+
+    let raf = 0;
+    let corriendo = false;
+    function bucle() {
+      paso();
+      dibujar();
+      raf = requestAnimationFrame(bucle);
+    }
+    function arrancar() {
+      if (corriendo || reducido) return;
+      corriendo = true;
+      ultimoCambio = performance.now();
+      raf = requestAnimationFrame(bucle);
+    }
+    function parar() {
+      corriendo = false;
+      cancelAnimationFrame(raf);
+    }
+
+    function reconstruir() {
+      medir();
+      construirObjetivos();
+      prepararParticulas();
+      asignar(actual, false);
+      if (reducido) colocarYa();
+      dibujar();
+    }
+
+    reconstruir();
+
+    botones.forEach((b, k) =>
+      b.addEventListener('click', () => {
+        asignar(k, !reducido);
+        if (reducido) { colocarYa(); dibujar(); }
+      })
+    );
+
+    let espera = 0;
+    new ResizeObserver(() => {
+      window.clearTimeout(espera);
+      espera = window.setTimeout(() => reconstruir(), 160);
+    }).observe(canvas);
+
+    if (reducido) return;
+
+    new IntersectionObserver((entradas) =>
+      entradas.forEach((e) => (e.isIntersecting ? arrancar() : parar()))
+    ).observe(canvas);
+    document.addEventListener('visibilitychange', () => (document.hidden ? parar() : arrancar()));
+
+    if (fino) {
+      window.addEventListener('pointermove', (ev) => {
+        const rc = canvas.getBoundingClientRect();
+        raton.x = ev.clientX - rc.left;
+        raton.y = ev.clientY - rc.top;
+        raton.activo = raton.x >= -60 && raton.y >= -60 && raton.x <= rc.width + 60 && raton.y <= rc.height + 60;
+      }, { passive: true });
+      window.addEventListener('pointerleave', () => (raton.activo = false));
+      // Un clic sobre la figura la deshace y la vuelve a montar.
+      window.addEventListener('pointerdown', (ev) => {
+        const rc = canvas.getBoundingClientRect();
+        if (enCaja(ev.clientX - rc.left, ev.clientY - rc.top)) asignar(actual, true);
+      });
+    }
+  }
+
+  document.querySelectorAll<HTMLCanvasElement>('canvas[data-red-agente]').forEach(iniciar);
+</script>

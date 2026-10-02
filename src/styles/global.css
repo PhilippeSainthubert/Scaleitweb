@@ -407,3 +407,188 @@ p { text-wrap: pretty; }
   .const-pt { animation: const-brilla 3.6s ease-in-out infinite; animation-delay: var(--d); }
 }
 @keyframes const-brilla { 0%, 100% { opacity: .95; } 50% { opacity: .42; } }
+
+/* ── Cabecera con agente ──────────────────────────────────────
+   El velo deja el texto sobre blanco limpio y la red respira al
+   lado. En móvil la figura va debajo, así que el velo se reparte
+   en vertical en lugar de en horizontal. */
+.cabecera-velo {
+  background: radial-gradient(110% 52% at 50% 26%, #fff 36%, rgba(255, 255, 255, .78) 62%, rgba(255, 255, 255, 0) 100%);
+}
+@media (min-width: 1024px) {
+  .cabecera-velo {
+    background: linear-gradient(90deg, #fff 0%, rgba(255, 255, 255, .94) 36%, rgba(255, 255, 255, .5) 54%, rgba(255, 255, 255, 0) 68%);
+  }
+}
+
+.figura-leyenda {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--color-ink-3);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.figura-leyenda.cambiando { opacity: 0; transform: translateY(3px); }
+
+/* Puntos para elegir agente: diminutos a la vista, con una zona de
+   toque de 24 px para que se puedan pulsar con el dedo. */
+.punto-figura {
+  position: relative;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-line-2);
+  transition: width .3s cubic-bezier(.16, 1, .3, 1), background-color .3s ease;
+}
+.punto-figura::after { content: ''; position: absolute; inset: -9px; }
+.punto-figura:hover { background: var(--color-ink-3); }
+.punto-figura[aria-current='true'] { width: 18px; background: var(--color-accent); }
+@media (prefers-reduced-motion: reduce) {
+  .figura-leyenda, .punto-figura { transition: none; }
+}
+
+/* ── Tarjetas de artículo ─────────────────────────────────────── */
+.portada-marco {
+  position: relative;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #0a1628;
+  box-shadow: 0 0 0 1px rgba(10, 22, 40, .06), var(--shadow-sm);
+  transition: box-shadow .35s ease, transform .35s cubic-bezier(.16, 1, .3, 1);
+}
+.portada-img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1200 / 630;
+  object-fit: cover;
+  transition: transform .7s cubic-bezier(.16, 1, .3, 1);
+}
+/* El nombre del agente, discreto, sobre el cielo. */
+.portada-agente {
+  position: absolute;
+  left: 14px;
+  bottom: 12px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(219, 229, 255, .72);
+}
+.tarjeta-articulo:hover .portada-marco { box-shadow: 0 0 0 1px rgba(47, 92, 255, .18), var(--shadow-lg); transform: translateY(-3px); }
+.tarjeta-articulo:hover .portada-img { transform: scale(1.035); }
+.tarjeta-articulo:hover .enlace-tarjeta { color: var(--color-accent-deep); }
+.enlace-tarjeta { transition: color .2s ease; }
+.enlace-tarjeta::after { content: ''; position: absolute; inset: 0; z-index: 1; }
+.enlace-tarjeta:focus-visible { outline: none; }
+.tarjeta-articulo:has(.enlace-tarjeta:focus-visible) .portada-marco { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  .portada-marco, .portada-img { transition: none; }
+  .tarjeta-articulo:hover .portada-marco, .tarjeta-articulo:hover .portada-img { transform: none; }
+}
+
+/* ── Filtro por tema ──────────────────────────────────────────── */
+.chip-tema {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  padding: .4rem .8rem;
+  font-size: 13px;
+  color: var(--color-ink-2);
+  background: var(--color-bg);
+  transition: border-color .2s ease, background-color .2s ease, color .2s ease;
+}
+.chip-tema:hover { border-color: var(--color-line-2); color: var(--color-ink); }
+.chip-tema[aria-pressed='true'] { background: var(--color-ink); border-color: var(--color-ink); color: #fff; }
+.chip-total { font-family: var(--font-mono); font-size: 11px; opacity: .6; }
+[data-cluster][hidden] { display: none; }
+
+/* ── Índice del artículo ──────────────────────────────────────── */
+.indice-articulo {
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: 1.25rem 1.375rem;
+}
+@media (min-width: 1024px) {
+  .indice-articulo {
+    position: sticky;
+    top: 104px;
+    border: 0;
+    border-left: 1px solid var(--color-line);
+    border-radius: 0;
+    background: none;
+    padding: .25rem 0 .25rem 1.25rem;
+  }
+}
+.indice-enlace {
+  display: block;
+  font-size: 13.5px;
+  line-height: 1.4;
+  color: var(--color-ink-2);
+  transition: color .2s ease;
+}
+.indice-enlace:hover { color: var(--color-ink); }
+.indice-enlace[aria-current='true'] { color: var(--color-accent-deep); font-weight: 500; }
+@media (min-width: 1024px) {
+  .indice-enlace { position: relative; }
+  .indice-enlace[aria-current='true']::before {
+    content: '';
+    position: absolute;
+    left: calc(-1.25rem - 1px);
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    border-radius: 2px;
+    background: var(--color-accent);
+  }
+}
+
+/* Página actual en la barra: tinta plena y un punto azul debajo. */
+.nav-enlace[aria-current='page'] { color: var(--color-ink); position: relative; }
+.nav-enlace[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 4px;
+  height: 4px;
+  margin-left: -2px;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+.indice-movil {
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  background: var(--color-surface);
+  padding: .875rem 1.125rem;
+}
+.indice-movil summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  list-style: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-ink);
+}
+.indice-movil summary::-webkit-details-marker { display: none; }
+.indice-movil summary::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  margin-left: .75rem;
+  border-right: 1.5px solid var(--color-ink-3);
+  border-bottom: 1.5px solid var(--color-ink-3);
+  transform: rotate(45deg) translateY(-2px);
+  transition: transform .2s ease;
+}
+.indice-movil[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
