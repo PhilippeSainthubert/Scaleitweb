@@ -6,19 +6,22 @@
  * suyo y así el lead llega etiquetado aunque el visitante llegue sin
  * parámetros en la URL, con JavaScript desactivado o desde un enlace pegado
  * en un correo.
+ *
+ * Es el cierre de casi todas las páginas y va de noche, pegado al pie: la
+ * última imagen es el cielo de la marca. A la izquierda, qué pasa después de
+ * enviarlo y quién contesta, que es lo que frena a quien duda.
  */
+import CieloEstrellado from './CieloEstrellado.astro';
 interface Props {
   origen: string;
   titulo?: string;
   texto?: string;
-  destacar?: boolean;
 }
 
 const {
   origen,
   titulo = 'Media hora y sabés si te encajamos',
   texto = 'Miramos tu situación, te decimos dónde está el cuello de botella y qué haríamos primero. Si no somos la solución, te lo decimos en la llamada.',
-  destacar = true,
 } = Astro.props;
 
 const SHEET_URL = import.meta.env.PUBLIC_SHEET_URL || '';
@@ -56,17 +59,47 @@ const tipos = [
   'Todavía no lo tengo claro',
 ];
 
+// Lo que pasa después de enviar, en el orden en que pasa.
+const pasos = [
+  'Respuesta en menos de 24 h laborables',
+  'Llamada de 30 minutos con uno de los dos socios',
+  'Diagnóstico y primer paso, aunque no trabajemos juntos',
+];
+
 const id = `form-${origen.replace(/[^a-z0-9]/gi, '-')}`;
 const campo =
-  'w-full rounded-lg border border-line bg-bg px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-accent focus:ring-1 focus:ring-accent/30';
+  'w-full rounded-lg border border-line-2 bg-white/[0.03] px-3.5 py-2.5 text-[14.5px] text-ink outline-none transition-colors placeholder:text-ink-3 focus:border-accent focus:ring-1 focus:ring-accent/30';
 ---
 
-<section id="contacto" class={`border-t border-line py-24 sm:py-32 ${destacar ? 'bg-surface' : ''}`}>
-  <div class="mx-auto max-w-3xl px-6">
-    <div class="text-center">
-      <p class="eyebrow">Contacto</p>
-      <h2 class="display-lg mt-4 text-balance">{titulo}</h2>
-      <p class="lede mx-auto mt-5 text-balance">{texto}</p>
+<section id="contacto" class="noche overflow-clip py-28 sm:py-36">
+  <CieloEstrellado semilla={13} densidad={0.8} />
+  <div class="mx-auto grid max-w-6xl gap-14 px-6 lg:grid-cols-12 lg:gap-10">
+    <div class="lg:col-span-5">
+      <div class="lg:sticky lg:top-32" data-revelar-grupo>
+        <p class="eyebrow">Contacto</p>
+        <h2 class="display-lg mt-4 text-balance">{titulo}</h2>
+        <p class="lede mt-5 text-pretty">{texto}</p>
+
+        <ol class="contacto-pasos mt-10">
+          {pasos.map((paso, i) => (
+            <li>
+              <span class="contacto-num">{i + 1}</span>
+              <span>{paso}</span>
+            </li>
+          ))}
+        </ol>
+
+        <div class="mt-10 flex items-center gap-4">
+          <span class="flex -space-x-2.5">
+            <img src="/philippe.jpeg" alt="" width="44" height="44" class="contacto-foto" />
+            <img src="/patrick.jpeg" alt="" width="44" height="44" class="contacto-foto" />
+          </span>
+          <p class="text-[14px] leading-snug text-ink-2">
+            <span class="text-ink">Philippe y Patrick.</span><br />
+            Contesta uno de los dos, siempre.
+          </p>
+        </div>
+      </div>
     </div>
 
     <form
@@ -74,7 +107,8 @@ const campo =
       data-formulario
       action="https://formsubmit.co/philosh95@gmail.com"
       method="POST"
-      class="mt-12 rounded-xl border border-line bg-bg p-7 shadow-sm sm:p-9"
+      class="contacto-form lg:col-span-7"
+      data-revelar="escala"
     >
       <input type="hidden" name="_subject" value={`Nuevo lead desde ${origen}`} />
       <input type="hidden" name="_captcha" value="false" />
@@ -140,8 +174,7 @@ const campo =
       <button type="submit" class="btn btn-primary mt-7 w-full">Agendar la llamada</button>
 
       <p class="mt-4 text-center text-[12.5px] text-ink-3">
-        Te respondemos en menos de 24 h laborables. Tus datos solo se usan para
-        contactarte. Podés consultar la
+        Tus datos solo se usan para contactarte. Podés consultar la
         <a href="/privacidad" class="underline underline-offset-2 hover:text-ink">política de privacidad</a>.
       </p>
     </form>

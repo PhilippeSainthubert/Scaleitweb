@@ -1,94 +1,246 @@
 ---
+/**
+ * La consola de agentes, viva.
+ *
+ * Antes era una foto fija de siete tarjetas. Ahora las tareas avanzan solas
+ * por las cuatro fases (en cola, ejecutando, revisión humana, entregado), cada
+ * una firmada por el agente que la hace y, en la revisión, por la persona que
+ * la mira. Es la promesa de la web enseñada en vez de contada: los agentes
+ * trabajan y nada sale sin que uno de los dos lo revise.
+ *
+ * Se pinta en el servidor con un estado inicial coherente, así que sin
+ * JavaScript se ve igual de bien. El movimiento se pausa fuera de pantalla y no
+ * existe con prefers-reduced-motion.
+ */
 import Constelacion from './Constelacion.astro';
+import CieloEstrellado from './CieloEstrellado.astro';
+import { FIGURAS } from '../data/constelaciones';
 
-// Nombre visible de cada agente: la consola enseña quién ejecuta cada tarea.
-const nombres: Record<string, string> = {
-  castor: 'Castor', lobo: 'Lobo', tiburon: 'Tiburón', libelula: 'Libélula',
-  elefante: 'Elefante', escarabajo: 'Escarabajo',
+const agentes: Record<string, string> = {
+  lobo: 'Lobo', castor: 'Castor', tiburon: 'Tiburón', libelula: 'Libélula', elefante: 'Elefante',
+  escarabajo: 'Escarabajo', pavoreal: 'Pavo real', arana: 'Araña', buho: 'Búho', cuervo: 'Cuervo',
 };
 
-const columns = [
-  {
-    label: 'En cola',
-    dot: 'bg-ink-3',
-    tasks: [
-      { title: 'Landing B2B: borrador de copy', agent: 'castor', time: '09:12' },
-      { title: 'Secuencia outbound: 200 cuentas', agent: 'lobo', time: '09:40' },
-    ],
-  },
-  {
-    label: 'Ejecutando',
-    dot: 'bg-accent animate-pulse',
-    tasks: [
-      { title: 'Optimización de pujas en LinkedIn Ads', agent: 'tiburon', time: '10:03' },
-      { title: 'Dashboard de atribución en GA4', agent: 'libelula', time: '10:18' },
-      { title: 'Scoring de leads en el CRM', agent: 'elefante', time: '10:26' },
-    ],
-  },
-  {
-    label: 'Revisado y entregado',
-    dot: 'bg-positive',
-    tasks: [
-      { title: 'Cualificación automática de leads', agent: 'escarabajo', time: '08:55' },
-      { title: 'Test A/B en página de precios', agent: 'libelula', time: '08:31' },
-    ],
-  },
+// Tareas reales del tipo de trabajo que hacemos. El revisor depende del área:
+// lo de outbound lo mira Patrick, el resto Philippe.
+const tareas = [
+  { t: 'Secuencia outbound: 200 cuentas', a: 'lobo' },
+  { t: 'Landing B2B: borrador de copy', a: 'castor' },
+  { t: 'Optimización de pujas en LinkedIn Ads', a: 'tiburon' },
+  { t: 'Dashboard de atribución en GA4', a: 'libelula' },
+  { t: 'Scoring de leads en el CRM', a: 'elefante' },
+  { t: 'Cualificación automática de leads', a: 'escarabajo' },
+  { t: 'Brief para un creador del sector', a: 'pavoreal' },
+  { t: 'Auditoría técnica: 412 URLs', a: 'arana' },
+  { t: 'Respuestas para buscadores con IA', a: 'buho' },
+  { t: 'Señales de compra: 38 cuentas nuevas', a: 'cuervo' },
+  { t: 'Duplicados fuera del CRM', a: 'elefante' },
+  { t: 'Informe semanal de pipeline', a: 'libelula' },
+  { t: 'Variantes de anuncio para Meta', a: 'tiburon' },
+  { t: 'Artículo del cluster de agentes', a: 'castor' },
 ];
+const revisor = (a: string) => (a === 'lobo' || a === 'cuervo' ? 'patrick' : 'philippe');
+
+const columnas = [
+  { clave: 'cola', nombre: 'En cola' },
+  { clave: 'ejecutando', nombre: 'Ejecutando' },
+  { clave: 'revision', nombre: 'Revisión humana' },
+  { clave: 'entregado', nombre: 'Entregado' },
+];
+// Estado inicial: dos en cola, dos ejecutando, una en revisión, dos entregadas.
+const inicial: Record<string, number[]> = { cola: [0, 1], ejecutando: [2, 3], revision: [4], entregado: [5, 6] };
 ---
 
-<section id="agentes" class="border-t border-line bg-surface py-24 sm:py-32">
+<section id="agentes" class="noche overflow-clip py-28 sm:py-36" data-consola>
+  <CieloEstrellado semilla={8} densidad={0.7} />
+
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-revelar-grupo>
       <p class="eyebrow">Así trabaja</p>
-      <h2 class="display-lg mt-4 text-balance">
-        Mientras dormís, tus agentes siguen ejecutando
-      </h2>
+      <h2 class="display-lg mt-4 text-balance">Mientras dormís, tus agentes siguen ejecutando</h2>
       <p class="lede mt-5">
-        Cada agente lleva un sistema. Vos ves el estado en tiempo real, y nada sale
-        en vivo sin que uno de nosotros lo revise antes.
+        Cada agente lleva su parte del sistema. Vos ves el estado en tiempo real, y nada
+        sale en vivo sin que uno de nosotros dos lo revise antes.
       </p>
     </div>
 
-    <div class="reveal mt-14 overflow-hidden rounded-xl border border-line bg-bg shadow-md">
-      <!-- Barra de la consola -->
-      <div class="flex items-center gap-2 border-b border-line px-4 py-2.5">
-        <div class="flex gap-1.5">
-          <span class="h-2.5 w-2.5 rounded-full bg-line-2"></span>
-          <span class="h-2.5 w-2.5 rounded-full bg-line-2"></span>
-          <span class="h-2.5 w-2.5 rounded-full bg-line-2"></span>
-        </div>
-        <p class="ml-2 font-mono text-[11px] text-ink-3">scaleit / consola de agentes</p>
-        <span class="ml-auto flex items-center gap-1.5 font-mono text-[11px] text-positive">
-          <span class="h-1.5 w-1.5 rounded-full bg-positive"></span> 7 activos
+    <div class="consola mt-14" data-revelar="escala">
+      <div class="consola-barra">
+        <span class="flex gap-1.5" aria-hidden="true">
+          <i></i><i></i><i></i>
+        </span>
+        <p class="ml-2 hidden font-mono text-[11px] text-ink-3 sm:block">scaleit / consola de agentes</p>
+        <span class="ml-auto flex items-center gap-4 font-mono text-[11px]">
+          <span class="hidden text-ink-3 sm:inline" data-reloj>03:14</span>
+          <span class="flex items-center gap-1.5 text-[#6fe0a8]">
+            <span class="consola-pulso" aria-hidden="true"></span> 10 agentes activos
+          </span>
         </span>
       </div>
 
-      <div class="grid divide-y divide-line md:grid-cols-3 md:divide-x md:divide-y-0">
-        {columns.map((column) => (
-          <div class="p-5">
-            <div class="flex items-center gap-2">
-              <span class={`h-1.5 w-1.5 rounded-full ${column.dot}`}></span>
-              <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{column.label}</p>
-              <span class="ml-auto font-mono text-[11px] text-ink-3">{column.tasks.length}</span>
-            </div>
-
-            <div class="mt-4 space-y-2.5">
-              {column.tasks.map((task) => (
-                <div class="rounded-lg border border-line bg-bg p-3.5 transition-colors hover:border-line-2">
-                  <p class="text-[13.5px] leading-snug text-ink">{task.title}</p>
-                  <div class="mt-2.5 flex items-center gap-2 font-mono text-[11px] text-ink-3">
-                    <span class="inline-flex items-center gap-1.5 rounded-md bg-surface py-0.5 pl-1 pr-2 text-accent-deep">
-                      <Constelacion animal={task.agent} size={18} />
-                      {nombres[task.agent]}
+      <div class="consola-columnas">
+        {columnas.map((c) => (
+          <div class="consola-col" data-col={c.clave}>
+            <p class="consola-col-titulo">
+              <span class={`consola-estado consola-estado-${c.clave}`} aria-hidden="true"></span>
+              {c.nombre}
+              <span class="ml-auto" data-total>{inicial[c.clave].length}</span>
+            </p>
+            <ul class="consola-lista">
+              {inicial[c.clave].map((i) => (
+                <li class="tarea" data-tarea={i} data-fase={c.clave}>
+                  <p class="tarea-titulo">{tareas[i].t}</p>
+                  <div class="tarea-pie">
+                    <span class="tarea-agente">
+                      <Constelacion animal={tareas[i].a} size={18} claro />
+                      {agentes[tareas[i].a]}
                     </span>
-                    <span>{task.time}</span>
+                    <span class="tarea-revisor">
+                      <img src={`/${revisor(tareas[i].a)}.jpeg`} alt="" width="20" height="20" />
+                      {revisor(tareas[i].a) === 'patrick' ? 'Patrick' : 'Philippe'}
+                    </span>
+                    <span class="tarea-hecho" aria-hidden="true">
+                      <svg viewBox="0 0 16 16" width="14" height="14"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+                    </span>
                   </div>
-                </div>
+                  <span class="tarea-barra" aria-hidden="true"><i></i></span>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         ))}
       </div>
+
+      <div class="consola-pie">
+        <span><span class="text-ink" data-contador>27</span> entregadas esta noche</span>
+        <span class="consola-pie-sep" aria-hidden="true"></span>
+        <span>Salidas sin revisión humana: <span class="text-ink">0</span></span>
+      </div>
     </div>
   </div>
+
+  <!-- Datos para el script: las tareas y las figuras pequeñas de cada agente -->
+  <script
+    type="application/json"
+    data-consola-datos
+    set:html={JSON.stringify({
+      tareas: tareas.map((x) => ({ ...x, n: agentes[x.a], r: revisor(x.a) })),
+      figuras: Object.fromEntries(Object.keys(agentes).map((k) => [k, FIGURAS[k]])),
+    })}
+  />
 </section>
+
+<script>
+  type Datos = {
+    tareas: { t: string; a: string; n: string; r: string }[];
+    figuras: Record<string, { p: [number, number, number][]; e: [number, number][] }>;
+  };
+
+  const ORDEN = ['cola', 'ejecutando', 'revision', 'entregado'] as const;
+
+  document.querySelectorAll<HTMLElement>('[data-consola]').forEach((raiz) => {
+    const datos: Datos = JSON.parse(raiz.querySelector('[data-consola-datos]')!.textContent || '{}');
+    const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const listas = Object.fromEntries(
+      ORDEN.map((c) => [c, raiz.querySelector<HTMLUListElement>(`[data-col="${c}"] .consola-lista`)!])
+    );
+    const contador = raiz.querySelector<HTMLElement>('[data-contador]');
+    const reloj = raiz.querySelector<HTMLElement>('[data-reloj]');
+
+    // El reloj marca la madrugada: es de noche y los agentes siguen.
+    let minutos = 3 * 60 + 14;
+    const pintarReloj = () => {
+      if (reloj) reloj.textContent = `${String(Math.floor(minutos / 60) % 24).padStart(2, '0')}:${String(minutos % 60).padStart(2, '0')}`;
+    };
+
+    const figuraSVG = (a: string) => {
+      const f = datos.figuras[a];
+      const l = f.e.map(([x, y]) => `<line x1="${f.p[x][0]}" y1="${f.p[x][1]}" x2="${f.p[y][0]}" y2="${f.p[y][1]}"/>`).join('');
+      const c = f.p.map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="#93b1ff"/>`).join('');
+      return `<svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><g stroke="#5C86FF" stroke-width="1" opacity="0.5" fill="none" stroke-linecap="round">${l}</g>${c}</svg>`;
+    };
+
+    let siguiente = 7;
+    const nuevaTarea = () => {
+      const t = datos.tareas[siguiente % datos.tareas.length];
+      siguiente++;
+      const li = document.createElement('li');
+      li.className = 'tarea';
+      li.dataset.fase = 'cola';
+      li.innerHTML = `<p class="tarea-titulo"></p><div class="tarea-pie"><span class="tarea-agente">${figuraSVG(t.a)}<span></span></span><span class="tarea-revisor"><img src="/${t.r}.jpeg" alt="" width="20" height="20">${t.r === 'patrick' ? 'Patrick' : 'Philippe'}</span><span class="tarea-hecho" aria-hidden="true"><svg viewBox="0 0 16 16" width="14" height="14"><path d="m3.5 8.5 3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span></div><span class="tarea-barra" aria-hidden="true"><i></i></span>`;
+      li.querySelector('.tarea-titulo')!.textContent = t.t;
+      li.querySelector('.tarea-agente > span')!.textContent = t.n;
+      return li;
+    };
+
+    const actualizarTotales = () =>
+      ORDEN.forEach((c) => {
+        const total = raiz.querySelector(`[data-col="${c}"] [data-total]`);
+        if (total) total.textContent = String(listas[c].children.length);
+      });
+
+    // FLIP: se mide dónde estaba la tarjeta, se mueve en el DOM y se anima el
+    // salto desde la posición antigua, así se ve cruzar de una columna a otra.
+    const mover = (li: HTMLElement, destino: (typeof ORDEN)[number]) => {
+      const antes = new Map<Element, DOMRect>();
+      raiz.querySelectorAll('.tarea').forEach((el) => antes.set(el, el.getBoundingClientRect()));
+      li.dataset.fase = destino;
+      if (destino === 'entregado') listas[destino].prepend(li);
+      else listas[destino].append(li);
+      raiz.querySelectorAll<HTMLElement>('.tarea').forEach((el) => {
+        const a = antes.get(el);
+        if (!a) return;
+        const b = el.getBoundingClientRect();
+        const dx = a.left - b.left;
+        const dy = a.top - b.top;
+        if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+        el.animate(
+          [{ transform: `translate(${dx}px, ${dy}px)` }, { transform: 'translate(0, 0)' }],
+          { duration: el === li ? 900 : 600, easing: 'cubic-bezier(.16, 1, .3, 1)' }
+        );
+      });
+    };
+
+    // Los movimientos van por turnos fijos (ejecutar, revisar, entregar) para
+    // que la tubería no se vacíe nunca: siempre hay algo en revisión humana,
+    // que es lo que más importa que se vea.
+    const pasos: [(typeof ORDEN)[number], (typeof ORDEN)[number]][] = [
+      ['ejecutando', 'revision'],
+      ['revision', 'entregado'],
+      ['cola', 'ejecutando'],
+    ];
+    let paso = 0;
+    const turno = () => {
+      const [desde, hasta] = pasos[paso % pasos.length];
+      paso++;
+      const li = listas[desde].firstElementChild as HTMLElement | null;
+      if (li) mover(li, hasta);
+      if (hasta === 'entregado' && contador) contador.textContent = String(Number(contador.textContent) + 1);
+      if (listas.entregado.children.length > 3) {
+        const ultimo = listas.entregado.lastElementChild as HTMLElement;
+        ultimo.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 300, fill: 'forwards' }).onfinish = () => ultimo.remove();
+      }
+      if (listas.cola.children.length < 2) {
+        const nueva = nuevaTarea();
+        listas.cola.append(nueva);
+        nueva.animate([{ opacity: 0, transform: 'translateY(-10px)' }, { opacity: 1, transform: 'none' }], {
+          duration: 600, easing: 'cubic-bezier(.16, 1, .3, 1)',
+        });
+      }
+      minutos += 2 + Math.floor(Math.random() * 4);
+      pintarReloj();
+      actualizarTotales();
+    };
+
+    pintarReloj();
+    if (reducido) return;
+
+    let intervalo = 0;
+    new IntersectionObserver((entradas) =>
+      entradas.forEach((e) => {
+        window.clearInterval(intervalo);
+        if (e.isIntersecting) intervalo = window.setInterval(turno, 2200);
+      })
+    ).observe(raiz);
+  });
+</script>

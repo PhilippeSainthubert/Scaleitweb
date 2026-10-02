@@ -39,7 +39,7 @@ const MOSTRAR = ['influencers', 'seo', 'agentes-de-ia', 'paid'];
 {MOSTRAR.includes(servicio) && (
 <section class="border-t border-line py-24 sm:py-32">
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-revelar-grupo>
       <p class="eyebrow">Formatos</p>
       <h2 class="display-lg mt-4 text-balance">Las piezas que salen de aquí</h2>
       <p class="lede mt-5">
@@ -54,7 +54,7 @@ const MOSTRAR = ['influencers', 'seo', 'agentes-de-ia', 'paid'];
         <h3 class="text-[17px] font-semibold tracking-[-0.02em] text-ink">Vídeo largo</h3>
         <span class="font-mono text-[11px] uppercase tracking-[0.1em] text-positive">Piezas reales</span>
       </div>
-      <div class="mt-5 grid gap-5 sm:grid-cols-3">
+      <div class="mt-5 grid gap-5 sm:grid-cols-3" data-revelar-grupo>
         {VIDEOS.map((v) => (
           <a
             href={`https://www.youtube.com/watch?v=${v.id}`}
@@ -95,7 +95,7 @@ const MOSTRAR = ['influencers', 'seo', 'agentes-de-ia', 'paid'];
         cliente contando algo que nadie le preguntó, el creador corrigiendo un
         error común, y la marca enseñando el proceso.
       </p>
-      <div class="mt-6 grid gap-5 sm:grid-cols-3">
+      <div class="mt-6 grid gap-5 sm:grid-cols-3" data-revelar-grupo>
         {VERTICALES.map((v, i) => (
           <div class="overflow-hidden rounded-xl border border-line">
             {/* En oscuro a propósito: sobre una web blanca, un rectángulo

@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import PageHero from '../components/PageHero.astro';
 import Formulario from '../components/Formulario.astro';
+import Acordeon from '../components/Acordeon.astro';
 
 const grupos = [
   {
@@ -100,6 +101,10 @@ const grupos = [
   },
 ];
 
+const anclas = grupos.map((g) =>
+  g.titulo.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+);
+
 const todas = grupos.flatMap((g) => g.preguntas);
 const schema = {
   '@context': 'https://schema.org',
@@ -127,28 +132,47 @@ const schema = {
       entradilla="Si falta la tuya, escribinos y la añadimos a esta página."
     />
 
-    <section class="py-16 sm:py-20">
-      <div class="mx-auto max-w-3xl px-6 space-y-14">
-        {grupos.map((grupo) => (
-          <div>
-            <h2 class="display-md">{grupo.titulo}</h2>
-            <div class="mt-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-bg">
-              {grupo.preguntas.map((f) => (
-                <details class="group">
-                  <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-[15.5px] font-medium text-ink">
-                    {f.q}
-                    <svg class="h-4 w-4 shrink-0 text-ink-3 transition-transform duration-300 group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                    </svg>
-                  </summary>
-                  <p class="px-6 pb-6 text-[14.5px] leading-relaxed text-ink-2">{f.a}</p>
-                </details>
-              ))}
-            </div>
-          </div>
-        ))}
+    <section class="py-24 sm:py-32">
+      <div class="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12 lg:gap-8">
+        <!-- Índice de temas: fijo al bajar y marcando dónde estás -->
+        <nav class="hidden lg:col-span-3 lg:block" aria-label="Temas">
+          <ul class="indice-articulo sticky top-28 space-y-3" data-faq-indice>
+            {grupos.map((g, i) => (
+              <li><a href={`#${anclas[i]}`} class="indice-enlace" aria-current={i === 0 ? 'true' : 'false'}>{g.titulo}</a></li>
+            ))}
+          </ul>
+        </nav>
+
+        <div class="space-y-24 lg:col-span-8 lg:col-start-5">
+          {grupos.map((grupo, i) => (
+            <section id={anclas[i]} class="scroll-mt-28" data-faq-grupo>
+              <div data-revelar-grupo>
+                <p class="eyebrow">{grupo.preguntas.length} preguntas</p>
+                <h2 class="display-md mt-3">{grupo.titulo}</h2>
+              </div>
+              <div class="mt-8" data-revelar>
+                <Acordeon preguntas={grupo.preguntas} />
+              </div>
+            </section>
+          ))}
+        </div>
       </div>
     </section>
+
+    <script>
+      const enlaces = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-faq-indice] a'));
+      const grupos = Array.from(document.querySelectorAll<HTMLElement>('[data-faq-grupo]'));
+      if (enlaces.length && 'IntersectionObserver' in window) {
+        const io = new IntersectionObserver((entradas) => {
+          entradas.forEach((e) => {
+            if (!e.isIntersecting) return;
+            const i = grupos.indexOf(e.target as HTMLElement);
+            enlaces.forEach((a, k) => a.setAttribute('aria-current', k === i ? 'true' : 'false'));
+          });
+        }, { rootMargin: '-30% 0px -60% 0px' });
+        grupos.forEach((g) => io.observe(g));
+      }
+    </script>
 
     <Formulario origen="faq" />
   </main>

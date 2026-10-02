@@ -4,6 +4,8 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import PageHero from '../components/PageHero.astro';
 import Formulario from '../components/Formulario.astro';
+import Acordeon from '../components/Acordeon.astro';
+import CieloEstrellado from '../components/CieloEstrellado.astro';
 
 const productos = [
   {
@@ -60,6 +62,9 @@ const productos = [
     ],
   },
 ];
+
+const fases = productos.slice(0, 3);
+const suelto = productos[3];
 
 const factores = [
   {
@@ -137,91 +142,100 @@ const schema = {
       entradilla="No es una evasiva: montar solo outbound y montar el sistema entero no cuestan lo mismo, y una tarifa publicada obligaría a inventar un cliente medio que no existe. Abajo está exactamente qué mueve el número."
     />
 
-    <section class="py-20 sm:py-24">
+    <!-- Las tres fases van en orden y la del medio es la que más se pide; los
+         agentes sueltos se contratan aparte, por eso van debajo y a lo ancho. -->
+    <section class="py-28 sm:py-36">
       <div class="mx-auto max-w-6xl px-6">
-        <div class="grid gap-5 lg:grid-cols-2">
-          {productos.map((p) => (
-            <article class={`card reveal p-8 ${p.destacado ? 'border-accent/30' : ''}`}>
-              <div class="flex items-start justify-between gap-4">
-                <div>
-                  <h2 class="display-md">{p.nombre}</h2>
-                  <p class="mt-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">{p.formato}</p>
-                </div>
-                {p.destacado && (
-                  <span class="shrink-0 rounded-full bg-accent/10 px-3 py-1 font-mono text-[10.5px] uppercase tracking-[0.1em] text-accent-deep">
-                    El más pedido
-                  </span>
-                )}
-              </div>
+        <div class="max-w-2xl" data-revelar-grupo>
+          <p class="eyebrow">Cómo se contrata</p>
+          <h2 class="display-lg mt-4 text-balance">Tres fases en orden, o un agente suelto</h2>
+          <p class="lede mt-5">Podés entrar por el Blueprint y parar ahí. Cada fase se paga cerrada y lo que se construye queda a tu nombre.</p>
+        </div>
 
-              <p class="mt-5 text-[15px] font-medium text-accent">{p.lead}</p>
+        <ol class="fases-precio mt-16" data-revelar-grupo="110">
+          {fases.map((p, i) => (
+            <li class:list={['precio-tarjeta', p.destacado && 'noche precio-destacada']}>
+              {p.destacado && <CieloEstrellado semilla={9} densidad={0.35} brillo={false} />}
+              <p class="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em]">
+                <span class="text-accent">Fase {i + 1}</span>
+                {p.destacado ? <span class="precio-chip">El más pedido</span> : <span class="text-ink-3">{p.formato}</span>}
+              </p>
+              <h3 class="mt-6 text-[2rem] font-semibold leading-none tracking-[-0.035em] text-ink">{p.nombre}</h3>
+              {p.destacado && <p class="mt-2 font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">{p.formato}</p>}
+              <p class="mt-4 text-[15.5px] font-medium text-accent-deep">{p.lead}</p>
               <p class="mt-3 text-[14.5px] leading-relaxed text-ink-2">{p.descripcion}</p>
-
               <ul class="mt-6 space-y-2.5 border-t border-line pt-5">
-                {p.incluye.map((i) => (
-                  <li class="flex items-start gap-2.5 text-[14px] text-ink-2">
-                    <svg class="mt-[3px] h-3.5 w-3.5 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                    </svg>
-                    {i}
+                {p.incluye.map((x) => (
+                  <li class="flex items-start gap-2.5 text-[14px] text-ink">
+                    <svg class="mt-[3px] h-3.5 w-3.5 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                    {x}
                   </li>
                 ))}
               </ul>
-
-              <div class="mt-7 flex items-center justify-between gap-4 border-t border-line pt-5">
-                <span class="text-[14px] text-ink-3">A consultar en la llamada</span>
-                <a href="#agenda" class="btn btn-ghost">Pedir número</a>
+              <div class="mt-auto flex items-center justify-between gap-4 border-t border-line pt-5">
+                <span class="text-[13.5px] text-ink-3">A consultar en la llamada</span>
+                <a href="#contacto" class:list={['btn', p.destacado ? 'btn-primary' : 'btn-ghost']}>Pedir número</a>
               </div>
-            </article>
+            </li>
           ))}
-        </div>
+        </ol>
+
+        <article class="precio-suelto mt-5" data-revelar>
+          <div>
+            <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">Aparte · {suelto.formato}</p>
+            <h3 class="mt-4 text-[1.75rem] font-semibold leading-none tracking-[-0.035em] text-ink">{suelto.nombre}</h3>
+            <p class="mt-3 text-[15.5px] font-medium text-accent-deep">{suelto.lead}</p>
+            <p class="mt-3 max-w-[46ch] text-[14.5px] leading-relaxed text-ink-2">{suelto.descripcion}</p>
+          </div>
+          <ul class="space-y-2.5">
+            {suelto.incluye.map((x) => (
+              <li class="flex items-start gap-2.5 text-[14px] text-ink">
+                <svg class="mt-[3px] h-3.5 w-3.5 shrink-0 text-accent" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                {x}
+              </li>
+            ))}
+            <li class="pt-3"><a href="#contacto" class="btn btn-ghost">Pedir número</a></li>
+          </ul>
+        </article>
       </div>
     </section>
 
-    <section class="border-t border-line bg-surface py-20 sm:py-24">
-      <div class="mx-auto max-w-6xl px-6">
-        <p class="eyebrow">Transparencia</p>
-        <h2 class="display-lg mt-4 max-w-2xl text-balance">Qué mueve el precio</h2>
-        <p class="lede mt-5">
-          Cinco variables. En la llamada las repasamos sobre tu caso y salís con un número, no con un rango.
-        </p>
-
-        <div class="mt-12 grid gap-px overflow-hidden rounded-xl border border-line bg-line md:grid-cols-2 lg:grid-cols-3">
-          {factores.map((f, i) => (
-            <div class="bg-bg p-6">
-              <span class="font-mono text-[11px] text-accent">0{i + 1}</span>
-              <h3 class="mt-3 text-[16px] font-semibold tracking-[-0.015em] text-ink">{f.titulo}</h3>
-              <p class="mt-2.5 text-[14px] leading-relaxed text-ink-2">{f.texto}</p>
-            </div>
-          ))}
-          <div class="bg-bg p-6">
-            <span class="font-mono text-[11px] text-positive">Fijo</span>
-            <h3 class="mt-3 text-[16px] font-semibold tracking-[-0.015em] text-ink">Lo que nunca cambia</h3>
-            <p class="mt-2.5 text-[14px] leading-relaxed text-ink-2">
-              Tarifa cerrada y acordada antes de empezar. Nunca un porcentaje de tu inversión publicitaria.
+    <section class="border-t border-line bg-surface py-28 sm:py-36">
+      <div class="mx-auto grid max-w-6xl gap-12 px-6 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-5">
+          <div class="lg:sticky lg:top-28" data-revelar-grupo>
+            <p class="eyebrow">Transparencia</p>
+            <h2 class="display-lg mt-4 text-balance">Qué mueve el precio</h2>
+            <p class="lede mt-5">
+              Cinco variables. En la llamada las repasamos sobre tu caso y salís con un número, no con un rango.
             </p>
+            <div class="precio-fijo mt-10">
+              <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-positive">Lo que nunca cambia</p>
+              <p class="mt-3 text-[16px] leading-relaxed text-ink">
+                Tarifa cerrada y acordada antes de empezar. Nunca un porcentaje de tu inversión publicitaria.
+              </p>
+            </div>
           </div>
         </div>
+        <ul class="lg:col-span-7" data-revelar-grupo="90">
+          {factores.map((f) => (
+            <li class="factor">
+              <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">{f.titulo}</h3>
+              <p class="mt-2 text-[15.5px] leading-relaxed text-ink-2">{f.texto}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </section>
 
-    <section class="border-t border-line py-20 sm:py-24">
-      <div class="mx-auto max-w-3xl px-6">
-        <p class="eyebrow">Preguntas</p>
-        <h2 class="display-md mt-4 text-balance">Lo que se pregunta antes de la llamada</h2>
-
-        <div class="mt-10 divide-y divide-line overflow-hidden rounded-xl border border-line bg-bg">
-          {faq.map((f) => (
-            <details class="group">
-              <summary class="flex cursor-pointer list-none items-center justify-between gap-4 p-6 text-[15.5px] font-medium text-ink">
-                {f.q}
-                <svg class="h-4 w-4 shrink-0 text-ink-3 transition-transform duration-300 group-open:rotate-45" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-              </summary>
-              <p class="px-6 pb-6 text-[14.5px] leading-relaxed text-ink-2">{f.a}</p>
-            </details>
-          ))}
+    <section class="border-t border-line py-28 sm:py-36">
+      <div class="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-4" data-revelar-grupo>
+          <p class="eyebrow">Preguntas</p>
+          <h2 class="display-lg mt-4 text-balance">Lo que se pregunta antes de la llamada</h2>
+        </div>
+        <div class="lg:col-span-8" data-revelar>
+          <Acordeon preguntas={faq} />
         </div>
       </div>
     </section>

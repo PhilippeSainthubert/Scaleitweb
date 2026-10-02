@@ -61,16 +61,16 @@ const socio = firma ? SOCIOS[firma.socio] : null;
 ---
 
 {firma && socio && (
-<section class="border-t border-line py-20 sm:py-24">
-  <div class="mx-auto max-w-4xl px-6">
-    <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-10">
+<section class="border-t border-line py-24 sm:py-32">
+  <div class="mx-auto max-w-5xl px-6">
+    <div class="flex flex-col gap-8 sm:flex-row sm:items-start sm:gap-12" data-revelar-grupo="120">
       <img
         src={socio.foto}
         alt={socio.nombre}
         width="120"
         height="120"
         loading="lazy"
-        class="h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-32 sm:w-32"
+        class="firma-foto h-28 w-28 shrink-0 rounded-2xl object-cover sm:h-36 sm:w-36"
       />
 
       <div class="min-w-0">
@@ -78,7 +78,7 @@ const socio = firma ? SOCIOS[firma.socio] : null;
           <path d="M9.5 5C6.5 6.9 5 9.6 5 13v6h6v-6H8.2c0-2 .8-3.6 2.4-4.7L9.5 5Zm9 0C15.5 6.9 14 9.6 14 13v6h6v-6h-2.8c0-2 .8-3.6 2.4-4.7L18.5 5Z" />
         </svg>
 
-        <blockquote class="mt-4 text-[19px] leading-relaxed tracking-[-0.011em] text-ink sm:text-[21px]">
+        <blockquote class="mt-5 text-[21px] font-medium leading-[1.45] tracking-[-0.018em] text-ink sm:text-[27px]">
           {firma.cita}
         </blockquote>
 

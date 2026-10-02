@@ -1,0 +1,50 @@
+---
+/**
+ * Maqueta común de las páginas legales: índice fijo a la izquierda y el texto
+ * a ancho de lectura.
+ *
+ * El índice se saca de los <h2> del propio texto en el servidor, así que no
+ * hay que mantenerlo a mano: si se añade un apartado, aparece solo. Cada
+ * apartado recibe un id para poder enlazarlo.
+ */
+const html = await Astro.slots.render('default');
+
+const apartados: { id: string; texto: string }[] = [];
+const conIds = html.replace(/<h2([^>]*)>([\s\S]*?)<\/h2>/g, (_, attrs: string, texto: string) => {
+  const limpio = texto.replace(/<[^>]+>/g, '').trim();
+  const id = limpio
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
+  apartados.push({ id, texto: limpio });
+  return `<h2${attrs} id="${id}">${texto}</h2>`;
+});
+---
+
+<div class="mx-auto grid max-w-6xl gap-12 px-6 py-20 sm:py-24 lg:grid-cols-12 lg:gap-8">
+  <nav class="hidden lg:col-span-3 lg:block" aria-label="Apartados">
+    <ol class="indice-articulo sticky top-28 space-y-2.5" data-legal-indice>
+      {apartados.map((a, i) => (
+        <li><a href={`#${a.id}`} class="indice-enlace" aria-current={i === 0 ? 'true' : 'false'}>{a.texto}</a></li>
+      ))}
+    </ol>
+  </nav>
+  <div class="documento-legal lg:col-span-8 lg:col-start-5" set:html={conIds} />
+</div>
+
+<script>
+  const enlaces = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-legal-indice] a'));
+  const titulos = Array.from(document.querySelectorAll<HTMLElement>('.documento-legal h2[id]'));
+  if (enlaces.length && 'IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entradas) => {
+      entradas.forEach((e) => {
+        if (!e.isIntersecting) return;
+        const i = titulos.indexOf(e.target as HTMLElement);
+        enlaces.forEach((a, k) => a.setAttribute('aria-current', k === i ? 'true' : 'false'));
+      });
+    }, { rootMargin: '0px 0px -70% 0px' });
+    titulos.forEach((t) => io.observe(t));
+  }
+</script>

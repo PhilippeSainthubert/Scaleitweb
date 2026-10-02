@@ -54,14 +54,14 @@ const cab = titulos[servicio];
 {cab && (
 <section class="border-t border-line bg-surface py-24 sm:py-32">
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl">
+    <div class="max-w-2xl" data-revelar-grupo>
       <p class="eyebrow">{cab.eyebrow}</p>
       <h2 class="display-lg mt-4 text-balance">{cab.titulo}</h2>
       <p class="lede mt-5">{cab.texto}</p>
     </div>
 
     {servicio === 'paid' && (
-      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+      <div class="mt-14 grid gap-5 lg:grid-cols-2" data-revelar-grupo="110">
         {/* Anuncio de búsqueda */}
         <div class="card p-7">
           <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Anuncio de búsqueda</p>
@@ -120,7 +120,7 @@ const cab = titulos[servicio];
     )}
 
     {servicio === 'influencers' && (
-      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+      <div class="mt-14 grid gap-5 lg:grid-cols-2" data-revelar-grupo="110">
         {/* Ficha de evaluación */}
         <div class="card p-7">
           <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Ficha de evaluación</p>
@@ -197,7 +197,7 @@ const cab = titulos[servicio];
     )}
 
     {servicio === 'outbound' && (
-      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+      <div class="mt-14 grid gap-5 lg:grid-cols-2" data-revelar-grupo="110">
         {/* La señal */}
         <div class="card p-7">
           <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">La señal que lo dispara</p>
@@ -257,7 +257,7 @@ const cab = titulos[servicio];
     )}
 
     {servicio === 'seo' && (
-      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+      <div class="mt-14 grid gap-5 lg:grid-cols-2" data-revelar-grupo="110">
         <div class="card p-7">
           <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Lo que ve el comprador</p>
           <div class="mt-5 rounded-lg border border-line bg-bg p-5">
@@ -325,7 +325,7 @@ const cab = titulos[servicio];
     )}
 
     {servicio === 'agentes-de-ia' && (
-      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+      <div class="mt-14 grid gap-5 lg:grid-cols-2" data-revelar-grupo="110">
         <div class="card p-7">
           <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Ficha del agente</p>
           <p class="mt-4 text-[17px] font-semibold tracking-[-0.02em] text-ink">Cualificador de entradas</p>
@@ -385,7 +385,7 @@ const cab = titulos[servicio];
     )}
 
     {servicio === 'revops-crm' && (
-      <div class="mt-14 grid gap-5 lg:grid-cols-2">
+      <div class="mt-14 grid gap-5 lg:grid-cols-2" data-revelar-grupo="110">
         <div class="card p-7">
           <p class="font-mono text-[11px] uppercase tracking-[0.12em] text-ink-3">Antes</p>
           <div class="mt-5 space-y-2.5">
