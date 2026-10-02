@@ -59,6 +59,8 @@ El punto 4 es donde más gente se impacienta y estropea el experimento.
 
 Esto implica mandar datos de tus contactos a plataformas de terceros. Hay que tener la base legal en orden, la información al usuario y el consentimiento donde corresponda. No es un detalle menor y conviene resolverlo antes, no después.
 
+Si quieres el detalle de qué se puede automatizar con datos de clientes y qué hay que poder demostrar, en Rianex lo tienen desarrollado en [esta guía sobre RGPD y automatización con IA](https://www.rianex.es/blog/rgpd-y-automatizacion-con-ia), con los fallos más habituales en España.
+
 ## Preguntas rápidas
 
 **¿Cuánto volumen hace falta?**

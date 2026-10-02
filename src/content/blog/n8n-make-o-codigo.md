@@ -49,6 +49,8 @@ Un enfoque mixto, que en la práctica es el que mejor envejece:
 
 Así la parte que cambia deprisa la toca cualquiera, y la parte delicada tiene las garantías de un desarrollo normal.
 
+En ese esquema, el CRM suele ser el punto donde todo aterriza, y conectarlo bien tiene sus propias reglas: qué va por webhook, qué por API y cuál es la fuente de la verdad de cada dato. Está explicado para GoHighLevel en [esta guía de integraciones](https://www.rianex.es/blog/integrar-gohighlevel-con-tu-stack), y la lógica se traslada a casi cualquier CRM.
+
 ## Lo que no debería decidir tu elección
 
 **Que la herramienta tenga integración con la app de moda.** Casi todo tiene API, y lo que hoy no está integrado se integra con una llamada.
