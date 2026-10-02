@@ -361,11 +361,11 @@ p { text-wrap: pretty; }
 
 /* ── Organigrama de agentes ────────────────────────────────────── */
 .org-t-nodo { font-family: var(--font-sans); font-size: 15px; font-weight: 600; letter-spacing: -0.012em; }
-.org-t-orq  { font-family: var(--font-sans); font-size: 21px; font-weight: 600; letter-spacing: -0.02em; }
+.org-t-orq  { font-family: var(--font-sans); font-size: 22px; font-weight: 600; letter-spacing: -0.02em; }
 .org-t-rev  { font-family: var(--font-sans); font-size: 18px; font-weight: 600; letter-spacing: -0.018em; }
-.org-t-pilar { font-family: var(--font-sans); font-size: 19px; font-weight: 600; letter-spacing: -0.018em; }
-.org-t-lema  { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.01em; }
-.org-t-sub  { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.01em; }
+.org-t-pilar { font-family: var(--font-sans); font-size: 20px; font-weight: 600; letter-spacing: -0.018em; }
+.org-t-lema  { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.01em; }
+.org-t-sub  { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.01em; }
 .org-t-mono { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.02em; }
 
 /* El trabajo viajando por las conexiones. Mismo truco que el resto del
@@ -969,9 +969,6 @@ p { text-wrap: pretty; }
   .cinta-grupo[aria-hidden='true'] { display: none; }
 }
 
-/* La caja del organigrama: un cristal oscuro sobre el cielo. */
-.org-caja { background: linear-gradient(180deg, rgba(18, 34, 63, .7), rgba(10, 22, 40, .55)); box-shadow: 0 40px 100px -30px rgba(4, 10, 24, .9); }
-.org-caja button { background: rgba(10, 22, 40, .7); backdrop-filter: blur(6px); }
 
 /* ── Contacto ─────────────────────────────────────────────────── */
 .contacto-pasos { display: flex; flex-direction: column; gap: 1rem; }
@@ -1340,4 +1337,138 @@ main { overflow-x: clip; }
 @media (min-width: 1024px) {
   [data-rejilla] > :nth-child(3n + 2) { --retraso: 90ms; }
   [data-rejilla] > :nth-child(3n) { --retraso: 180ms; }
+}
+
+/* ════════════════════════════════════════════════════════════════
+   CÓMO FUNCIONA: el organigrama como instructivo
+   Las máquinas en azul, las personas en ámbar, lo entregado en verde.
+   Lo que no participa en el paso actual se apaga para que se lea
+   quién habla con quién.
+   ════════════════════════════════════════════════════════════════ */
+.org-reproductor {
+  border: 1px solid var(--color-line-2);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(18, 34, 63, .74), rgba(10, 22, 40, .6));
+  box-shadow: 0 40px 100px -30px rgba(4, 10, 24, .9);
+  padding: 1.25rem;
+}
+@media (min-width: 1024px) { .org-reproductor { padding: 1.5rem 1.75rem 1.25rem; } }
+.org-narracion { min-height: 9rem; }
+@media (min-width: 640px) { .org-narracion { min-height: 6.75rem; } }
+.org-controles { display: flex; flex: none; gap: .4rem; }
+.org-controles button {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-line-2);
+  border-radius: 999px;
+  background: rgba(10, 22, 40, .6);
+  color: var(--color-ink);
+  transition: background-color .25s ease, border-color .25s ease;
+}
+.org-controles button:hover { background: rgba(126, 160, 255, .14); border-color: rgba(147, 177, 255, .45); }
+.org-controles button:focus-visible, .org-paso:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 3px; }
+.org-controles svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+[data-org] .org-icono-play { display: none; }
+[data-org]:not([data-reproduciendo]) .org-icono-play { display: block; }
+[data-org]:not([data-reproduciendo]) .org-icono-pausa { display: none; }
+
+/* Pasos con su barra de tiempo, como en las historias. */
+.org-pasos { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: .6rem; }
+.org-paso { display: block; width: 100%; padding: .35rem 0; text-align: left; color: var(--color-ink-3); transition: color .3s ease; }
+.org-paso:hover, .org-paso[data-actual] { color: var(--color-ink); }
+.org-paso-barra { display: block; height: 2px; border-radius: 2px; background: var(--color-line-2); overflow: hidden; }
+.org-paso-barra i { display: block; height: 100%; background: #93b1ff; transform: scaleX(0); transform-origin: left; }
+.org-paso[data-hecho] .org-paso-barra i, .org-paso[data-actual] .org-paso-barra i { transform: scaleX(1); }
+[data-org][data-reproduciendo] .org-paso[data-actual] .org-paso-barra i { animation: org-llena var(--dur, 7s) linear both; }
+@keyframes org-llena { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.org-paso-nombre { display: block; margin-top: .55rem; font-family: var(--font-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 639px) { .org-paso-nombre { font-size: 0; } .org-paso-nombre .text-accent { font-size: 11px; } }
+
+/* Nodos y conexiones */
+.org-arista { fill: none; stroke: #93b1ff; stroke-opacity: .22; transition: stroke-opacity .7s ease; }
+.org-arista.on { stroke-opacity: .55; }
+[data-org][data-paso] .org-arista:not(.on) { stroke-opacity: .08; }
+.org-bucle { stroke-dasharray: 6 9; }
+.org-bucle.on { stroke-opacity: .75; animation: org-marcha 1.1s linear infinite; }
+@keyframes org-marcha { to { stroke-dashoffset: -30; } }
+.org-nodo { transition: opacity .7s var(--ease-salida); }
+[data-org][data-paso] .org-nodo:not(.on) { opacity: .26; }
+.org-halo { transition: opacity 1s ease; }
+[data-org][data-paso] .org-halo:not(.on) { opacity: 0; }
+.org-pilar-caja { fill: #12223f; stroke: #93b1ff; stroke-opacity: .26; transition: fill .4s ease, stroke-opacity .4s ease; }
+.org-sub-caja { fill: #0f1f3b; stroke: #93b1ff; stroke-opacity: .3; stroke-width: 1.2; transition: fill .4s ease, stroke .4s ease, stroke-opacity .4s ease; }
+[data-recibe] .org-pilar-caja, [data-recibe] .org-sub-caja { fill: #1b3366; stroke-opacity: 1; }
+[data-recibe] > rect:first-child { filter: drop-shadow(0 0 14px rgba(147, 177, 255, .55)); }
+[data-sub][data-trabajando] .org-sub-caja { stroke: #93b1ff; stroke-opacity: 1; stroke-dasharray: 5 5; animation: org-marcha .9s linear infinite; }
+[data-sub][data-corrigiendo] .org-sub-caja { stroke: #ff8a7a; stroke-opacity: 1; stroke-dasharray: none; fill: rgba(255, 138, 122, .14); }
+.org-check { transform-box: fill-box; transform-origin: center; scale: 0; transition: scale .55s var(--ease-salida); }
+[data-org-humanos][data-aprobado] .org-check { scale: 1; }
+.org-barrido { opacity: 0; }
+[data-org-orq][data-leyendo] .org-barrido { opacity: 1; animation: org-barrido 1.5s ease-in-out infinite; }
+@keyframes org-barrido { from { transform: translateX(-240px); } to { transform: translateX(240px); } }
+.org-t-estado { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .02em; }
+.org-cursor { animation: org-parpadeo 1s step-end infinite; }
+@keyframes org-parpadeo { 50% { opacity: 0; } }
+.org-t-paquete { font-family: var(--font-mono); font-size: 12.5px; letter-spacing: .02em; }
+
+/* Burbujas: hablan desde su nodo */
+.org-hilo { display: flex; flex-direction: column; gap: 10px; height: 100%; font-family: var(--font-sans); }
+.org-hilo-izq { align-items: flex-end; padding-right: 10px; }
+.org-hilo-der { align-items: flex-start; padding-left: 10px; }
+.org-msg {
+  position: relative;
+  display: none;
+  max-width: 100%;
+  border: 1px solid rgba(147, 177, 255, .34);
+  border-radius: 16px;
+  background: rgba(13, 27, 52, .97);
+  padding: 12px 16px 14px;
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, .7);
+}
+.org-msg[data-quien='philippe'], .org-msg[data-quien='patrick'] { border-color: rgba(245, 194, 107, .55); }
+.org-msg[data-visible] { display: block; animation: org-msg-entra .55s var(--ease-salida) both; }
+@keyframes org-msg-entra { from { opacity: 0; transform: translateY(8px) scale(.97); } }
+.org-hilo .org-msg::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  width: 12px;
+  height: 12px;
+  background: inherit;
+  border: inherit;
+  border-radius: 2px;
+}
+.org-hilo-izq .org-msg::after { right: -7px; border-left-color: transparent; border-bottom-color: transparent; transform: rotate(45deg); }
+.org-hilo-der .org-msg::after { left: -7px; border-top-color: transparent; border-right-color: transparent; transform: rotate(45deg); }
+.org-msg-quien { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: #f5c26b; }
+.org-msg[data-quien='orq'] .org-msg-quien { color: #93b1ff; }
+.org-msg-quien img { width: 22px; height: 22px; border-radius: 999px; object-fit: cover; }
+.org-msg-texto { margin-top: 6px; font-size: 17px; line-height: 1.42; color: #f4f7ff; text-wrap: pretty; }
+.org-escribiendo { padding: 14px 16px; }
+.org-escribiendo[data-visible] { display: inline-flex; gap: 5px; }
+.org-escribiendo span { width: 7px; height: 7px; border-radius: 999px; background: #93b1ff; animation: org-punto 1s ease-in-out infinite; }
+.org-escribiendo span:nth-child(2) { animation-delay: .15s; }
+.org-escribiendo span:nth-child(3) { animation-delay: .3s; }
+@keyframes org-punto { 0%, 100% { opacity: .3; transform: none; } 50% { opacity: 1; transform: translateY(-3px); } }
+
+/* Móvil: conversación y flujo vertical */
+.org-chat-movil { display: flex; flex-direction: column; gap: 8px; min-height: 13.5rem; }
+.org-chat-movil .org-msg-texto { font-size: 15px; }
+.org-chat-movil .org-msg[data-quien='philippe'], .org-chat-movil .org-msg[data-quien='patrick'] { align-self: flex-end; }
+.org-chat-movil .org-msg { max-width: 92%; padding: 10px 14px 12px; }
+.org-flujo { display: grid; gap: 10px; }
+.org-flujo li { position: relative; border: 1px solid var(--color-line-2); border-radius: 14px; padding: .8rem 1rem; color: var(--color-ink); background: rgba(255, 255, 255, .03); }
+.org-flujo li + li::before { content: ''; position: absolute; left: 50%; top: -11px; width: 1px; height: 10px; background: var(--color-line-2); }
+.org-flujo li[data-tipo='humano'] { border-color: rgba(245, 194, 107, .6); }
+.org-flujo li[data-tipo='humano'] p:last-child { color: #f5c26b; }
+.org-flujo li[data-tipo='orq'] { background: #2f5cff; border-color: #2f5cff; color: #fff; }
+.org-flujo li[data-tipo='salida'] { background: #6fe0a8; border-color: #6fe0a8; color: #062a1b; }
+.org-flujo li.on { box-shadow: 0 0 0 3px rgba(147, 177, 255, .18), 0 0 24px rgba(147, 177, 255, .25); }
+
+@media (prefers-reduced-motion: reduce) {
+  .org-msg[data-visible] { animation: none; }
+  .org-bucle.on, [data-sub][data-trabajando] .org-sub-caja, .org-cursor, [data-org-orq][data-leyendo] .org-barrido { animation: none; }
+  .org-nodo, .org-arista, .org-halo { transition: none; }
 }

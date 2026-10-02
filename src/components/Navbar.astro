@@ -5,7 +5,7 @@ const ruta = Astro.url.pathname;
 const activo = (href: string) => !href.startsWith('/#') && (ruta === href || ruta.startsWith(`${href}/`));
 
 const links = [
-  { label: 'Cómo funciona', href: '/#agentes' },
+  { label: 'Cómo funciona', href: '/#como-funciona' },
   { label: 'Servicios', href: '/#servicios' },
   { label: 'Proceso', href: '/#proceso' },
   { label: 'Nosotros', href: '/#nosotros' },
