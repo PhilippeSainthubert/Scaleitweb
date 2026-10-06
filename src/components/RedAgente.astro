@@ -181,18 +181,13 @@ const datos = figuras.map((k) => ({
       while (ps.length < maxObj + ambiente) ps.push(nueva());
       ps.length = maxObj + ambiente;
       capacidad = maxObj;
+      // Los vecinos apuntan por índice: si la lista de partículas se ha
+      // recortado al redimensionar, los de antes ya no valen.
+      vecinos = [];
     }
 
     function rotular(i: number) {
-      // Control desde fuera: la sección del sistema lo dirige con el scroll.
-    canvas.addEventListener('figura:ir', (ev) => {
-      const k = (ev as CustomEvent<number>).detail;
-      if (k === actual || k < 0 || k >= figs.length) return;
-      asignar(k, !reducido);
-      if (reducido) { colocarYa(); dibujar(); }
-    });
-
-    botones.forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
+      botones.forEach((b, k) => b.setAttribute('aria-current', String(k === i)));
       if (!nombre || !rol) return;
       leyenda?.classList.add('cambiando');
       window.setTimeout(() => {
@@ -207,12 +202,16 @@ const datos = figuras.map((k) => ({
     function asignar(i: number, sacudir: boolean) {
       actual = i;
       const obj = objetivos[i];
+      if (!obj) return;
       const orden = Array.from({ length: capacidad }, (_, k) => k);
       for (let k = orden.length - 1; k > 0; k--) {
         const j = Math.floor(azar() * (k + 1));
         [orden[k], orden[j]] = [orden[j], orden[k]];
       }
-      for (let k = 0; k < capacidad; k++) ps[k].t = -1;
+      // Se sueltan todas, no solo las de la capacidad nueva: al redimensionar la
+      // figura puede tener menos puntos, y una partícula que se quedara con su
+      // destino antiguo apuntaría a un punto que ya no existe.
+      for (const p of ps) p.t = -1;
       asignado = new Array(obj.length);
       obj.forEach((_, ti) => { ps[orden[ti]].t = ti; asignado[ti] = orden[ti]; });
       for (let k = 0; k < capacidad; k++) {
@@ -339,6 +338,7 @@ const datos = figuras.map((k) => ({
         const ax = a.x + a.ox, ay = a.y + a.oy;
         for (const j of vecinos[i] ?? []) {
           const b = ps[j];
+          if (!b) continue;
           const bx = b.x + b.ox, by = b.y + b.oy;
           const prox = 1 - Math.hypot(bx - ax, by - ay) / ENLACE_L;
           const calor = Math.max(a.carga, b.carga);
@@ -425,8 +425,10 @@ const datos = figuras.map((k) => ({
     let raf = 0;
     let corriendo = false;
     function bucle() {
-      paso();
-      dibujar();
+      if (objetivos.length) {
+        paso();
+        dibujar();
+      }
       raf = requestAnimationFrame(bucle);
     }
     function arrancar() {
@@ -441,6 +443,12 @@ const datos = figuras.map((k) => ({
     }
 
     function reconstruir() {
+      // Sin tamaño (la sección está oculta): no se construye nada. Con un
+      // lienzo de 1x1 las partículas se amontonan en un punto y la física
+      // acaba en NaN, así que la figura ya no vuelve a aparecer. Cuando
+      // recupera tamaño, el ResizeObserver la reconstruye.
+      const rc = canvas.getBoundingClientRect();
+      if (rc.width < 2 || rc.height < 2) return;
       medir();
       construirObjetivos();
       prepararParticulas();
