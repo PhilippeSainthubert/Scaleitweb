@@ -1,0 +1,580 @@
+---
+/**
+ * Auditoría SEO e IA gratis: el imán de leads de la parte de SEO/GEO.
+ *
+ * Mismo mecanismo que mejor vende en el sector: valor personalizado antes de
+ * pedir nada. El visitante escribe su web y en un par de minutos ve si ChatGPT,
+ * Perplexity y Claude le recomiendan cuando su cliente pregunta, quién sale en
+ * su lugar, qué fuentes usan esas IA y qué falla en su web. El plan de acción
+ * se desbloquea con el email, que llega como lead con el informe adjunto.
+ *
+ * La página es estática; el trabajo lo hacen las funciones de /api/auditoria.
+ * El informe se puede compartir: viaja comprimido en el enlace, sin guardarse
+ * en ningún servidor.
+ */
+import Layout from '../layouts/Layout.astro';
+import Navbar from '../components/Navbar.astro';
+import Footer from '../components/Footer.astro';
+import PageHero from '../components/PageHero.astro';
+import CieloEstrellado from '../components/CieloEstrellado.astro';
+import Acordeon from '../components/Acordeon.astro';
+import Formulario from '../components/Formulario.astro';
+
+const faq = [
+  {
+    q: '¿Es gratis de verdad?',
+    a: 'Sí. La auditoría completa es gratis y sin registro. Solo te pedimos el email si querés el plan de acción, y lo usamos para mandártelo y, si te interesa, hablar de cómo aplicarlo.',
+  },
+  {
+    q: '¿Qué preguntas les hacéis a las IA?',
+    a: 'Las que haría alguien que busca lo que vendés: cuál es la mejor opción en tu mercado, cómo resolver el problema que resolvés, alternativas a un competidor conocido. Las escribe un modelo a partir de tu propia web, y nunca nombran tu marca, porque tu cliente tampoco la nombraría.',
+  },
+  {
+    q: 'Estoy bien posicionado en Google, ¿por qué no aparezco en ChatGPT?',
+    a: 'Porque no es lo mismo. Los asistentes de IA citan páginas que responden de forma directa y que se leen sin ejecutar JavaScript, y se fían mucho de lo que dicen de ti otras webs: comparativas, directorios, foros y medios del sector. Puedes estar arriba en Google y no existir en esas respuestas.',
+  },
+  {
+    q: '¿El resultado cambia si la vuelvo a pasar?',
+    a: 'Un poco, sí. Las IA no contestan siempre igual y buscan en la web en el momento. Por eso miramos varias preguntas y tres motores: el patrón (quién aparece, qué fuentes citan) es mucho más estable que una respuesta suelta.',
+  },
+  {
+    q: '¿Qué hacéis con mi web y mis datos?',
+    a: 'Leemos tu portada, tu robots.txt, tu sitemap y tu llms.txt como lo haría cualquier buscador, y les hacemos las preguntas a las IA. No guardamos el informe en ningún servidor: si lo compartes, viaja dentro del propio enlace.',
+  },
+];
+
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map((f) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+};
+---
+
+<Layout
+  title="Auditoría SEO e IA gratis: ¿te recomienda ChatGPT? | Scale It"
+  description="Preguntamos a ChatGPT, Perplexity y Claude lo que preguntaría tu cliente y te mostramos si apareces, quién sale en tu lugar y qué arreglar en tu web. Gratis y en dos minutos."
+  schema={schema}
+>
+  <Navbar />
+  <main>
+    <PageHero
+      eyebrow="Auditoría gratis · SEO e IA"
+      figuras={['buho']}
+      titulo="¿Te recomiendan ChatGPT, Perplexity y Claude?"
+      entradilla="Les hacemos las preguntas que haría tu cliente y te enseñamos si apareces, quién sale en tu lugar y qué cambiar en tu web para que te citen."
+    >
+      <form class="aud-form mt-9" data-aud-form novalidate>
+        <label for="aud-web" class="sr-only">La dirección de tu web</label>
+        <input id="aud-web" name="web" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="tuempresa.com" required />
+        <button type="submit" class="btn btn-primary">
+          Auditar mi web
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" /></svg>
+        </button>
+      </form>
+      <p class="mt-3 text-[13.5px] text-ink-3">Gratis y sin registro. Tarda un par de minutos.</p>
+      <p class="aud-error mt-3" role="alert" data-aud-error hidden></p>
+    </PageHero>
+
+    <!-- La auditoría en marcha y el informe -->
+    <section id="informe" class="noche overflow-clip py-20 sm:py-28" data-aud-informe hidden>
+      <CieloEstrellado semilla={17} densidad={0.6} />
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="aud-consola" data-aud-consola>
+          <div class="consola-barra">
+            <span class="flex gap-1.5" aria-hidden="true"><i></i><i></i><i></i></span>
+            <p class="ml-2 font-mono text-[11px] text-ink-3">auditoría · <span data-aud-dominio></span></p>
+            <span class="ml-auto flex items-center gap-1.5 font-mono text-[11px] text-[#6fe0a8]" data-aud-vivo>
+              <span class="consola-pulso" aria-hidden="true"></span> en marcha
+            </span>
+          </div>
+          <ol class="aud-pasos" data-aud-pasos aria-live="polite"></ol>
+        </div>
+
+        <div class="aud-resultado mt-10" data-aud-resultado></div>
+      </div>
+    </section>
+
+    <!-- Qué miramos -->
+    <section class="py-28 sm:py-36">
+      <div class="mx-auto max-w-6xl px-6">
+        <div class="max-w-2xl" data-revelar-grupo>
+          <p class="eyebrow">Qué miramos</p>
+          <h2 class="display-lg mt-4 text-balance">Lo que ve tu cliente cuando le pregunta a una IA</h2>
+          <p class="lede mt-5">Cada vez más compras empiezan con una pregunta a un asistente, no con una búsqueda en Google. La auditoría mira tres cosas.</p>
+        </div>
+        <div class="mt-14 grid gap-5 md:grid-cols-3" data-revelar-grupo="110">
+          <div class="fundador">
+            <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">Las preguntas de tu cliente</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Leemos tu web, entendemos qué vendés y en qué mercado, y escribimos las preguntas que haría alguien que te está buscando sin saber que existes.</p>
+          </div>
+          <div class="fundador">
+            <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">Tres IA respondiendo</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Se las hacemos a ChatGPT, Perplexity y Claude con búsqueda web, como las usa tu cliente. Te decimos si te mencionan, quién aparece en tu lugar y qué fuentes citan.</p>
+          </div>
+          <div class="fundador">
+            <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">Tu web, vista por una IA</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Revisamos lo que los rastreadores de IA necesitan para leerte y citarte: robots.txt, contenido sin JavaScript, sitemap, datos estructurados y llms.txt.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="border-t border-line py-28 sm:py-36">
+      <div class="mx-auto grid max-w-6xl gap-10 px-6 lg:grid-cols-12 lg:gap-8">
+        <div class="lg:col-span-4" data-revelar-grupo>
+          <p class="eyebrow">Preguntas</p>
+          <h2 class="display-lg mt-4 text-balance">Antes de lanzarla</h2>
+        </div>
+        <div class="lg:col-span-8" data-revelar>
+          <Acordeon preguntas={faq} />
+        </div>
+      </div>
+    </section>
+
+    <Formulario
+      origen="auditoria-seo-ia"
+      titulo="¿Preferís que la revisemos con vos?"
+      texto="Media hora mirando tu auditoría juntos: qué arreglaríamos primero y cuánto tardarías en aparecer en las respuestas."
+    />
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  type Motor = 'chatgpt' | 'perplexity' | 'claude';
+  type Estado = 'ok' | 'aviso' | 'mal';
+  interface Comprobacion { id: string; titulo: string; estado: Estado; detalle: string; peso: number }
+  interface Respuesta { motor: Motor; i: number; menciona: boolean; citado: boolean; texto: string; fuentes: string[]; error?: string }
+  interface Informe {
+    v: 1;
+    web: { url: string; dominio: string; puntuacion: number; comprobaciones: Comprobacion[] };
+    negocio: { marca: string; categoria: string; mercado: string };
+    preguntas: string[];
+    motores: Motor[];
+    respuestas: Respuesta[];
+    marcas: { nombre: string; respuestas: number }[];
+    plan?: { resumen: string; acciones: { titulo: string; porque: string; como: string; impacto: string; esfuerzo: string }[] };
+  }
+
+  const NOMBRE: Record<Motor, string> = { chatgpt: 'ChatGPT', perplexity: 'Perplexity', claude: 'Claude' };
+  const LOGO: Record<Motor, string> = { chatgpt: '#10a37f', perplexity: '#20b8cd', claude: '#d97757' };
+  const SHEET_URL = import.meta.env.PUBLIC_SHEET_URL || '';
+  const SHEET_TOKEN = import.meta.env.PUBLIC_SHEET_TOKEN || '';
+
+  const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
+  const form = $<HTMLFormElement>('[data-aud-form]');
+  const entrada = form.querySelector<HTMLInputElement>('input')!;
+  const errorEl = $('[data-aud-error]');
+  const seccion = $('[data-aud-informe]');
+  const consola = $('[data-aud-consola]');
+  const pasos = $('[data-aud-pasos]');
+  const resultado = $('[data-aud-resultado]');
+
+  let ticket = '';
+  let informe: Informe | null = null;
+  let enMarcha = false;
+
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+  const md = (s: string) =>
+    esc(s.replace(/\[\d+\](\[\d+\])*/g, '').replace(/【[^】]*】/g, ''))
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^#{1,4}\s*(.+)$/gm, '<strong>$1</strong>')
+      .replace(/\n{2,}/g, '<br><br>')
+      .replace(/\n/g, '<br>');
+
+  async function api<T>(ruta: string, cuerpo: unknown): Promise<T> {
+    const r = await fetch(`/api/auditoria/${ruta}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(cuerpo) });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(d.error || 'Algo falló. Probá de nuevo.');
+    return d as T;
+  }
+
+  // ── Consola de pasos ─────────────────────────────────────────
+
+  function paso(id: string, texto: string) {
+    const li = document.createElement('li');
+    li.dataset.paso = id;
+    li.dataset.estado = 'activo';
+    li.innerHTML = `<span class="aud-paso-icono" aria-hidden="true"></span><span class="aud-paso-texto">${texto}</span><span class="aud-paso-detalle"></span>`;
+    pasos.appendChild(li);
+    return {
+      detalle: (t: string) => { li.querySelector('.aud-paso-detalle')!.innerHTML = t; },
+      hecho: (t?: string) => { li.dataset.estado = 'hecho'; if (t) li.querySelector('.aud-paso-detalle')!.innerHTML = t; },
+      fallo: (t: string) => { li.dataset.estado = 'fallo'; li.querySelector('.aud-paso-detalle')!.innerHTML = esc(t); },
+    };
+  }
+
+  // ── Piezas del informe ───────────────────────────────────────
+
+  const respondidas = (inf: Informe) => inf.respuestas.filter((r) => !r.error);
+  const visibilidad = (inf: Informe) => {
+    const r = respondidas(inf);
+    return { si: r.filter((x) => x.menciona).length, total: r.length, pct: r.length ? Math.round((r.filter((x) => x.menciona).length / r.length) * 100) : 0 };
+  };
+  const nivel = (pct: number) => (pct >= 70 ? ['alta', 'Alta'] : pct >= 40 ? ['media', 'Media'] : pct > 0 ? ['baja', 'Baja'] : ['nula', 'Nula']);
+
+  // En móvil no hay cabecera de columnas: cada celda lleva el nombre del motor.
+  function celda(inf: Informe, motor: Motor, i: number) {
+    const r = inf.respuestas.find((x) => x.motor === motor && x.i === i);
+    const quien = `<span class="aud-celda-motor"><i style="background:${LOGO[motor]}"></i>${NOMBRE[motor]}</span>`;
+    if (!r) return `<span class="aud-celda" data-c="pensando">${quien}<span class="aud-pensando" aria-hidden="true"></span><span class="sr-only">Esperando</span></span>`;
+    if (r.error) return `<span class="aud-celda" data-c="error">${quien}<span>Sin respuesta</span></span>`;
+    if (r.menciona) return `<span class="aud-celda" data-c="si">${quien}<span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m3.5 8.5 3 3 6-7"/></svg>${r.citado ? 'Te cita' : 'Te menciona'}</span></span>`;
+    return `<span class="aud-celda" data-c="no">${quien}<span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4.5 4.5 7 7m0-7-7 7"/></svg>No apareces</span></span>`;
+  }
+
+  function matriz(inf: Informe) {
+    return `
+      <div class="aud-matriz" style="--motores:${inf.motores.length}">
+        <div class="aud-matriz-cab">
+          <span>Lo que pregunta tu cliente</span>
+          ${inf.motores.map((m) => `<span><i style="background:${LOGO[m]}"></i>${NOMBRE[m]}</span>`).join('')}
+        </div>
+        ${inf.preguntas
+          .map((p, i) => {
+            const resps = inf.motores.map((m) => inf.respuestas.find((x) => x.motor === m && x.i === i)).filter((r): r is Respuesta => !!r && !r.error);
+            return `
+          <details class="aud-fila" ${resps.length ? '' : 'data-vacia'}>
+            <summary>
+              <span class="aud-pregunta">«${esc(p)}»</span>
+              ${inf.motores.map((m) => celda(inf, m, i)).join('')}
+            </summary>
+            <div class="aud-respuestas">
+              ${resps
+                .map(
+                  (r) => `
+                <article class="aud-respuesta">
+                  <p class="aud-respuesta-motor"><i style="background:${LOGO[r.motor]}"></i>${NOMBRE[r.motor]} contestó</p>
+                  <div class="aud-respuesta-texto">${md(r.texto)}</div>
+                  ${r.fuentes.length ? `<p class="aud-respuesta-fuentes">Fuentes: ${r.fuentes.slice(0, 6).map(esc).join(' · ')}</p>` : ''}
+                </article>`
+                )
+                .join('')}
+            </div>
+          </details>`;
+          })
+          .join('')}
+      </div>`;
+  }
+
+  function marcadores(inf: Informe) {
+    const v = visibilidad(inf);
+    const [clase, texto] = nivel(v.pct);
+    return `
+      <div class="aud-marcadores">
+        <div class="aud-marcador" data-nivel="${clase}">
+          <p class="aud-etiqueta">Visibilidad en IA</p>
+          <p class="aud-cifra">${v.pct}<span>%</span></p>
+          <p class="aud-nivel">${texto}</p>
+          <p class="aud-explica">${esc(inf.negocio.marca)} aparece en <strong>${v.si} de ${v.total}</strong> respuestas de ${inf.motores.map((m) => NOMBRE[m]).join(', ').replace(/, ([^,]*)$/, ' y $1')}.</p>
+        </div>
+        <div class="aud-marcador" data-nivel="${inf.web.puntuacion >= 80 ? 'alta' : inf.web.puntuacion >= 55 ? 'media' : 'baja'}">
+          <p class="aud-etiqueta">Tu web, para una IA</p>
+          <p class="aud-cifra">${inf.web.puntuacion}<span>/100</span></p>
+          <p class="aud-nivel">${inf.web.comprobaciones.filter((c) => c.estado === 'mal').length} problemas · ${inf.web.comprobaciones.filter((c) => c.estado === 'aviso').length} mejoras</p>
+          <p class="aud-explica">Lo que necesitan los rastreadores de IA para leerte y citarte.</p>
+        </div>
+      </div>`;
+  }
+
+  function barras(lista: { nombre: string; n: number }[], total: number, vacio: string) {
+    if (!lista.length) return `<p class="text-[15px] text-ink-2">${vacio}</p>`;
+    const max = Math.max(...lista.map((x) => x.n));
+    return `<ol class="aud-barras">${lista
+      .map((x) => `<li><span class="aud-barra-nombre">${esc(x.nombre)}</span><span class="aud-barra" style="--w:${(x.n / max) * 100}%"></span><span class="aud-barra-n">${x.n}${total ? ` de ${total}` : ''}</span></li>`)
+      .join('')}</ol>`;
+  }
+
+  function fuentes(inf: Informe) {
+    const cuenta = new Map<string, number>();
+    for (const r of respondidas(inf)) for (const f of new Set(r.fuentes)) cuenta.set(f, (cuenta.get(f) ?? 0) + 1);
+    return [...cuenta].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([nombre, n]) => ({ nombre, n }));
+  }
+
+  function comprobaciones(inf: Informe) {
+    const orden: Record<Estado, number> = { mal: 0, aviso: 1, ok: 2 };
+    return `<ul class="aud-checks">${[...inf.web.comprobaciones]
+      .sort((a, b) => orden[a.estado] - orden[b.estado] || b.peso - a.peso)
+      .map((c) => `<li data-estado="${c.estado}"><span class="aud-check-icono" aria-hidden="true"></span><div><p class="aud-check-titulo">${esc(c.titulo)}</p><p class="aud-check-detalle">${esc(c.detalle)}</p></div></li>`)
+      .join('')}</ul>`;
+  }
+
+  function plan(inf: Informe) {
+    if (inf.plan) {
+      return `
+        <p class="text-[17px] leading-relaxed text-ink">${esc(inf.plan.resumen)}</p>
+        <ol class="aud-plan">${inf.plan.acciones
+          .map(
+            (a, k) => `<li><span class="aud-plan-n">${k + 1}</span><div><p class="aud-plan-titulo">${esc(a.titulo)}</p>
+              <p class="aud-plan-meta"><span data-impacto="${esc(a.impacto)}">Impacto ${esc(a.impacto)}</span><span>Esfuerzo ${esc(a.esfuerzo)}</span></p>
+              <p class="aud-plan-texto"><strong>Por qué:</strong> ${esc(a.porque)}</p><p class="aud-plan-texto"><strong>Cómo:</strong> ${esc(a.como)}</p></div></li>`
+          )
+          .join('')}</ol>`;
+    }
+    if (!ticket) {
+      return `<p class="text-[15px] text-ink-2">Este informe es de otra persona. <a class="text-accent underline underline-offset-4" href="/auditoria-seo-ia">Lanzá la auditoría de tu web</a> para ver tu plan.</p>`;
+    }
+    return `
+      <div class="aud-candado">
+        <ol class="aud-plan aud-plan-borroso" aria-hidden="true">${[1, 2, 3].map((k) => `<li><span class="aud-plan-n">${k}</span><div><p class="aud-plan-titulo">Acción prioritaria según tu auditoría</p><p class="aud-plan-texto">Qué hacer, por qué y en qué orden, con tus datos concretos.</p></div></li>`).join('')}</ol>
+        <form class="aud-candado-form" data-aud-email novalidate>
+          <p class="text-[19px] font-semibold tracking-[-0.02em] text-ink">Desbloqueá tu plan de acción</p>
+          <p class="mt-2 text-[14.5px] leading-relaxed text-ink-2">Seis acciones ordenadas por impacto, escritas sobre tus resultados. Te lo mostramos aquí y te lo mandamos por email.</p>
+          <div class="mt-5 flex flex-col gap-2.5 sm:flex-row">
+            <label for="aud-email" class="sr-only">Tu email de trabajo</label>
+            <input id="aud-email" type="email" autocomplete="email" placeholder="tu@empresa.com" required />
+            <button class="btn btn-primary" type="submit">Ver mi plan</button>
+          </div>
+          <p class="mt-3 text-[12.5px] text-ink-3">Usamos tu email para mandarte el plan y, si te interesa, hablar de cómo aplicarlo. <a href="/privacidad" class="underline underline-offset-2">Privacidad</a>.</p>
+          <p class="aud-error mt-3" role="alert" data-aud-email-error hidden></p>
+        </form>
+      </div>`;
+  }
+
+  function pintarInforme(inf: Informe, completo: boolean) {
+    const marcas = inf.marcas.map((m) => ({ nombre: m.nombre, n: m.respuestas }));
+    resultado.innerHTML = `
+      <header class="aud-cabecera">
+        <p class="eyebrow">Informe · ${esc(inf.web.dominio)}</p>
+        <h2 class="display-lg mt-3 text-balance">${esc(inf.negocio.marca)}, ${esc(inf.negocio.categoria)}</h2>
+        <p class="mt-3 text-[15px] text-ink-2">Mercado: ${esc(inf.negocio.mercado)}</p>
+      </header>
+      ${completo ? marcadores(inf) : ''}
+      <section class="aud-bloque">
+        <h3 class="aud-titulo">Qué contestan las IA cuando tu cliente pregunta</h3>
+        <p class="aud-sub">Abrí cada pregunta para leer las respuestas completas.</p>
+        ${matriz(inf)}
+      </section>
+      ${completo ? `
+      <div class="aud-dos">
+        <section class="aud-bloque">
+          <h3 class="aud-titulo">Quién aparece en tu lugar</h3>
+          <p class="aud-sub">Las marcas que esas IA recomiendan cuando preguntan por lo que vendés.</p>
+          ${barras(marcas, respondidas(inf).length, 'No encontramos marcas concretas en las respuestas.')}
+        </section>
+        <section class="aud-bloque">
+          <h3 class="aud-titulo">De dónde sacan la información</h3>
+          <p class="aud-sub">Las webs que más citan. Estar en ellas es la forma más directa de entrar en las respuestas.</p>
+          ${barras(fuentes(inf), 0, 'Las respuestas no citaron fuentes.')}
+        </section>
+      </div>
+      <section class="aud-bloque">
+        <h3 class="aud-titulo">Tu web, vista por una IA</h3>
+        <p class="aud-sub">Lo que necesitan los rastreadores de ChatGPT, Claude y Perplexity para leerte.</p>
+        ${comprobaciones(inf)}
+      </section>
+      <section class="aud-bloque" data-aud-plan>
+        <h3 class="aud-titulo">Tu plan para aparecer en las respuestas</h3>
+        ${plan(inf)}
+      </section>
+      <section class="aud-cierre">
+        <div>
+          <h3 class="text-[26px] font-semibold leading-tight tracking-[-0.03em] text-ink">¿Lo trabajamos por vos?</h3>
+          <p class="mt-3 max-w-[56ch] text-[15.5px] leading-relaxed text-ink-2">Nuestro servicio de SEO e IA trabaja exactamente sobre estos puntos: contenido que las IA pueden citar, presencia en las fuentes que usan y una web que sus rastreadores leen sin esfuerzo. Cada mes repetimos esta auditoría para medir el avance.</p>
+        </div>
+        <div class="flex flex-wrap gap-3">
+          <a class="btn btn-primary" href="/servicios/seo">Ver el servicio de SEO e IA</a>
+          <a class="btn btn-ghost" href="#contacto">Agendar una llamada</a>
+        </div>
+      </section>
+      <div class="aud-compartir">
+        <button type="button" class="btn btn-ghost" data-aud-compartir>Copiar el enlace del informe</button>
+        <a class="text-[14px] text-ink-3 underline underline-offset-4" href="/auditoria-seo-ia">Auditar otra web</a>
+      </div>` : ''}`;
+    if (completo) conectarInforme();
+  }
+
+  // ── Compartir: el informe viaja comprimido en el enlace ──────
+
+  const aB64 = (b: Uint8Array) => btoa(String.fromCharCode(...b)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const deB64 = (s: string) => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/')), (c) => c.charCodeAt(0));
+  async function comprimir(inf: Informe) {
+    const { url, dominio, puntuacion, comprobaciones } = inf.web;
+    const ligero = { ...inf, web: { url, dominio, puntuacion, comprobaciones }, respuestas: inf.respuestas.map((r) => ({ ...r, texto: r.texto.slice(0, 700) })) };
+    const flujo = new Blob([JSON.stringify(ligero)]).stream().pipeThrough(new CompressionStream('deflate-raw'));
+    return aB64(new Uint8Array(await new Response(flujo).arrayBuffer()));
+  }
+  async function descomprimir(s: string): Promise<Informe> {
+    const flujo = new Blob([deB64(s)]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    return JSON.parse(await new Response(flujo).text());
+  }
+  async function enlace() {
+    return `${location.origin}/auditoria-seo-ia#informe=${await comprimir(informe!)}`;
+  }
+
+  function conectarInforme() {
+    resultado.querySelector<HTMLButtonElement>('[data-aud-compartir]')?.addEventListener('click', async (e) => {
+      const b = e.currentTarget as HTMLButtonElement;
+      const url = await enlace();
+      history.replaceState(null, '', url);
+      try { await navigator.clipboard.writeText(url); b.textContent = 'Enlace copiado'; } catch { b.textContent = 'Copiá la dirección del navegador'; }
+    });
+    const formEmail = resultado.querySelector<HTMLFormElement>('[data-aud-email]');
+    formEmail?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = formEmail.querySelector<HTMLInputElement>('input')!;
+      const boton = formEmail.querySelector<HTMLButtonElement>('button')!;
+      const err = formEmail.querySelector<HTMLElement>('[data-aud-email-error]')!;
+      const email = input.value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) { err.textContent = 'Revisá el email.'; err.hidden = false; return; }
+      err.hidden = true;
+      boton.disabled = true;
+      boton.textContent = 'Escribiendo tu plan...';
+      avisarLead(email);
+      try {
+        const v = visibilidad(informe!);
+        const { plan: p } = await api<{ plan: Informe['plan'] }>('plan', {
+          ticket,
+          email,
+          informe: {
+            web: informe!.web.dominio,
+            negocio: informe!.negocio,
+            visibilidad: `${v.si} de ${v.total} respuestas`,
+            preguntas: informe!.preguntas.map((q, i) => ({ pregunta: q, mencionado_en: informe!.respuestas.filter((r) => r.i === i && r.menciona).map((r) => NOMBRE[r.motor]) })),
+            marcas_que_aparecen: informe!.marcas,
+            fuentes_mas_citadas: fuentes(informe!),
+            comprobaciones_tecnicas: informe!.web.comprobaciones.map(({ titulo, estado, detalle }) => ({ titulo, estado, detalle })),
+          },
+        });
+        informe!.plan = p;
+        resultado.querySelector('[data-aud-plan]')!.innerHTML = `<h3 class="aud-titulo">Tu plan para aparecer en las respuestas</h3>${plan(informe!)}`;
+        history.replaceState(null, '', await enlace());
+      } catch (er) {
+        boton.disabled = false;
+        boton.textContent = 'Ver mi plan';
+        err.textContent = (er as Error).message;
+        err.hidden = false;
+      }
+    });
+  }
+
+  // El lead llega igual que los del formulario de contacto: correo, hoja y
+  // evento de Analytics, con el enlace al informe para verlo antes de llamar.
+  async function avisarLead(email: string) {
+    const v = visibilidad(informe!);
+    const url = await enlace().catch(() => location.href);
+    const resumen = `Visibilidad IA ${v.si}/${v.total} · web ${informe!.web.puntuacion}/100 · aparecen: ${informe!.marcas.slice(0, 3).map((m) => m.nombre).join(', ') || 'nadie'}`;
+    fetch('https://formsubmit.co/ajax/philosh95@gmail.com', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', accept: 'application/json' },
+      body: JSON.stringify({ _subject: `Auditoría SEO/IA: ${informe!.web.dominio}`, _template: 'box', email, web: informe!.web.url, resultado: resumen, informe: url, origen: 'auditoria-seo-ia' }),
+    }).catch(() => {});
+    if (SHEET_URL && SHEET_TOKEN) {
+      try {
+        let campana = '';
+        try { campana = sessionStorage.getItem('si-campana') || ''; } catch {}
+        navigator.sendBeacon(SHEET_URL, new Blob([JSON.stringify({
+          tipo: 'lead', token: SHEET_TOKEN, trampa: '', nombre: '', empresa: informe!.negocio.marca, email, web: informe!.web.url,
+          sector: informe!.negocio.categoria, presupuesto: '', tipo_necesidad: 'Auditoría SEO e IA', proyecto: `${resumen} · ${url}`,
+          origen: 'auditoria-seo-ia', pagina_entrada: location.pathname, campana: campana || 'sin campaña',
+        })], { type: 'text/plain' }));
+      } catch {}
+    }
+    (window as any).gtag?.('event', 'generate_lead', { form_id: 'auditoria-seo-ia', origen: 'auditoria-seo-ia', visibilidad: v.pct });
+  }
+
+  // ── La auditoría ─────────────────────────────────────────────
+
+  async function enParalelo<T>(tareas: (() => Promise<T>)[], limite: number) {
+    let siguiente = 0;
+    await Promise.all(Array.from({ length: Math.min(limite, tareas.length) }, async () => {
+      while (siguiente < tareas.length) await tareas[siguiente++]();
+    }));
+  }
+
+  async function auditar(web: string) {
+    if (enMarcha) return;
+    enMarcha = true;
+    errorEl.hidden = true;
+    ticket = '';
+    informe = null;
+    seccion.hidden = false;
+    consola.hidden = false;
+    pasos.innerHTML = '';
+    resultado.innerHTML = '';
+    $('[data-aud-dominio]').textContent = web.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    $('[data-aud-vivo]').hidden = false;
+    seccion.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+
+    const p1 = paso('web', 'Leyendo tu web: robots.txt, sitemap, llms.txt y datos estructurados');
+    let d: { web: Informe['web']; negocio: Informe['negocio']; preguntas: string[]; motores: Motor[]; ticket: string };
+    try {
+      d = await api('analizar', { web });
+    } catch (e) {
+      p1.fallo((e as Error).message);
+      errorEl.textContent = (e as Error).message;
+      errorEl.hidden = false;
+      $('[data-aud-vivo]').hidden = true;
+      enMarcha = false;
+      return;
+    }
+    ticket = d.ticket;
+    p1.hecho(`${d.web.comprobaciones.filter((c) => c.estado === 'ok').length} de ${d.web.comprobaciones.length} puntos en orden`);
+    paso('negocio', 'Entendiendo qué vendés').hecho(`${esc(d.negocio.categoria)} · ${esc(d.negocio.mercado)}`);
+
+    informe = { v: 1, web: d.web, negocio: d.negocio, preguntas: d.preguntas, motores: d.motores, respuestas: [], marcas: [] };
+    const total = d.preguntas.length * d.motores.length;
+    const p3 = paso('ia', `Preguntando a ${d.motores.map((m) => NOMBRE[m]).join(', ').replace(/, ([^,]*)$/, ' y $1')}`);
+    p3.detalle(`0 de ${total} respuestas`);
+    pintarInforme(informe, false);
+
+    const tareas = d.preguntas.flatMap((_, i) => d.motores.map((motor) => async () => {
+      try {
+        const r = await api<Respuesta>('preguntar', { ticket, motor, i });
+        informe!.respuestas.push(r);
+      } catch (e) {
+        informe!.respuestas.push({ motor, i, menciona: false, citado: false, texto: '', fuentes: [], error: (e as Error).message });
+      }
+      p3.detalle(`${informe!.respuestas.length} de ${total} respuestas`);
+      pintarInforme(informe!, false);
+    }));
+    await enParalelo(tareas, 6);
+    const v = visibilidad(informe);
+    p3.hecho(`Te mencionan en ${v.si} de ${v.total}`);
+
+    const p4 = paso('marcas', 'Buscando quién sale en tu lugar');
+    try {
+      const { marcas } = await api<{ marcas: Informe['marcas'] }>('marcas', {
+        ticket,
+        marca: d.negocio.marca,
+        respuestas: respondidas(informe).map((r) => ({ id: `${NOMBRE[r.motor]} ${r.i + 1}`, texto: r.texto })),
+      });
+      informe.marcas = marcas;
+      p4.hecho(marcas.length ? `${marcas.length} marcas` : 'ninguna clara');
+    } catch {
+      p4.hecho('sin datos');
+    }
+
+    $('[data-aud-vivo]').hidden = true;
+    pintarInforme(informe, true);
+    history.replaceState(null, '', await enlace());
+    enMarcha = false;
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const web = entrada.value.trim();
+    if (web.length < 4) {
+      errorEl.textContent = 'Escribí la dirección de tu web, por ejemplo tuempresa.com';
+      errorEl.hidden = false;
+      return;
+    }
+    auditar(web);
+  });
+
+  // Entrada desde otra página (?web=) o informe compartido (#informe=).
+  const params = new URLSearchParams(location.search);
+  if (location.hash.startsWith('#informe=')) {
+    descomprimir(location.hash.slice(9))
+      .then((inf) => {
+        informe = inf;
+        seccion.hidden = false;
+        consola.hidden = true;
+        pintarInforme(inf, true);
+      })
+      .catch(() => {});
+  } else if (params.get('web')) {
+    entrada.value = params.get('web')!;
+    auditar(entrada.value);
+  }
+</script>

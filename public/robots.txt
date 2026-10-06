@@ -4,6 +4,7 @@
 User-agent: *
 Allow: /
 Disallow: /gracias
+Disallow: /api/
 
 # ─────────────────────────────────────────────────────────────────────────
 # BLOQUE 1 · Rastreadores de BÚSQUEDA y de PETICIÓN DE USUARIO

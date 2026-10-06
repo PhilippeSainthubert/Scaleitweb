@@ -11,6 +11,7 @@ import FiguraSVG from '../../components/FiguraSVG.astro';
 import CieloEstrellado from '../../components/CieloEstrellado.astro';
 import Constelacion from '../../components/Constelacion.astro';
 import Acordeon from '../../components/Acordeon.astro';
+import AuditoriaLanzador from '../../components/AuditoriaLanzador.astro';
 import { AGENTES, AGENTE_SERVICIO } from '../../data/agentes';
 import { servicios } from '../../data/servicios';
 
@@ -91,6 +92,8 @@ const schema = [
         </div>
       </div>
     </section>
+
+    {servicio.slug === 'seo' && <AuditoriaLanzador />}
 
     <!-- Qué incluye: de noche, con el agente del servicio dibujándose al lado -->
     <section id="incluye" class="noche overflow-clip py-28 sm:py-36">

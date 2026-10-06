@@ -14,7 +14,9 @@ export default defineConfig({
   // La pagina de testimonios inventados desaparece; su URL sigue viva.
   // Las dos formas: la regla que genera Astro es de coincidencia exacta, así
   // que sin la variante con barra final /testimonios/ devolvía 404.
-  redirects: { '/testimonios': '/casos-de-exito' },
+  // /sitemap.xml es donde lo busca casi cualquier herramienta; el nuestro se
+  // llama sitemap-index.xml (lo genera @astrojs/sitemap). Sin esto, 404.
+  redirects: { '/testimonios': '/casos-de-exito', '/sitemap.xml': '/sitemap-index.xml' },
 
   // Una sola forma canónica de cada URL, sin barra final. Sin esto el sitemap
   // pedía indexar /precios/ mientras el canonical de esa misma página apuntaba
@@ -49,5 +51,8 @@ export default defineConfig({
 
   adapter: vercel({
     webAnalytics: { enabled: false }, // se inyecta desde el Layout
+    // La auditoría SEO e IA espera a ChatGPT, Perplexity y Claude con búsqueda
+    // web; cada llamada se queda por debajo, pero con margen.
+    maxDuration: 60,
   }),
 });
