@@ -1,77 +1,73 @@
 /**
- * Paso 1 de la auditoría: revisa la web, entiende el negocio y decide las
- * preguntas. Devuelve un ticket firmado con la web y esas preguntas; los
- * pasos siguientes solo trabajan con lo que diga el ticket.
+ * Paso 2: con la lista final de competidores (los propuestos que el visitante
+ * dejó más los que añadió, hasta diez), revisa la parte técnica de sus webs y
+ * emite el ticket con el que se hacen las preguntas. Aquí no hay llamadas a la
+ * IA: el trabajo caro ya se hizo al preparar.
  */
 import type { APIRoute } from 'astro';
-import { normalizarUrl, firmar, limitar, respuesta, fallo, ErrorAuditoria } from '../../../lib/auditoria/seguridad';
+import { normalizarUrl, firmar, verificar, limitar, respuesta, fallo, ErrorAuditoria, DOMINIO } from '../../../lib/auditoria/seguridad';
 import { revisarWeb } from '../../../lib/auditoria/web';
-import { entenderNegocio } from '../../../lib/auditoria/analista';
-import { motoresDisponibles, variantesMarca } from '../../../lib/auditoria/motores';
+import { variantesMarca, type Motor } from '../../../lib/auditoria/motores';
 
 export const prerender = false;
 
-/**
- * Los competidores que escribe el visitante (hasta tres): una web o un nombre.
- * Con web se revisa también su parte técnica; con nombre solo se cuenta en
- * cuántas respuestas aparece.
- */
+interface Prep { d: string; v: string[]; p: string[]; pais: string; m: Motor[] }
+
+/** Cada competidor llega como web, como nombre o como {nombre, dominio}. */
 function leerCompetidores(lista: unknown, propio: string) {
-  const entradas = (Array.isArray(lista) ? lista : typeof lista === 'string' ? lista.split(/[,;\n]/) : [])
-    .map((x) => String(x ?? '').trim())
-    .filter((x) => x.length >= 2 && x.length <= 80)
-    .slice(0, 3);
-  const out: { nombre: string; dominio: string; url: URL | null }[] = [];
+  const entradas = Array.isArray(lista) ? lista.slice(0, 10) : [];
+  const out: { nombre: string; dominio: string }[] = [];
+  const vistos = new Set([propio]);
   for (const e of entradas) {
-    if (/^[^\s]+\.[a-z]{2,}(\/.*)?$/i.test(e)) {
-      try {
-        const url = normalizarUrl(e);
-        const dominio = url.hostname.replace(/^www\./, '');
-        if (dominio === propio) continue;
-        const raiz = dominio.split('.')[0].replace(/-/g, ' ');
-        out.push({ nombre: raiz.charAt(0).toUpperCase() + raiz.slice(1), dominio, url });
-        continue;
-      } catch { /* si no es una web válida, se usa como nombre */ }
+    let nombre = '';
+    let dominio = '';
+    if (e && typeof e === 'object') {
+      nombre = String((e as any).nombre ?? '').trim().slice(0, 60);
+      dominio = String((e as any).dominio ?? '').trim().toLowerCase();
+    } else {
+      const t = String(e ?? '').trim().slice(0, 80);
+      if (/^[^\s]+\.[a-z]{2,}(\/.*)?$/i.test(t)) dominio = t.toLowerCase();
+      else nombre = t;
     }
-    out.push({ nombre: e, dominio: '', url: null });
+    if (dominio) {
+      try {
+        dominio = normalizarUrl(dominio).hostname.replace(/^www\./, '');
+      } catch {
+        dominio = '';
+      }
+      if (dominio && !DOMINIO.test(dominio)) dominio = '';
+    }
+    if (dominio && !nombre) {
+      const raiz = dominio.split('.')[0].replace(/-/g, ' ');
+      nombre = raiz.charAt(0).toUpperCase() + raiz.slice(1);
+    }
+    const clave = dominio || nombre.toLowerCase();
+    if (!nombre || vistos.has(clave)) continue;
+    vistos.add(clave);
+    out.push({ nombre, dominio });
   }
   return out;
 }
 
-export const POST: APIRoute = async ({ request, clientAddress }) => {
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const ip = (() => { try { return clientAddress; } catch { return 'desconocida'; } })();
-    if (!limitar(`analizar:${ip}`, 5, 3_600_000)) {
-      throw new ErrorAuditoria(429, 'Ya hiciste varias auditorías en la última hora. Probá un poco más tarde.');
-    }
-    const { web, competidores: lista } = await request.json().catch(() => ({}));
-    const url = normalizarUrl(web);
-    const revision = await revisarWeb(url);
-    const competidores = leerCompetidores(lista, revision.dominio);
-
-    // El negocio y las webs de la competencia, a la vez.
-    const [negocio, webs] = await Promise.all([
-      entenderNegocio(revision, competidores.map((c) => c.nombre)),
-      Promise.all(competidores.map((c) => (c.url ? revisarWeb(c.url).then((r) => r.puntuacion).catch(() => null) : Promise.resolve(null)))),
-    ]);
-    const motores = motoresDisponibles();
-    const variantes = variantesMarca(negocio.marca, negocio.variantes, revision.dominio);
-
+    const { prep, competidores: lista } = await request.json().catch(() => ({}));
+    const t = verificar<Prep>(prep);
+    if (!limitar(`analizar:${prep}`, 3, 3_600_000)) throw new ErrorAuditoria(429, 'Esta auditoría ya se lanzó.');
+    const competidores = leerCompetidores(lista, t.d);
+    const puntuaciones = await Promise.all(
+      competidores.map((c) => (c.dominio ? revisarWeb(normalizarUrl(c.dominio)).then((r) => r.puntuacion).catch(() => null) : Promise.resolve(null)))
+    );
     const ticket = firmar({
-      d: revision.dominio,
-      v: variantes,
-      p: negocio.preguntas,
-      pais: negocio.pais,
-      m: motores,
+      d: t.d,
+      v: t.v,
+      p: t.p,
+      pais: t.pais,
+      m: t.m,
       c: competidores.map((c) => ({ d: c.dominio, v: variantesMarca(c.nombre, [], c.dominio) })),
     });
-    const { texto: _texto, ...web_ } = revision;
     return respuesta({
-      web: web_,
-      negocio: { marca: negocio.marca, categoria: negocio.categoria, mercado: negocio.mercado },
-      preguntas: negocio.preguntas,
-      motores,
-      competidores: competidores.map((c, k) => ({ nombre: c.nombre, dominio: c.dominio || null, puntuacion: webs[k] })),
+      competidores: competidores.map((c, k) => ({ nombre: c.nombre, dominio: c.dominio || null, puntuacion: puntuaciones[k] })),
       ticket,
     });
   } catch (e) {

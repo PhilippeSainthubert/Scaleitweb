@@ -27,9 +27,11 @@ export interface Negocio {
   pais: string;
   idioma: string;
   preguntas: string[];
+  /** Competidores que propone el analista, con su web. */
+  competidores: { nombre: string; web: string }[];
 }
 
-export async function entenderNegocio(datos: { url: string; titulo: string; descripcion: string; h1: string[]; idioma: string; texto: string }, competidores: string[] = []): Promise<Negocio> {
+export async function entenderNegocio(datos: { url: string; titulo: string; descripcion: string; h1: string[]; idioma: string; texto: string }): Promise<Negocio> {
   const sistema = `Eres analista de visibilidad en buscadores de IA (ChatGPT, Gemini, Perplexity, Claude).
 Te paso la portada de una web. Tu trabajo:
 1. Identificar la marca tal como la escribiría un cliente, y sus variantes (nombre comercial, dominio sin extensión, siglas). Solo variantes reales, no inventes.
@@ -38,14 +40,14 @@ Te paso la portada de una web. Tu trabajo:
 4. Escribir exactamente 4 preguntas que un comprador real le haría a un asistente de IA cuando busca lo que vende esta empresa, en el idioma de la web y pensando en su mercado:
    - dos de "cuál es la mejor opción" para su categoría y mercado;
    - una que parta del problema que resuelve, sin nombrar la categoría;
-   - una de alternativas o comparación con un competidor conocido del sector, si lo hay; si no, otra de recomendación. Si te paso competidores indicados por el cliente, usa el más relevante de ellos para esta pregunta.
-   Ninguna pregunta puede mencionar la marca auditada. Máximo 120 caracteres cada una, naturales, como las escribe una persona.`;
+   - una de alternativas o comparación con el más conocido de los competidores que propones en el punto 5.
+   Ninguna pregunta puede mencionar la marca auditada. Máximo 120 caracteres cada una, naturales, como las escribe una persona.
+5. Proponer 8 competidores reales que se disputan los mismos clientes en ese mercado: empresas que de verdad existen, del mismo tipo y tamaño parecido, empezando por las más conocidas. Para cada uno, su nombre y el dominio de su web (solo el dominio, sin https ni rutas). Si no estás seguro de su web, no lo incluyas.`;
   const usuario = `URL: ${datos.url}
 Título: ${datos.titulo}
 Descripción: ${datos.descripcion}
 H1: ${datos.h1.join(' | ')}
 Idioma declarado: ${datos.idioma || 'no declarado'}
-Competidores que indica el cliente: ${competidores.length ? competidores.join(', ') : 'ninguno'}
 
 Texto de la portada:
 ${datos.texto}`;
@@ -59,13 +61,23 @@ ${datos.texto}`;
       pais: { type: 'string', description: 'ISO 3166-1 alfa-2' },
       idioma: { type: 'string' },
       preguntas: { type: 'array', items: { type: 'string' } },
+      competidores: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: { nombre: { type: 'string' }, web: { type: 'string' } },
+          required: ['nombre', 'web'],
+          additionalProperties: false,
+        },
+      },
     },
-    required: ['marca', 'variantes', 'categoria', 'mercado', 'pais', 'idioma', 'preguntas'],
+    required: ['marca', 'variantes', 'categoria', 'mercado', 'pais', 'idioma', 'preguntas', 'competidores'],
     additionalProperties: false,
   };
   const n = await enJson<Negocio>(sistema, usuario, esquema);
   n.preguntas = n.preguntas.map((p) => p.trim()).filter(Boolean).slice(0, 4);
   n.pais = (n.pais || 'ES').toUpperCase().slice(0, 2);
+  n.competidores = (n.competidores ?? []).filter((c) => c?.nombre && c?.web).slice(0, 10);
   if (n.preguntas.length < 2) throw new ErrorAuditoria(502, 'No conseguimos entender qué vende tu web. Probá con otra página.');
   return n;
 }
