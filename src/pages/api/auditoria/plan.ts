@@ -5,7 +5,7 @@
  */
 import type { APIRoute } from 'astro';
 import { verificar, limitar, respuesta, fallo, ErrorAuditoria } from '../../../lib/auditoria/seguridad';
-import { redactarPlan } from '../../../lib/auditoria/claude';
+import { redactarPlan } from '../../../lib/auditoria/analista';
 
 export const prerender = false;
 

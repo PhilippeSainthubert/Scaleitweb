@@ -1,7 +1,7 @@
 /** Paso 3: qué marcas recomiendan los motores en lugar de la auditada. */
 import type { APIRoute } from 'astro';
 import { verificar, limitar, respuesta, fallo, ErrorAuditoria } from '../../../lib/auditoria/seguridad';
-import { extraerMarcas } from '../../../lib/auditoria/claude';
+import { extraerMarcas } from '../../../lib/auditoria/analista';
 
 export const prerender = false;
 

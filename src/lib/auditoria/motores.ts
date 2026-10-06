@@ -1,23 +1,25 @@
 /**
- * Los tres motores que se auditan y cómo se decide si te mencionan.
+ * Los motores que se auditan y cómo se decide si te mencionan.
  *
  * Cada pregunta se le hace al motor tal cual la escribiría un comprador, con
- * búsqueda web activada, que es como contestan hoy ChatGPT, Perplexity y
- * Claude. ChatGPT va por la Responses API de OpenAI y Perplexity por su API de
- * chat; los dos por HTTP directo para no sumar dependencias. Claude vive en
- * claude.ts con el SDK oficial.
+ * búsqueda web activada, que es como contestan hoy. Entra cada motor que
+ * tenga su clave configurada: Gemini (gratis, en gemini.ts), ChatGPT por la
+ * Responses API de OpenAI, Perplexity por su API de chat y Claude con el SDK
+ * oficial (claude.ts).
  *
  * Los modelos se pueden cambiar sin tocar código con AUDITORIA_OPENAI_MODEL y
  * AUDITORIA_PERPLEXITY_MODEL.
  */
 import { preguntarClaude } from './claude';
+import { preguntarGemini } from './gemini';
 import { ErrorAuditoria } from './seguridad';
 
-export type Motor = 'chatgpt' | 'perplexity' | 'claude';
-export const NOMBRES: Record<Motor, string> = { chatgpt: 'ChatGPT', perplexity: 'Perplexity', claude: 'Claude' };
+export type Motor = 'gemini' | 'chatgpt' | 'perplexity' | 'claude';
+export const NOMBRES: Record<Motor, string> = { gemini: 'Gemini', chatgpt: 'ChatGPT', perplexity: 'Perplexity', claude: 'Claude' };
 
 export function motoresDisponibles(): Motor[] {
   const m: Motor[] = [];
+  if (process.env.GEMINI_API_KEY) m.push('gemini');
   if (process.env.OPENAI_API_KEY) m.push('chatgpt');
   if (process.env.PERPLEXITY_API_KEY) m.push('perplexity');
   if (process.env.ANTHROPIC_API_KEY) m.push('claude');
@@ -70,6 +72,7 @@ export async function preguntar(motor: Motor, pregunta: string, pais: string): P
   if (!motoresDisponibles().includes(motor)) throw new ErrorAuditoria(400, `${NOMBRES[motor]} no está disponible.`);
   if (motor === 'chatgpt') return preguntarChatGPT(pregunta, pais);
   if (motor === 'perplexity') return preguntarPerplexity(pregunta);
+  if (motor === 'gemini') return preguntarGemini(pregunta);
   return preguntarClaude(pregunta, pais);
 }
 
