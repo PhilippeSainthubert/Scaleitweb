@@ -181,6 +181,9 @@ const datos = figuras.map((k) => ({
       while (ps.length < maxObj + ambiente) ps.push(nueva());
       ps.length = maxObj + ambiente;
       capacidad = maxObj;
+      // Los vecinos apuntan por índice: si la lista de partículas se ha
+      // recortado al redimensionar, los de antes ya no valen.
+      vecinos = [];
     }
 
     function rotular(i: number) {
@@ -205,7 +208,10 @@ const datos = figuras.map((k) => ({
         const j = Math.floor(azar() * (k + 1));
         [orden[k], orden[j]] = [orden[j], orden[k]];
       }
-      for (let k = 0; k < capacidad; k++) ps[k].t = -1;
+      // Se sueltan todas, no solo las de la capacidad nueva: al redimensionar la
+      // figura puede tener menos puntos, y una partícula que se quedara con su
+      // destino antiguo apuntaría a un punto que ya no existe.
+      for (const p of ps) p.t = -1;
       asignado = new Array(obj.length);
       obj.forEach((_, ti) => { ps[orden[ti]].t = ti; asignado[ti] = orden[ti]; });
       for (let k = 0; k < capacidad; k++) {
@@ -332,6 +338,7 @@ const datos = figuras.map((k) => ({
         const ax = a.x + a.ox, ay = a.y + a.oy;
         for (const j of vecinos[i] ?? []) {
           const b = ps[j];
+          if (!b) continue;
           const bx = b.x + b.ox, by = b.y + b.oy;
           const prox = 1 - Math.hypot(bx - ax, by - ay) / ENLACE_L;
           const calor = Math.max(a.carga, b.carga);
