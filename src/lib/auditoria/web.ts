@@ -32,10 +32,11 @@ export interface RevisionWeb {
   texto: string;
 }
 
-// Los rastreadores que buscan o leen en vivo para responder: si están
-// bloqueados, la IA no puede citarte. Los de entrenamiento no se miran aquí,
+// Los rastreadores que buscan o leen en vivo para responder (Googlebot
+// incluido: Gemini cita desde la búsqueda de Google): si están bloqueados, la
+// IA no puede citarte. Los de entrenamiento no se miran aquí,
 // porque bloquearlos no impide aparecer en las respuestas.
-const RASTREADORES_IA = ['OAI-SearchBot', 'ChatGPT-User', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User'];
+const RASTREADORES_IA = ['Googlebot', 'OAI-SearchBot', 'ChatGPT-User', 'Claude-SearchBot', 'Claude-User', 'PerplexityBot', 'Perplexity-User'];
 
 const ENTIDADES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', aacute: 'á', eacute: 'é', iacute: 'í', oacute: 'ó', uacute: 'ú', ntilde: 'ñ', Aacute: 'Á', Eacute: 'É', Iacute: 'Í', Oacute: 'Ó', Uacute: 'Ú', Ntilde: 'Ñ', uuml: 'ü', iquest: '¿', iexcl: '¡', ccedil: 'ç', middot: '·', ndash: '-', mdash: '-', hellip: '...' };
 const decodificar = (s: string) =>
@@ -162,7 +163,7 @@ export async function revisarWeb(url: URL): Promise<RevisionWeb> {
       estado: bloqueados.length ? 'mal' : 'ok',
       detalle: bloqueados.length
         ? `Tu robots.txt bloquea a ${bloqueados.join(', ')}. Mientras siga así, esas IA no pueden citarte.`
-        : 'Ningún rastreador de búsqueda de ChatGPT, Claude o Perplexity está bloqueado en tu robots.txt.',
+        : 'Tu robots.txt no bloquea a Google ni a los rastreadores de búsqueda de ChatGPT, Claude o Perplexity.',
     },
     {
       id: 'contenido', titulo: 'Tu contenido se lee sin JavaScript', peso: 15,

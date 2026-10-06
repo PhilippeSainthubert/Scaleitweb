@@ -20,26 +20,36 @@ import CieloEstrellado from '../components/CieloEstrellado.astro';
 import Acordeon from '../components/Acordeon.astro';
 import Formulario from '../components/Formulario.astro';
 
+// Los motores con clave en el momento de la build: los textos dicen a quién
+// se le pregunta de verdad. Si se añade una clave, basta con volver a desplegar.
+const motores = [
+  process.env.GEMINI_API_KEY && 'Gemini, la IA de Google',
+  process.env.OPENAI_API_KEY && 'ChatGPT',
+  process.env.PERPLEXITY_API_KEY && 'Perplexity',
+  process.env.ANTHROPIC_API_KEY && 'Claude',
+].filter(Boolean) as string[];
+const aQuien = motores.length ? motores.join(', ').replace(/, ([^,]*)$/, ' y $1') : 'la IA';
+
 const faq = [
   {
     q: '¿Es gratis de verdad?',
     a: 'Sí. La auditoría completa es gratis y sin registro. Solo te pedimos el email si querés el plan de acción, y lo usamos para mandártelo y, si te interesa, hablar de cómo aplicarlo.',
   },
   {
-    q: '¿Qué preguntas les hacéis a las IA?',
+    q: '¿Qué preguntas le hacéis a la IA?',
     a: 'Las que haría alguien que busca lo que vendés: cuál es la mejor opción en tu mercado, cómo resolver el problema que resolvés, alternativas a un competidor conocido. Las escribe un modelo a partir de tu propia web, y nunca nombran tu marca, porque tu cliente tampoco la nombraría.',
   },
   {
-    q: 'Estoy bien posicionado en Google, ¿por qué no aparezco en ChatGPT?',
-    a: 'Porque no es lo mismo. Los asistentes de IA citan páginas que responden de forma directa y que se leen sin ejecutar JavaScript, y se fían mucho de lo que dicen de ti otras webs: comparativas, directorios, foros y medios del sector. Puedes estar arriba en Google y no existir en esas respuestas.',
+    q: 'Estoy bien posicionado en Google, ¿por qué no aparezco en las respuestas de IA?',
+    a: 'Porque no es lo mismo. Los asistentes de IA, incluido el de Google, citan páginas que responden de forma directa y que se leen sin ejecutar JavaScript, y se fían mucho de lo que dicen de ti otras webs: comparativas, directorios, foros y medios del sector. Puedes estar arriba en Google y no existir en esas respuestas.',
   },
   {
     q: '¿El resultado cambia si la vuelvo a pasar?',
-    a: 'Un poco, sí. Las IA no contestan siempre igual y buscan en la web en el momento. Por eso miramos varias preguntas y tres motores: el patrón (quién aparece, qué fuentes citan) es mucho más estable que una respuesta suelta.',
+    a: 'Un poco, sí. La IA no contesta siempre igual y busca en la web en el momento. Por eso miramos varias preguntas: el patrón (quién aparece, qué fuentes citan) es mucho más estable que una respuesta suelta.',
   },
   {
     q: '¿Qué hacéis con mi web y mis datos?',
-    a: 'Leemos tu portada, tu robots.txt, tu sitemap y tu llms.txt como lo haría cualquier buscador, y les hacemos las preguntas a las IA. No guardamos el informe en ningún servidor: si lo compartes, viaja dentro del propio enlace.',
+    a: 'Leemos tu portada, tu robots.txt, tu sitemap y tu llms.txt como lo haría cualquier buscador, y le hacemos las preguntas a la IA. No guardamos el informe en ningún servidor: si lo compartes, viaja dentro del propio enlace.',
   },
 ];
 
@@ -51,8 +61,8 @@ const schema = {
 ---
 
 <Layout
-  title="Auditoría SEO e IA gratis: ¿te recomienda ChatGPT? | Scale It"
-  description="Preguntamos a ChatGPT, Perplexity y Claude lo que preguntaría tu cliente y te mostramos si apareces, quién sale en tu lugar y qué arreglar en tu web. Gratis y en dos minutos."
+  title="Auditoría SEO e IA gratis: ¿te recomienda la IA? | Scale It"
+  description={`Le preguntamos a ${aQuien} lo que preguntaría tu cliente y te mostramos si apareces, quién sale en tu lugar y qué arreglar en tu web. Gratis y en dos minutos.`}
   schema={schema}
 >
   <Navbar />
@@ -60,8 +70,8 @@ const schema = {
     <PageHero
       eyebrow="Auditoría gratis · SEO e IA"
       figuras={['buho']}
-      titulo="¿Te recomiendan ChatGPT, Perplexity y Claude?"
-      entradilla="Les hacemos las preguntas que haría tu cliente y te enseñamos si apareces, quién sale en tu lugar y qué cambiar en tu web para que te citen."
+      titulo="¿Te recomienda la IA cuando tu cliente pregunta?"
+      entradilla={`Le hacemos a ${aQuien} las preguntas que haría tu cliente y te enseñamos si apareces, quién sale en tu lugar y qué cambiar en tu web para que te citen.`}
     >
       <form class="aud-form mt-9" data-aud-form novalidate>
         <label for="aud-web" class="sr-only">La dirección de tu web</label>
@@ -108,12 +118,12 @@ const schema = {
             <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Leemos tu web, entendemos qué vendés y en qué mercado, y escribimos las preguntas que haría alguien que te está buscando sin saber que existes.</p>
           </div>
           <div class="fundador">
-            <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">Tres IA respondiendo</h3>
-            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Se las hacemos a ChatGPT, Perplexity y Claude con búsqueda web, como las usa tu cliente. Te decimos si te mencionan, quién aparece en tu lugar y qué fuentes citan.</p>
+            <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">La IA respondiendo</h3>
+            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Se las hacemos a {aQuien} con búsqueda web, como la usa tu cliente. Te decimos si te menciona, quién aparece en tu lugar y qué fuentes cita.</p>
           </div>
           <div class="fundador">
             <h3 class="text-[19px] font-semibold tracking-[-0.02em] text-ink">Tu web, vista por una IA</h3>
-            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Revisamos lo que los rastreadores de IA necesitan para leerte y citarte: robots.txt, contenido sin JavaScript, sitemap, datos estructurados y llms.txt.</p>
+            <p class="mt-3 text-[15px] leading-relaxed text-ink-2">Revisamos lo que los buscadores y los rastreadores de IA necesitan para leerte y citarte: robots.txt, contenido sin JavaScript, sitemap, datos estructurados y llms.txt.</p>
           </div>
         </div>
       </div>
@@ -141,7 +151,7 @@ const schema = {
 </Layout>
 
 <script>
-  type Motor = 'chatgpt' | 'perplexity' | 'claude';
+  type Motor = 'gemini' | 'chatgpt' | 'perplexity' | 'claude';
   type Estado = 'ok' | 'aviso' | 'mal';
   interface Comprobacion { id: string; titulo: string; estado: Estado; detalle: string; peso: number }
   interface Respuesta { motor: Motor; i: number; menciona: boolean; citado: boolean; texto: string; fuentes: string[]; error?: string }
@@ -156,8 +166,8 @@ const schema = {
     plan?: { resumen: string; acciones: { titulo: string; porque: string; como: string; impacto: string; esfuerzo: string }[] };
   }
 
-  const NOMBRE: Record<Motor, string> = { chatgpt: 'ChatGPT', perplexity: 'Perplexity', claude: 'Claude' };
-  const LOGO: Record<Motor, string> = { chatgpt: '#10a37f', perplexity: '#20b8cd', claude: '#d97757' };
+  const NOMBRE: Record<Motor, string> = { gemini: 'Gemini', chatgpt: 'ChatGPT', perplexity: 'Perplexity', claude: 'Claude' };
+  const LOGO: Record<Motor, string> = { gemini: '#4c8df6', chatgpt: '#10a37f', perplexity: '#20b8cd', claude: '#d97757' };
   const SHEET_URL = import.meta.env.PUBLIC_SHEET_URL || '';
   const SHEET_TOKEN = import.meta.env.PUBLIC_SHEET_TOKEN || '';
 
@@ -360,7 +370,7 @@ const schema = {
       </div>
       <section class="aud-bloque">
         <h3 class="aud-titulo">Tu web, vista por una IA</h3>
-        <p class="aud-sub">Lo que necesitan los rastreadores de ChatGPT, Claude y Perplexity para leerte.</p>
+        <p class="aud-sub">Lo que necesitan los buscadores y los rastreadores de IA para leerte.</p>
         ${comprobaciones(inf)}
       </section>
       <section class="aud-bloque" data-aud-plan>
@@ -429,6 +439,7 @@ const schema = {
           informe: {
             web: informe!.web.dominio,
             negocio: informe!.negocio,
+            motores: informe!.motores.map((m) => NOMBRE[m]),
             visibilidad: `${v.si} de ${v.total} respuestas`,
             preguntas: informe!.preguntas.map((q, i) => ({ pregunta: q, mencionado_en: informe!.respuestas.filter((r) => r.i === i && r.menciona).map((r) => NOMBRE[r.motor]) })),
             marcas_que_aparecen: informe!.marcas,

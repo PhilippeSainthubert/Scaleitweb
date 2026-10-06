@@ -6,7 +6,7 @@
 import type { APIRoute } from 'astro';
 import { normalizarUrl, firmar, limitar, respuesta, fallo, ErrorAuditoria } from '../../../lib/auditoria/seguridad';
 import { revisarWeb } from '../../../lib/auditoria/web';
-import { entenderNegocio } from '../../../lib/auditoria/claude';
+import { entenderNegocio } from '../../../lib/auditoria/analista';
 import { motoresDisponibles, variantesMarca } from '../../../lib/auditoria/motores';
 
 export const prerender = false;
