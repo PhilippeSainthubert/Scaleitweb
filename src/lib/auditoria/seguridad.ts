@@ -84,6 +84,22 @@ async function comprobarHost(host: string) {
   }
 }
 
+/** true si el dominio existe y resuelve a una IP pública. Para filtrar
+ * competidores propuestos con una web inventada. */
+export async function dominioReal(host: string): Promise<boolean> {
+  try {
+    const direcciones = await Promise.race([
+      lookup(host, { all: true }),
+      new Promise<never>((_, no) => setTimeout(() => no(new Error('tiempo')), 3000)),
+    ]);
+    return direcciones.length > 0 && !direcciones.some((d) => ipPrivada(d.address));
+  } catch {
+    return false;
+  }
+}
+
+export const DOMINIO = /^(?=.{4,253}$)([a-z0-9-]+\.)+[a-z]{2,}$/i;
+
 const AGENTE = 'ScaleItAuditoria/1.0 (+https://www.growth-scaleit.com/auditoria-seo-ia)';
 
 /**
