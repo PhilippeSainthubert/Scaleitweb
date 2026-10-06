@@ -1,0 +1,31 @@
+---
+/**
+ * La puerta a la auditoría SEO e IA desde otras páginas: escribes tu web y te
+ * lleva a /auditoria-seo-ia, que arranca sola con ese dato.
+ */
+interface Props {
+  titulo?: string;
+  texto?: string;
+}
+const {
+  titulo = '¿Te recomienda ChatGPT cuando buscan lo que vendés?',
+  texto = 'Les hacemos a ChatGPT, Perplexity y Claude las preguntas de tu cliente y te enseñamos si apareces, quién sale en tu lugar y qué arreglar. Gratis, en un par de minutos.',
+} = Astro.props;
+---
+
+<section class="py-20 sm:py-24">
+  <div class="mx-auto max-w-6xl px-6">
+    <div class="aud-lanzador" data-revelar>
+      <div>
+        <p class="eyebrow">Auditoría gratis · SEO e IA</p>
+        <h2 class="display-md mt-3 text-balance">{titulo}</h2>
+        <p class="mt-3 text-[15.5px] leading-relaxed text-ink-2">{texto}</p>
+      </div>
+      <form class="aud-form" action="/auditoria-seo-ia" method="get">
+        <label for="aud-lanzador-web" class="sr-only">La dirección de tu web</label>
+        <input id="aud-lanzador-web" name="web" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="tuempresa.com" required />
+        <button type="submit" class="btn btn-primary">Auditar</button>
+      </form>
+    </div>
+  </div>
+</section>
