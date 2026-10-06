@@ -68,11 +68,11 @@ async function preguntarPerplexity(pregunta: string) {
   return { texto, fuentes: fuentes.length ? fuentes : (d.citations ?? []) };
 }
 
-export async function preguntar(motor: Motor, pregunta: string, pais: string): Promise<{ texto: string; fuentes: string[] }> {
+export async function preguntar(motor: Motor, pregunta: string, pais: string, i = 0): Promise<{ texto: string; fuentes: string[] }> {
   if (!motoresDisponibles().includes(motor)) throw new ErrorAuditoria(400, `${NOMBRES[motor]} no está disponible.`);
   if (motor === 'chatgpt') return preguntarChatGPT(pregunta, pais);
   if (motor === 'perplexity') return preguntarPerplexity(pregunta);
-  if (motor === 'gemini') return preguntarGemini(pregunta);
+  if (motor === 'gemini') return preguntarGemini(pregunta, i);
   return preguntarClaude(pregunta, pais);
 }
 

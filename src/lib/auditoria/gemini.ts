@@ -11,35 +11,62 @@
  * modelos. Aquí solo viajan webs públicas y preguntas genéricas; el email del
  * visitante nunca se manda.
  *
- * Por HTTP directo, sin SDK. AUDITORIA_GEMINI_MODEL cambia el modelo; por
- * defecto el alias que siempre apunta al Flash más reciente.
+ * Por HTTP directo, sin SDK. El plan gratuito tiene picos de saturación
+ * ("model is experiencing high demand", 503) y límites por minuto (429), así
+ * que se prueba una cadena de modelos: si uno está saturado se reintenta una
+ * vez y se pasa al siguiente. AUDITORIA_GEMINI_MODEL cambia la cadena
+ * (modelos separados por comas).
  */
 import { ErrorAuditoria } from './seguridad';
 
-const MODELO = process.env.AUDITORIA_GEMINI_MODEL || 'gemini-flash-latest';
+const MODELOS = (process.env.AUDITORIA_GEMINI_MODEL || 'gemini-flash-latest,gemini-3.8-flash,gemini-flash-lite-latest')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean);
 const URL_API = (modelo: string) => `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`;
+const esperar = (ms: number) => new Promise((ok) => setTimeout(ok, ms));
 
-async function llamar(cuerpo: Record<string, unknown>): Promise<any> {
+/**
+ * Una llamada a Gemini repartida entre los modelos gratuitos. El plan gratuito
+ * permite 5 peticiones por minuto y por modelo, así que cada tarea empieza por
+ * un modelo distinto (`inicio`) y una auditoría entera cabe sin chocar. Ante
+ * un 429 se espera lo que el propio Google indica (si es poco) y se reintenta;
+ * ante saturación (503) se reintenta una vez y se pasa al siguiente modelo.
+ */
+async function llamar(cuerpo: Record<string, unknown>, inicio = 0): Promise<any> {
   const clave = process.env.GEMINI_API_KEY;
   if (!clave) throw new ErrorAuditoria(503, 'La auditoría todavía no está configurada.');
-  // El plan gratuito limita peticiones por minuto: ante un 429 se espera un
-  // poco y se reintenta una vez antes de rendirse.
-  for (let intento = 0; intento < 2; intento++) {
-    const r = await fetch(URL_API(MODELO), {
-      method: 'POST',
-      headers: { 'x-goog-api-key': clave, 'content-type': 'application/json' },
-      body: JSON.stringify(cuerpo),
-      signal: AbortSignal.timeout(50_000),
-    });
-    const d = await r.json().catch(() => ({}));
-    if (r.ok) return d;
-    if (r.status === 429 && intento === 0) {
-      await new Promise((ok) => setTimeout(ok, 4000));
-      continue;
+  const cadena = MODELOS.map((_, k) => MODELOS[(k + inicio) % MODELOS.length]);
+  let ultimo = 0;
+  for (const modelo of cadena) {
+    for (let intento = 0; intento < 2; intento++) {
+      const r = await fetch(URL_API(modelo), {
+        method: 'POST',
+        headers: { 'x-goog-api-key': clave, 'content-type': 'application/json' },
+        body: JSON.stringify(cuerpo),
+        signal: AbortSignal.timeout(40_000),
+      }).catch(() => null);
+      if (!r) { ultimo = 504; break; }
+      const d = await r.json().catch(() => ({}));
+      if (r.ok) return d;
+      ultimo = r.status;
+      const detalles: any[] = d?.error?.details ?? [];
+      const limite = detalles.flatMap((x) => x?.violations ?? []).map((v: any) => `${v.quotaId ?? ''} ${v.quotaValue ?? ''}`.trim());
+      console.error('[auditoria] Gemini', modelo, r.status, d?.error?.message?.slice(0, 120), limite.join(' | '));
+      if (intento > 0) break;
+      if (r.status === 429) {
+        const espera = Number.parseFloat(detalles.find((x) => x?.retryDelay)?.retryDelay ?? '');
+        if (Number.isFinite(espera) && espera <= 20) { await esperar(espera * 1000 + 500); continue; }
+        break;
+      }
+      if (r.status === 503 || r.status >= 500) { await esperar(2500); continue; }
+      break;
     }
-    console.error('[auditoria] Gemini', r.status, d?.error?.message);
-    throw new ErrorAuditoria(r.status === 429 ? 429 : 502, r.status === 429 ? 'Hay muchas auditorías en marcha. Probá en un minuto.' : 'Gemini no respondió.');
   }
+  throw new ErrorAuditoria(
+    ultimo === 429 ? 429 : 503,
+    ultimo === 429 ? 'Hay muchas auditorías en marcha. Probá en un minuto.' : 'La IA de Google está saturada en este momento. Probá de nuevo en un par de minutos.'
+  );
 }
 
 const textoDe = (d: any): string =>
@@ -59,12 +86,12 @@ function esquemaGemini(s: any): any {
   return out;
 }
 
-export async function jsonGemini<T>(sistema: string, usuario: string, esquema: Record<string, unknown>): Promise<T> {
+export async function jsonGemini<T>(sistema: string, usuario: string, esquema: Record<string, unknown>, inicio = 0): Promise<T> {
   const d = await llamar({
     systemInstruction: { parts: [{ text: sistema }] },
     contents: [{ role: 'user', parts: [{ text: usuario }] }],
     generationConfig: { responseMimeType: 'application/json', responseSchema: esquemaGemini(esquema), temperature: 0.4 },
-  });
+  }, inicio);
   const texto = textoDe(d);
   try {
     return JSON.parse(texto) as T;
@@ -73,12 +100,25 @@ export async function jsonGemini<T>(sistema: string, usuario: string, esquema: R
   }
 }
 
-/** Gemini como motor auditado: la pregunta tal cual, con búsqueda en Google. */
-export async function preguntarGemini(pregunta: string): Promise<{ texto: string; fuentes: string[] }> {
-  const d = await llamar({
-    contents: [{ role: 'user', parts: [{ text: pregunta }] }],
-    tools: [{ googleSearch: {} }],
-  });
+/**
+ * Gemini como motor auditado: la pregunta tal cual, como la escribiría un
+ * comprador. La búsqueda en Google (grounding) no tiene cupo en el plan
+ * gratuito, así que solo se usa si AUDITORIA_GEMINI_BUSQUEDA=1 (con
+ * facturación activada); sin ella, Gemini contesta con lo que ya sabe, que
+ * sigue midiendo si la IA te conoce y te recomienda. Si la búsqueda falla por
+ * cupo, se repite sin ella.
+ */
+export async function preguntarGemini(pregunta: string, i = 0): Promise<{ texto: string; fuentes: string[] }> {
+  const contents = [{ role: 'user', parts: [{ text: pregunta }] }];
+  let d: any;
+  if (process.env.AUDITORIA_GEMINI_BUSQUEDA === '1') {
+    try {
+      d = await llamar({ contents, tools: [{ googleSearch: {} }] }, i);
+    } catch (e) {
+      if (!(e instanceof ErrorAuditoria) || ![429, 503].includes(e.estado)) throw e;
+    }
+  }
+  d ??= await llamar({ contents }, i);
   // Las fuentes llegan como enlaces de redirección de Google; el título de
   // cada una es el dominio citado, que es lo que interesa.
   const fuentes = (d?.candidates?.[0]?.groundingMetadata?.groundingChunks ?? [])

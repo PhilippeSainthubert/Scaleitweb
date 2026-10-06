@@ -1612,3 +1612,29 @@ main { overflow-x: clip; }
   .aud-pasos li, .aud-marcador, .aud-celda, .aud-plan > li, .aud-barra::after { animation: none; }
   .aud-pensando, .aud-pasos li[data-estado='activo'] .aud-paso-icono { animation: none; }
 }
+
+/* Auditoría: competidores en el formulario y comparación en el informe */
+.aud-formulario { max-width: 34rem; }
+.aud-competidores { margin-top: .9rem; display: grid; gap: .4rem; font-size: 13.5px; color: var(--color-ink-2); }
+.aud-competidores input { border: 1px solid var(--color-line); border-radius: 12px; background: var(--color-bg); padding: .6rem .9rem; font-size: 14.5px; color: var(--color-ink); outline: none; transition: border-color .2s ease; }
+.aud-competidores input:focus { border-color: var(--color-accent); }
+
+.aud-versus { margin-top: 1.5rem; border: 1px solid var(--color-line-2); border-radius: 18px; overflow: hidden; }
+.aud-versus-cab, .aud-versus-fila { display: grid; grid-template-columns: minmax(0, 14rem) 1fr 7rem; align-items: center; gap: 1rem; padding: .9rem 1.2rem; }
+.aud-versus-cab { border-bottom: 1px solid var(--color-line); font-family: var(--font-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-ink-3); }
+.aud-versus-fila + .aud-versus-fila { border-top: 1px solid var(--color-line); }
+.aud-versus-fila[data-propio] { background: rgba(245, 194, 107, .07); }
+.aud-versus-nombre { font-size: 15px; font-weight: 500; color: var(--color-ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.aud-versus-nombre em { margin-left: .4rem; font-style: normal; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #f5c26b; }
+.aud-versus-barra { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: .8rem; }
+.aud-versus-barra i { display: block; height: 8px; border-radius: 999px; background: rgba(147, 177, 255, .1); position: relative; overflow: hidden; }
+.aud-versus-barra i::after { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--w); border-radius: inherit; background: linear-gradient(90deg, #5c86ff, #b8caff); animation: barra-crece 1s var(--ease-salida) both; }
+.aud-versus-fila[data-propio] .aud-versus-barra i::after { background: linear-gradient(90deg, #e0a84a, #f5c26b); }
+.aud-versus-barra b { font-family: var(--font-mono); font-size: 12px; font-weight: 400; color: var(--color-ink-3); }
+.aud-versus-web { font-size: 17px; font-weight: 600; color: var(--color-ink); text-align: right; }
+.aud-versus-web small { font-size: 11px; font-weight: 400; color: var(--color-ink-3); }
+@media (max-width: 640px) {
+  .aud-versus-cab { display: none; }
+  .aud-versus-fila { grid-template-columns: 1fr auto; }
+  .aud-versus-barra { grid-column: 1 / -1; grid-row: 2; }
+}

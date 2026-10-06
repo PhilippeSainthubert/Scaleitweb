@@ -10,9 +10,10 @@ import { ErrorAuditoria } from './seguridad';
 
 type Esfuerzo = 'low' | 'medium' | 'high';
 
-function enJson<T>(sistema: string, usuario: string, esquema: Record<string, unknown>, esfuerzo: Esfuerzo = 'low'): Promise<T> {
+// `turno` reparte las tareas entre los modelos gratuitos de Gemini.
+function enJson<T>(sistema: string, usuario: string, esquema: Record<string, unknown>, esfuerzo: Esfuerzo = 'low', turno = 0): Promise<T> {
   if (claudeDisponible()) return jsonClaude<T>(sistema, usuario, esquema, esfuerzo);
-  if (process.env.GEMINI_API_KEY) return jsonGemini<T>(sistema, usuario, esquema);
+  if (process.env.GEMINI_API_KEY) return jsonGemini<T>(sistema, usuario, esquema, turno);
   throw new ErrorAuditoria(503, 'La auditoría todavía no está configurada.');
 }
 
@@ -28,7 +29,7 @@ export interface Negocio {
   preguntas: string[];
 }
 
-export async function entenderNegocio(datos: { url: string; titulo: string; descripcion: string; h1: string[]; idioma: string; texto: string }): Promise<Negocio> {
+export async function entenderNegocio(datos: { url: string; titulo: string; descripcion: string; h1: string[]; idioma: string; texto: string }, competidores: string[] = []): Promise<Negocio> {
   const sistema = `Eres analista de visibilidad en buscadores de IA (ChatGPT, Gemini, Perplexity, Claude).
 Te paso la portada de una web. Tu trabajo:
 1. Identificar la marca tal como la escribiría un cliente, y sus variantes (nombre comercial, dominio sin extensión, siglas). Solo variantes reales, no inventes.
@@ -37,13 +38,14 @@ Te paso la portada de una web. Tu trabajo:
 4. Escribir exactamente 4 preguntas que un comprador real le haría a un asistente de IA cuando busca lo que vende esta empresa, en el idioma de la web y pensando en su mercado:
    - dos de "cuál es la mejor opción" para su categoría y mercado;
    - una que parta del problema que resuelve, sin nombrar la categoría;
-   - una de alternativas o comparación con un competidor conocido del sector, si lo hay; si no, otra de recomendación.
+   - una de alternativas o comparación con un competidor conocido del sector, si lo hay; si no, otra de recomendación. Si te paso competidores indicados por el cliente, usa el más relevante de ellos para esta pregunta.
    Ninguna pregunta puede mencionar la marca auditada. Máximo 120 caracteres cada una, naturales, como las escribe una persona.`;
   const usuario = `URL: ${datos.url}
 Título: ${datos.titulo}
 Descripción: ${datos.descripcion}
 H1: ${datos.h1.join(' | ')}
 Idioma declarado: ${datos.idioma || 'no declarado'}
+Competidores que indica el cliente: ${competidores.length ? competidores.join(', ') : 'ninguno'}
 
 Texto de la portada:
 ${datos.texto}`;
@@ -99,7 +101,7 @@ export async function extraerMarcas(marcaAuditada: string, respuestas: { id: str
     required: ['marcas'],
     additionalProperties: false,
   };
-  const { marcas } = await enJson<{ marcas: MarcaMencionada[] }>(sistema, usuario, esquema);
+  const { marcas } = await enJson<{ marcas: MarcaMencionada[] }>(sistema, usuario, esquema, 'low', 1);
   return marcas.filter((m) => m.nombre && m.respuestas > 0).slice(0, 12);
 }
 
@@ -148,7 +150,7 @@ Escribe en español, de tú a tú, directo y sin exagerar. No prometas resultado
     required: ['resumen', 'acciones'],
     additionalProperties: false,
   };
-  const plan = await enJson<Plan>(sistema, JSON.stringify(informe), esquema, 'medium');
+  const plan = await enJson<Plan>(sistema, JSON.stringify(informe), esquema, 'medium', 2);
   plan.acciones = plan.acciones.slice(0, 6);
   return plan;
 }

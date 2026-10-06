@@ -23,7 +23,7 @@ import Formulario from '../components/Formulario.astro';
 // Los motores con clave en el momento de la build: los textos dicen a quién
 // se le pregunta de verdad. Si se añade una clave, basta con volver a desplegar.
 const motores = [
-  process.env.GEMINI_API_KEY && 'Gemini, la IA de Google',
+  process.env.GEMINI_API_KEY && 'Gemini (la IA de Google)',
   process.env.OPENAI_API_KEY && 'ChatGPT',
   process.env.PERPLEXITY_API_KEY && 'Perplexity',
   process.env.ANTHROPIC_API_KEY && 'Claude',
@@ -73,13 +73,19 @@ const schema = {
       titulo="¿Te recomienda la IA cuando tu cliente pregunta?"
       entradilla={`Le hacemos a ${aQuien} las preguntas que haría tu cliente y te enseñamos si apareces, quién sale en tu lugar y qué cambiar en tu web para que te citen.`}
     >
-      <form class="aud-form mt-9" data-aud-form novalidate>
-        <label for="aud-web" class="sr-only">La dirección de tu web</label>
-        <input id="aud-web" name="web" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="tuempresa.com" required />
-        <button type="submit" class="btn btn-primary">
-          Auditar mi web
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" /></svg>
-        </button>
+      <form class="aud-formulario mt-9" data-aud-form novalidate>
+        <div class="aud-form">
+          <label for="aud-web" class="sr-only">La dirección de tu web</label>
+          <input id="aud-web" name="web" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="tuempresa.com" required />
+          <button type="submit" class="btn btn-primary">
+            Auditar mi web
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 12h16m0 0-6-6m6 6-6 6" /></svg>
+          </button>
+        </div>
+        <label for="aud-competidores" class="aud-competidores">
+          <span>Tus competidores <span class="text-ink-3">(opcional, hasta tres)</span></span>
+          <input id="aud-competidores" name="competidores" type="text" spellcheck="false" placeholder="competidor.com, otra-empresa.es" />
+        </label>
       </form>
       <p class="mt-3 text-[13.5px] text-ink-3">Gratis y sin registro. Tarda un par de minutos.</p>
       <p class="aud-error mt-3" role="alert" data-aud-error hidden></p>
@@ -154,13 +160,15 @@ const schema = {
   type Motor = 'gemini' | 'chatgpt' | 'perplexity' | 'claude';
   type Estado = 'ok' | 'aviso' | 'mal';
   interface Comprobacion { id: string; titulo: string; estado: Estado; detalle: string; peso: number }
-  interface Respuesta { motor: Motor; i: number; menciona: boolean; citado: boolean; texto: string; fuentes: string[]; error?: string }
+  interface Respuesta { motor: Motor; i: number; menciona: boolean; citado: boolean; texto: string; fuentes: string[]; competidores?: boolean[]; error?: string }
+  interface Competidor { nombre: string; dominio: string | null; puntuacion: number | null }
   interface Informe {
     v: 1;
     web: { url: string; dominio: string; puntuacion: number; comprobaciones: Comprobacion[] };
     negocio: { marca: string; categoria: string; mercado: string };
     preguntas: string[];
     motores: Motor[];
+    competidores?: Competidor[];
     respuestas: Respuesta[];
     marcas: { nombre: string; respuestas: number }[];
     plan?: { resumen: string; acciones: { titulo: string; porque: string; como: string; impacto: string; esfuerzo: string }[] };
@@ -173,7 +181,8 @@ const schema = {
 
   const $ = <T extends HTMLElement>(sel: string) => document.querySelector<T>(sel)!;
   const form = $<HTMLFormElement>('[data-aud-form]');
-  const entrada = form.querySelector<HTMLInputElement>('input')!;
+  const entrada = form.querySelector<HTMLInputElement>('#aud-web')!;
+  const entradaCompetidores = form.querySelector<HTMLInputElement>('#aud-competidores')!;
   const errorEl = $('[data-aud-error]');
   const seccion = $('[data-aud-informe]');
   const consola = $('[data-aud-consola]');
@@ -287,6 +296,34 @@ const schema = {
       </div>`;
   }
 
+  // Tú frente a los competidores que indicó el visitante: en cuántas
+  // respuestas aparece cada uno y qué tal está su web para una IA.
+  function frenteACompetencia(inf: Informe) {
+    const r = respondidas(inf);
+    const filas = [
+      { nombre: inf.negocio.marca, propio: true, n: r.filter((x) => x.menciona).length, web: inf.web.puntuacion as number | null },
+      ...(inf.competidores ?? []).map((c, k) => ({ nombre: c.nombre, propio: false, n: r.filter((x) => x.competidores?.[k]).length, web: c.puntuacion })),
+    ];
+    const max = Math.max(1, ...filas.map((f) => f.n));
+    return `
+      <section class="aud-bloque">
+        <h3 class="aud-titulo">Tú frente a tu competencia</h3>
+        <p class="aud-sub">En cuántas de las ${r.length} respuestas aparece cada uno, y lo preparada que está su web para que una IA la lea.</p>
+        <div class="aud-versus">
+          <div class="aud-versus-cab"><span>Marca</span><span>Aparece en las respuestas</span><span>Web para IA</span></div>
+          ${filas
+            .map(
+              (f) => `<div class="aud-versus-fila" ${f.propio ? 'data-propio' : ''}>
+                <span class="aud-versus-nombre">${esc(f.nombre)}${f.propio ? ' <em>tú</em>' : ''}</span>
+                <span class="aud-versus-barra"><i style="--w:${(f.n / max) * 100}%"></i><b>${f.n} de ${r.length}</b></span>
+                <span class="aud-versus-web">${f.web === null ? '<span class="text-ink-3" title="No indicaste su web">–</span>' : `${f.web}<small>/100</small>`}</span>
+              </div>`
+            )
+            .join('')}
+        </div>
+      </section>`;
+  }
+
   function barras(lista: { nombre: string; n: number }[], total: number, vacio: string) {
     if (!lista.length) return `<p class="text-[15px] text-ink-2">${vacio}</p>`;
     const max = Math.max(...lista.map((x) => x.n));
@@ -350,6 +387,7 @@ const schema = {
         <p class="mt-3 text-[15px] text-ink-2">Mercado: ${esc(inf.negocio.mercado)}</p>
       </header>
       ${completo ? marcadores(inf) : ''}
+      ${completo && inf.competidores?.length ? frenteACompetencia(inf) : ''}
       <section class="aud-bloque">
         <h3 class="aud-titulo">Qué contestan las IA cuando tu cliente pregunta</h3>
         <p class="aud-sub">Abrí cada pregunta para leer las respuestas completas.</p>
@@ -443,6 +481,7 @@ const schema = {
             visibilidad: `${v.si} de ${v.total} respuestas`,
             preguntas: informe!.preguntas.map((q, i) => ({ pregunta: q, mencionado_en: informe!.respuestas.filter((r) => r.i === i && r.menciona).map((r) => NOMBRE[r.motor]) })),
             marcas_que_aparecen: informe!.marcas,
+            competidores_indicados: (informe!.competidores ?? []).map((c, k) => ({ nombre: c.nombre, web_para_ia: c.puntuacion, aparece_en: respondidas(informe!).filter((r) => r.competidores?.[k]).length })),
             fuentes_mas_citadas: fuentes(informe!),
             comprobaciones_tecnicas: informe!.web.comprobaciones.map(({ titulo, estado, detalle }) => ({ titulo, estado, detalle })),
           },
@@ -493,7 +532,7 @@ const schema = {
     }));
   }
 
-  async function auditar(web: string) {
+  async function auditar(web: string, competidores = '') {
     if (enMarcha) return;
     enMarcha = true;
     errorEl.hidden = true;
@@ -508,9 +547,9 @@ const schema = {
     seccion.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
 
     const p1 = paso('web', 'Leyendo tu web: robots.txt, sitemap, llms.txt y datos estructurados');
-    let d: { web: Informe['web']; negocio: Informe['negocio']; preguntas: string[]; motores: Motor[]; ticket: string };
+    let d: { web: Informe['web']; negocio: Informe['negocio']; preguntas: string[]; motores: Motor[]; competidores: Competidor[]; ticket: string };
     try {
-      d = await api('analizar', { web });
+      d = await api('analizar', { web, competidores });
     } catch (e) {
       p1.fallo((e as Error).message);
       errorEl.textContent = (e as Error).message;
@@ -522,8 +561,11 @@ const schema = {
     ticket = d.ticket;
     p1.hecho(`${d.web.comprobaciones.filter((c) => c.estado === 'ok').length} de ${d.web.comprobaciones.length} puntos en orden`);
     paso('negocio', 'Entendiendo qué vendés').hecho(`${esc(d.negocio.categoria)} · ${esc(d.negocio.mercado)}`);
+    if (d.competidores?.length) {
+      paso('competencia', 'Revisando a tu competencia').hecho(d.competidores.map((c) => `${esc(c.nombre)}${c.puntuacion === null ? '' : ` ${c.puntuacion}/100`}`).join(' · '));
+    }
 
-    informe = { v: 1, web: d.web, negocio: d.negocio, preguntas: d.preguntas, motores: d.motores, respuestas: [], marcas: [] };
+    informe = { v: 1, web: d.web, negocio: d.negocio, preguntas: d.preguntas, motores: d.motores, competidores: d.competidores ?? [], respuestas: [], marcas: [] };
     const total = d.preguntas.length * d.motores.length;
     const p3 = paso('ia', `Preguntando a ${d.motores.map((m) => NOMBRE[m]).join(', ').replace(/, ([^,]*)$/, ' y $1')}`);
     p3.detalle(`0 de ${total} respuestas`);
@@ -539,7 +581,8 @@ const schema = {
       p3.detalle(`${informe!.respuestas.length} de ${total} respuestas`);
       pintarInforme(informe!, false);
     }));
-    await enParalelo(tareas, 6);
+    // Con Gemini gratis solo (5 peticiones por minuto y modelo) se va de dos en dos.
+    await enParalelo(tareas, d.motores.length === 1 && d.motores[0] === 'gemini' ? 2 : 6);
     const v = visibilidad(informe);
     p3.hecho(`Te mencionan en ${v.si} de ${v.total}`);
 
@@ -570,7 +613,7 @@ const schema = {
       errorEl.hidden = false;
       return;
     }
-    auditar(web);
+    auditar(web, entradaCompetidores.value.trim());
   });
 
   // Entrada desde otra página (?web=) o informe compartido (#informe=).
@@ -586,6 +629,7 @@ const schema = {
       .catch(() => {});
   } else if (params.get('web')) {
     entrada.value = params.get('web')!;
-    auditar(entrada.value);
+    entradaCompetidores.value = params.get('competidores') ?? '';
+    auditar(entrada.value, entradaCompetidores.value);
   }
 </script>

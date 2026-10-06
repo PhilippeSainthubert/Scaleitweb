@@ -8,7 +8,7 @@ import { preguntar, menciona, citado, type Motor } from '../../../lib/auditoria/
 
 export const prerender = false;
 
-interface Ticket { d: string; v: string[]; p: string[]; pais: string; m: Motor[] }
+interface Ticket { d: string; v: string[]; p: string[]; pais: string; m: Motor[]; c?: { d: string; v: string[] }[] }
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -17,13 +17,14 @@ export const POST: APIRoute = async ({ request }) => {
     if (!t.m.includes(motor) || !Number.isInteger(i) || !t.p[i]) throw new ErrorAuditoria(400, 'Pregunta no válida.');
     if (!limitar(`preguntar:${ticket}:${motor}:${i}`, 2, 3_600_000)) throw new ErrorAuditoria(429, 'Esa pregunta ya se hizo.');
 
-    const { texto, fuentes } = await preguntar(motor, t.p[i], t.pais);
+    const { texto, fuentes } = await preguntar(motor, t.p[i], t.pais, i);
     const dominios = [...new Set(fuentes.map((f) => { try { return new URL(f).hostname.replace(/^www\./, ''); } catch { return ''; } }).filter(Boolean))];
     return respuesta({
       motor,
       i,
       menciona: menciona(texto, t.v) || citado(fuentes, t.d),
       citado: citado(fuentes, t.d),
+      competidores: (t.c ?? []).map((c) => menciona(texto, c.v) || (!!c.d && citado(fuentes, c.d))),
       texto: texto.slice(0, 2400),
       fuentes: dominios.slice(0, 12),
     });
