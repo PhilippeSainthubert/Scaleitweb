@@ -4,6 +4,20 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 import vercel from '@astrojs/vercel';
 import sitemap from '@astrojs/sitemap';
+import { readdirSync, readFileSync } from 'node:fs';
+
+// Fecha real de cada artículo (updatedDate o pubDate). Antes todas las URLs llevaban
+// la hora del despliegue: Google deja de fiarse de un lastmod que cambia siempre
+// y entonces no prioriza los artículos nuevos ni los actualizados.
+const dirBlog = new URL('./src/content/blog/', import.meta.url);
+const fechasBlog = Object.fromEntries(
+  readdirSync(dirBlog).filter((f) => f.endsWith('.md')).map((f) => {
+    const t = readFileSync(new URL(f, dirBlog), 'utf8');
+    const campo = (k) => (t.match(new RegExp(`^${k}:\\s*"?(\\d{4}-\\d{2}-\\d{2})`, 'm')) || [])[1];
+    return [f.replace(/\.md$/, ''), campo('updatedDate') || campo('pubDate')];
+  }).filter(([, fecha]) => fecha),
+);
+const ultimaDelBlog = Object.values(fechasBlog).sort().at(-1);
 
 // https://astro.build/config
 export default defineConfig({
@@ -30,12 +44,16 @@ export default defineConfig({
       // /gracias es la unica que no debe indexarse.
       filter: (page) => !page.includes('/gracias'),
       changefreq: 'weekly',
-      lastmod: new Date(),
       serialize(item) {
         // Sin barra final, para que coincida exactamente con el canonical.
         if (item.url !== 'https://www.growth-scaleit.com/') {
           item.url = item.url.replace(/\/$/, '');
         }
+        // lastmod solo donde sabemos la fecha de verdad.
+        const slug = (item.url.match(/\/blog\/([^/]+)$/) || [])[1];
+        if (slug && fechasBlog[slug]) item.lastmod = fechasBlog[slug];
+        else if (item.url.endsWith('/blog') && ultimaDelBlog) item.lastmod = ultimaDelBlog;
+        else delete item.lastmod;
         if (item.url.endsWith('.com/')) item.priority = 1.0;
         else if (/\/(precios|agentes-de-ia|servicios)/.test(item.url)) item.priority = 0.9;
         else if (/\/(aviso-legal|privacidad|cookies|terminos)/.test(item.url)) item.priority = 0.2;
