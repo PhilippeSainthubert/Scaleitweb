@@ -1,0 +1,7 @@
+---
+/** Avatar de agente: círculo de color con su constelación en blanco. */
+import { avatarHTML } from '../data/paleta';
+interface Props { animal: string; tam?: number }
+const { animal, tam } = Astro.props;
+---
+<Fragment set:html={avatarHTML(animal, tam)} />

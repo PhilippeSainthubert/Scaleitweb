@@ -22,6 +22,10 @@
  */
 import { FIGURAS_GRANDES } from '../data/constelaciones-grandes';
 import { AGENTES, type ClaveAgente } from '../data/agentes';
+import { COLOR_AGENTE } from '../data/paleta';
+
+// El color del agente en "r, g, b", para que su figura salga de su color.
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(', ');
 
 interface Props {
   figuras: ClaveAgente[];
@@ -38,6 +42,7 @@ const datos = figuras.map((k) => ({
   e: FIGURAS_GRANDES[k].e,
   nombre: AGENTES[k].nombre,
   rol: AGENTES[k].rol,
+  color: rgb(COLOR_AGENTE[k] || '#2f5cff'),
 }));
 ---
 
@@ -52,7 +57,7 @@ const datos = figuras.map((k) => ({
 
 <script>
   type Punto = [number, number, number];
-  interface Figura { p: Punto[]; e: [number, number][]; nombre: string; rol: string; }
+  interface Figura { p: Punto[]; e: [number, number][]; nombre: string; rol: string; color?: string; }
   interface Objetivo { x: number; y: number; r: number; ancla: boolean; }
   interface Particula {
     x: number; y: number; vx: number; vy: number;
@@ -193,6 +198,8 @@ const datos = figuras.map((k) => ({
       window.setTimeout(() => {
         nombre.textContent = figs[i].nombre;
         rol.textContent = figs[i].rol;
+        const punto = leyenda?.querySelector<HTMLElement>('[data-figura-punto]');
+        if (punto && figs[i].color) punto.style.background = `rgb(${figs[i].color})`;
         leyenda?.classList.remove('cambiando');
       }, reducido ? 0 : 220);
     }
@@ -356,9 +363,12 @@ const datos = figuras.map((k) => ({
 
       // Las aristas de la figura: aparecen a medida que se monta.
       const f = figs[actual];
+      // La figura va en el color de su agente; la red de fondo sigue en azul.
+      const FIG = canvas.dataset.tema === 'noche' ? AZUL : f.color || AZUL;
+      const FIG_T = canvas.dataset.tema === 'noche' ? TINTA : f.color || TINTA;
       if (armado > 0.02) {
         ctx!.lineWidth = 1;
-        ctx!.strokeStyle = `rgba(${AZUL}, ${(0.4 * armado).toFixed(3)})`;
+        ctx!.strokeStyle = `rgba(${FIG}, ${(0.45 * armado).toFixed(3)})`;
         ctx!.beginPath();
         for (const [a, b] of f.e) {
           const A = ps[asignado[a]], B = ps[asignado[b]];
@@ -378,13 +388,13 @@ const datos = figuras.map((k) => ({
         const y = A.y + A.oy + (B.y + B.oy - A.y - A.oy) * e;
         const fade = Math.sin(q.t * Math.PI) * armado;
         const g = ctx!.createRadialGradient(x, y, 0, x, y, 12);
-        g.addColorStop(0, `rgba(${AZUL}, ${(0.55 * fade).toFixed(3)})`);
-        g.addColorStop(1, `rgba(${AZUL}, 0)`);
+        g.addColorStop(0, `rgba(${FIG}, ${(0.55 * fade).toFixed(3)})`);
+        g.addColorStop(1, `rgba(${FIG}, 0)`);
         ctx!.fillStyle = g;
         ctx!.beginPath();
         ctx!.arc(x, y, 12, 0, TAU);
         ctx!.fill();
-        ctx!.fillStyle = `rgba(${TINTA}, ${(0.95 * fade).toFixed(3)})`;
+        ctx!.fillStyle = `rgba(${FIG_T}, ${(0.95 * fade).toFixed(3)})`;
         ctx!.beginPath();
         ctx!.arc(x, y, 1.9, 0, TAU);
         ctx!.fill();
@@ -399,16 +409,16 @@ const datos = figuras.map((k) => ({
           const esEstrella = p.t < f.p.length;
           if (o.ancla && armado > 0.1) {
             const g = ctx!.createRadialGradient(x, y, 0, x, y, 16);
-            g.addColorStop(0, `rgba(${pal.halo}, ${(0.32 * armado).toFixed(3)})`);
-            g.addColorStop(1, `rgba(${pal.halo}, 0)`);
+            g.addColorStop(0, `rgba(${FIG}, ${(0.32 * armado).toFixed(3)})`);
+            g.addColorStop(1, `rgba(${FIG}, 0)`);
             ctx!.fillStyle = g;
             ctx!.beginPath();
             ctx!.arc(x, y, 16, 0, TAU);
             ctx!.fill();
           }
           ctx!.fillStyle = esEstrella
-            ? `rgba(${TINTA}, ${(0.62 + 0.36 * armado).toFixed(3)})`
-            : `rgba(${pal.polvo}, ${(0.45 + 0.4 * armado).toFixed(3)})`;
+            ? `rgba(${FIG_T}, ${(0.62 + 0.36 * armado).toFixed(3)})`
+            : `rgba(${FIG}, ${(0.45 + 0.4 * armado).toFixed(3)})`;
           ctx!.beginPath();
           ctx!.arc(x, y, p.r * (1 + p.carga), 0, TAU);
           ctx!.fill();

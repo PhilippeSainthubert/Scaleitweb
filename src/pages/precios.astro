@@ -154,7 +154,7 @@ const schema = {
 
         <ol class="fases-precio mt-16" data-revelar-grupo="110">
           {fases.map((p, i) => (
-            <li class:list={['precio-tarjeta', p.destacado && 'noche precio-destacada']}>
+            <li class:list={['precio-tarjeta', p.destacado && 'precio-destacada']}>
               {p.destacado && <CieloEstrellado semilla={9} densidad={0.35} brillo={false} />}
               <p class="flex items-center justify-between font-mono text-[11px] uppercase tracking-[0.14em]">
                 <span class="text-accent">Fase {i + 1}</span>
