@@ -12,9 +12,8 @@
  * JavaScript se ve igual de bien. El movimiento se pausa fuera de pantalla y no
  * existe con prefers-reduced-motion.
  */
-import Constelacion from './Constelacion.astro';
-import CieloEstrellado from './CieloEstrellado.astro';
-import { FIGURAS } from '../data/constelaciones';
+import Avatar from './Avatar.astro';
+import { avatarHTML } from '../data/paleta';
 
 const agentes: Record<string, string> = {
   lobo: 'Lobo', castor: 'Castor', tiburon: 'Tiburón', libelula: 'Libélula', elefante: 'Elefante',
@@ -52,7 +51,6 @@ const inicial: Record<string, number[]> = { cola: [0, 1], ejecutando: [2, 3], re
 ---
 
 <section id="agentes" class="noche overflow-clip py-28 sm:py-36" data-consola>
-  <CieloEstrellado semilla={8} densidad={0.7} brillo={false} />
 
   <div class="mx-auto max-w-6xl px-6">
     <div class="max-w-2xl" data-revelar-grupo>
@@ -69,7 +67,7 @@ const inicial: Record<string, number[]> = { cola: [0, 1], ejecutando: [2, 3], re
         <span class="flex gap-1.5" aria-hidden="true">
           <i></i><i></i><i></i>
         </span>
-        <p class="ml-2 hidden font-mono text-[11px] text-ink-3 sm:block">scaleit / consola de agentes</p>
+        <p class="consola-titulo">Consola de agentes</p>
         <span class="ml-auto flex items-center gap-4 font-mono text-[11px]">
           <span class="hidden text-ink-3 sm:inline" data-reloj>03:14</span>
           <span class="flex items-center gap-1.5 text-[#6fe0a8]">
@@ -92,7 +90,7 @@ const inicial: Record<string, number[]> = { cola: [0, 1], ejecutando: [2, 3], re
                   <p class="tarea-titulo">{tareas[i].t}</p>
                   <div class="tarea-pie">
                     <span class="tarea-agente">
-                      <Constelacion animal={tareas[i].a} size={18} claro />
+                      <Avatar animal={tareas[i].a} tam={20} />
                       {agentes[tareas[i].a]}
                     </span>
                     <span class="tarea-revisor">
@@ -125,7 +123,7 @@ const inicial: Record<string, number[]> = { cola: [0, 1], ejecutando: [2, 3], re
     data-consola-datos
     set:html={JSON.stringify({
       tareas: tareas.map((x) => ({ ...x, n: agentes[x.a], r: revisor(x.a) })),
-      figuras: Object.fromEntries(Object.keys(agentes).map((k) => [k, FIGURAS[k]])),
+      avatares: Object.fromEntries(Object.keys(agentes).map((k) => [k, avatarHTML(k, 20)])),
     })}
   />
 </section>
@@ -133,7 +131,7 @@ const inicial: Record<string, number[]> = { cola: [0, 1], ejecutando: [2, 3], re
 <script>
   type Datos = {
     tareas: { t: string; a: string; n: string; r: string }[];
-    figuras: Record<string, { p: [number, number, number][]; e: [number, number][] }>;
+    avatares: Record<string, string>;
   };
 
   const ORDEN = ['cola', 'ejecutando', 'revision', 'entregado'] as const;
@@ -147,18 +145,13 @@ const inicial: Record<string, number[]> = { cola: [0, 1], ejecutando: [2, 3], re
     const contador = raiz.querySelector<HTMLElement>('[data-contador]');
     const reloj = raiz.querySelector<HTMLElement>('[data-reloj]');
 
-    // El reloj marca la madrugada: es de noche y los agentes siguen.
+    // El reloj marca la madrugada: los agentes siguen mientras dormís.
     let minutos = 3 * 60 + 14;
     const pintarReloj = () => {
       if (reloj) reloj.textContent = `${String(Math.floor(minutos / 60) % 24).padStart(2, '0')}:${String(minutos % 60).padStart(2, '0')}`;
     };
 
-    const figuraSVG = (a: string) => {
-      const f = datos.figuras[a];
-      const l = f.e.map(([x, y]) => `<line x1="${f.p[x][0]}" y1="${f.p[x][1]}" x2="${f.p[y][0]}" y2="${f.p[y][1]}"/>`).join('');
-      const c = f.p.map((p) => `<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="#93b1ff"/>`).join('');
-      return `<svg viewBox="0 0 48 48" width="18" height="18" aria-hidden="true"><g stroke="#5C86FF" stroke-width="1" opacity="0.5" fill="none" stroke-linecap="round">${l}</g>${c}</svg>`;
-    };
+    const figuraSVG = (a: string) => datos.avatares[a] || '';
 
     let siguiente = 7;
     const nuevaTarea = () => {

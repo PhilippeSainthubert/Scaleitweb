@@ -95,7 +95,7 @@ const schema = [
 
     {servicio.slug === 'seo' && <AuditoriaLanzador />}
 
-    <!-- Qué incluye: de noche, con el agente del servicio dibujándose al lado -->
+    <!-- Qué incluye: con el agente del servicio dibujándose al lado -->
     <section id="incluye" class="noche overflow-clip py-28 sm:py-36">
       <CieloEstrellado semilla={servicio.slug.length * 7 + 2} />
       <div class="mx-auto grid max-w-6xl gap-14 px-6 lg:grid-cols-12 lg:gap-10">
@@ -106,7 +106,7 @@ const schema = [
               <h2 class="display-lg mt-4 text-balance">Lo que hacemos, sin letra pequeña</h2>
             </div>
             <figure class="mt-10 hidden lg:block">
-              <FiguraSVG animal={agente} tema="noche" class="w-full max-w-[380px]" retraso={200} />
+              <FiguraSVG animal={agente} tema="dia" class="w-full max-w-[380px]" retraso={200} />
               <figcaption class="figura-leyenda mt-2">
                 <span class="h-1.5 w-1.5 rounded-full bg-accent" aria-hidden="true"></span>
                 <span class="text-ink">{AGENTES[agente].nombre}</span>

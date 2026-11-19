@@ -55,6 +55,7 @@ for (const { a, b, orden } of aristas) {
 
 const id = `fg-${animal}-${Math.random().toString(36).slice(2, 8)}`;
 const paso = 1100 / Math.max(1, maxProf);
+import { COLOR_AGENTE } from '../data/paleta';
 ---
 
 <svg
@@ -62,7 +63,7 @@ const paso = 1100 / Math.max(1, maxProf);
   class={`figura-svg ${className}`}
   data-revelar="figura"
   data-tema={tema}
-  style={`--inicio:${retraso}ms;--paso:${paso.toFixed(0)}ms`}
+  style={`--inicio:${retraso}ms;--paso:${paso.toFixed(0)}ms;--c:${COLOR_AGENTE[animal] || '#2f5cff'}`}
   aria-hidden="true"
 >
   <defs>
