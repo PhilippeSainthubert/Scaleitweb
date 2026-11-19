@@ -1,40 +1,40 @@
 ---
 /**
- * Cómo corre un trimestre: el organigrama de agentes contado como instructivo.
+ * Cómo corre un trimestre, contado como la app por dentro.
  *
- * Es la pieza central de la web. El organigrama no se enseña quieto: se
- * reproduce en seis pasos y en cada uno se ve quién habla con quién. Philippe
- * y Patrick fijan el objetivo, el orquestador lo lee y les devuelve un plan,
- * reparte el trabajo, los diez agentes ejecutan, todo vuelve a la revisión
- * humana (y una entrega vuelve atrás con un comentario), sale al cliente y lo
- * corregido regresa al orquestador como regla.
+ * Es la pieza central de la web. En vez de un diagrama, se ve el producto:
+ * una ventana con los agentes a la izquierda (cada uno con su estado en vivo)
+ * y la conversación con el orquestador a la derecha. Philippe y Patrick
+ * escriben en el campo de mensaje, el orquestador piensa y contesta con
+ * tarjetas: el plan para aprobar, el reparto, el avance de los diez agentes,
+ * la cola de revisión (con una entrega devuelta), lo que sale al cliente y la
+ * regla que aprende.
  *
- * Las conversaciones salen de los propios nodos, como burbujas, y el trabajo
- * viaja por las conexiones como paquetes. Las máquinas son luz azul y las
- * personas luz cálida, igual que en la consola.
- *
- * En escritorio se ve el diagrama completo. En móvil, donde el diagrama no se
- * podría leer, el mismo guion mueve una conversación y un flujo vertical. El
- * texto completo de los seis pasos está siempre en el DOM para lectores de
- * pantalla y buscadores. Con movimiento reducido no hay reproducción
- * automática ni paquetes: se pasa de paso con los botones.
+ * Seis pasos que se eligen con las pastillas de arriba y se reproducen solos
+ * mientras la sección está en pantalla. Al saltar a un paso, lo anterior queda
+ * ya escrito en el hilo, como en una conversación real. En móvil se ve solo el
+ * hilo. El texto completo está siempre en el DOM para lectores de pantalla y
+ * buscadores. Con movimiento reducido cada paso aparece ya terminado.
  */
 import { FIGURAS } from '../data/constelaciones';
-import CieloEstrellado from './CieloEstrellado.astro';
-import Constelacion from './Constelacion.astro';
 
 type Quien = 'philippe' | 'patrick' | 'orq';
-const pasos: { corto: string; titulo: string; texto: string; chat: { q: Quien; t: string }[] }[] = [
+const pasos: { corto: string; titulo: string; texto: string; reloj: string; chat: { q: Quien; t: string }[] }[] = [
   {
     corto: 'Objetivo',
     titulo: 'Fijamos el objetivo',
     texto: 'Todo empieza en una persona. Le damos al orquestador el objetivo del trimestre y el contexto que solo tenemos nosotros.',
-    chat: [{ q: 'philippe', t: 'Objetivo del trimestre: abrir conversación con fintechs B2B en España. Ticket alto y venta asistida.' }],
+    reloj: 'Lunes 09:00',
+    chat: [
+      { q: 'philippe', t: 'Objetivo del trimestre: abrir conversación con fintechs B2B en España. Ticket alto y venta asistida.' },
+      { q: 'orq', t: 'Recibido. Leo el contexto y te propongo un plan.' },
+    ],
   },
   {
     corto: 'Plan',
     titulo: 'Lo lee y nos propone un plan',
     texto: 'El orquestador lo convierte en un plan por pilares y nos lo devuelve. Hasta que no lo aprobamos, no se mueve nada.',
+    reloj: 'Lunes 09:06',
     chat: [
       { q: 'orq', t: 'Leído. Captar escribe a 300 cuentas con señales de compra, Atraer publica cuatro artículos sobre pagos B2B y Operar monta el scoring en el CRM. ¿Arranco?' },
       { q: 'patrick', t: 'Aprobado. En LinkedIn, tono directo y nada de plantillas.' },
@@ -44,18 +44,21 @@ const pasos: { corto: string; titulo: string; texto: string; chat: { q: Quien; t
     corto: 'Reparto',
     titulo: 'Reparte el trabajo',
     texto: 'Cada pilar recibe su parte y la baja a sus agentes, con instrucciones y límites escritos.',
+    reloj: 'Lunes 10:12',
     chat: [{ q: 'orq', t: 'Enviado: 6 tareas a Captar, 4 a Atraer y 4 a Operar. Cada agente sabe qué no puede tocar.' }],
   },
   {
     corto: 'Ejecución',
     titulo: 'Los agentes ejecutan a la vez',
     texto: 'Diez agentes trabajando en paralelo, cada uno en lo suyo. Lo que a un equipo le lleva semanas, aquí son horas.',
+    reloj: 'Lunes 10:13',
     chat: [{ q: 'orq', t: 'Diez agentes en marcha. Aviso en cuanto haya algo para revisar.' }],
   },
   {
     corto: 'Revisión',
     titulo: 'Todo vuelve a nosotros',
     texto: 'Las diez ramas terminan en el mismo sitio. Lo leemos antes de que salga, y lo que no está bien vuelve con un comentario.',
+    reloj: 'Martes 08:30',
     chat: [
       { q: 'orq', t: 'Hay seis entregas esperando revisión.' },
       { q: 'patrick', t: 'El asunto del correo 3 suena a plantilla. Rehacelo.' },
@@ -66,115 +69,66 @@ const pasos: { corto: string; titulo: string; texto: string; chat: { q: Quien; t
     corto: 'Salida',
     titulo: 'Sale al cliente, y el sistema aprende',
     texto: 'Lo aprobado sale. Lo que corregimos vuelve al orquestador como regla, para no tener que corregirlo dos veces.',
+    reloj: 'Martes 11:05',
     chat: [
       { q: 'philippe', t: 'El resto, aprobado.' },
       { q: 'orq', t: 'Enviado al cliente. Y regla nueva para Outbound: asuntos cortos y sin fórmulas.' },
     ],
   },
 ];
-
 const NOMBRE: Record<Quien, string> = { philippe: 'Philippe', patrick: 'Patrick', orq: 'Orquestador' };
-// Dónde aparece cada burbuja: junto a quien habla. Las personas hablan desde
-// arriba cuando fijan y aprueban, y desde la revisión cuando revisan.
-const esquina = (q: Quien, paso: number) => (q === 'orq' ? 'der' : paso >= 4 ? 'abajo' : 'izq');
-const mensajes = pasos.flatMap((p, i) => p.chat.map((m, j) => ({ ...m, id: `${i}-${j}`, esquina: esquina(m.q, i) })));
 
-// ── Geometría del diagrama ────────────────────────────────────────
-const W = 1400;
-const H = 880;
-const humanos = { x: 700, y: 54, w: 380, h: 84 };
-const orq = { x: 700, y: 218, w: 360, h: 112 };
-const PILAR_Y = 396, PIL_W = 280, PIL_H = 98;
-const SUB_Y = 526, SUB_H = 44;
-const revision = { x: 700, y: 664, w: 540, h: 100 };
-const salida = { x: 700, y: 806, w: 270, h: 52 };
-
-const anchoPildora = (t: string) => Math.max(100, t.length * 6.8 + 58);
-
+// Los agentes: cada uno con su animal, su color y lo que hace este trimestre.
 const pilares = [
-  { x: 260, nombre: 'Captar', animal: 'halcon', lema: 'Sale a buscar la demanda',
-    sub: [['Outbound', 'lobo'], ['LinkedIn', 'cuervo'], ['Paid', 'tiburon'], ['Influencers', 'pavoreal']] },
-  { x: 700, nombre: 'Atraer', animal: 'abeja', lema: 'Demanda que llega sola',
-    sub: [['SEO', 'arana'], ['Contenido', 'castor'], ['AEO', 'buho']] },
-  { x: 1140, nombre: 'Operar', animal: 'hormiga', lema: 'Sostiene a las otras dos',
-    sub: [['CRM', 'elefante'], ['Datos', 'libelula'], ['Automatización', 'escarabajo']] },
+  { id: 'captar', nombre: 'Captar', animal: 'halcon', color: '#f97316' },
+  { id: 'atraer', nombre: 'Atraer', animal: 'abeja', color: '#10b981' },
+  { id: 'operar', nombre: 'Operar', animal: 'hormiga', color: '#7c3aed' },
+];
+const agentes = [
+  { nombre: 'Outbound', animal: 'lobo', color: '#e5484d', pilar: 0, tareas: 2, avance: '120 de 300 cuentas investigadas', ritmo: 5.2 },
+  { nombre: 'LinkedIn', animal: 'cuervo', color: '#f2994a', pilar: 0, tareas: 1, avance: '40 perfiles con señal de compra', ritmo: 9.5 },
+  { nombre: 'Paid', animal: 'tiburon', color: '#ec4899', pilar: 0, tareas: 2, avance: '3 anuncios en borrador', ritmo: 4.4 },
+  { nombre: 'Influencers', animal: 'pavoreal', color: '#f5a524', pilar: 0, tareas: 1, avance: '12 creadores fintech preseleccionados', ritmo: 10.5 },
+  { nombre: 'SEO', animal: 'arana', color: '#14b8a6', pilar: 1, tareas: 1, avance: 'Artículo 2 de 4 en borrador', ritmo: 3.8 },
+  { nombre: 'Contenido', animal: 'castor', color: '#22c55e', pilar: 1, tareas: 2, avance: '4 posts de LinkedIn en tu voz', ritmo: 5.8 },
+  { nombre: 'AEO', animal: 'buho', color: '#0ea5e9', pilar: 1, tareas: 1, avance: '18 respuestas de IA auditadas', ritmo: 9 },
+  { nombre: 'CRM', animal: 'elefante', color: '#6366f1', pilar: 2, tareas: 2, avance: 'Scoring v1 con 900 cuentas', ritmo: 4.9 },
+  { nombre: 'Datos', animal: 'libelula', color: '#8b5cf6', pilar: 2, tareas: 1, avance: 'Panel de atribución conectado', ritmo: 11 },
+  { nombre: 'Automatización', animal: 'escarabajo', color: '#a16207', pilar: 2, tareas: 1, avance: 'Flujo de alta de leads en pruebas', ritmo: 6.2 },
 ];
 
-const HUECO = 8;
-let indice = 0;
-const subs = pilares.flatMap((p, i) => {
-  const anchos = p.sub.map(([t]) => anchoPildora(t));
-  const total = anchos.reduce((a, b) => a + b, 0) + HUECO * (anchos.length - 1);
-  let cursor = p.x - total / 2;
-  return p.sub.map(([etiqueta, animal], j) => {
-    const w = anchos[j];
-    const x = cursor + w / 2;
-    cursor += w + HUECO;
-    return { x, w, etiqueta, animal, pilar: i, k: indice++ };
-  });
-});
-
-type P = { x: number; y: number };
-const curva = (a: P, b: P) => {
-  const dy = (b.y - a.y) * 0.5;
-  return `M${a.x},${a.y} C${a.x},${a.y + dy} ${b.x},${b.y - dy} ${b.x},${b.y}`;
-};
-
-// Cada ruta tiene nombre para que el guion pueda mandar paquetes por ella.
-const rutas = [
-  { id: 'h', en: '1 2', w: 2.6, d: curva({ x: 700, y: humanos.y + humanos.h / 2 }, { x: 700, y: orq.y - orq.h / 2 }) },
-  ...pilares.map((p, i) => ({
-    id: `p${i}`, en: '3', w: 2.4,
-    d: curva({ x: orq.x, y: orq.y + orq.h / 2 }, { x: p.x, y: PILAR_Y - PIL_H / 2 }),
-  })),
-  ...subs.map((s) => ({
-    id: `s${s.k}`, en: '3 4', w: 1.8,
-    d: curva({ x: pilares[s.pilar].x, y: PILAR_Y + PIL_H / 2 }, { x: s.x, y: SUB_Y - SUB_H / 2 }),
-  })),
-  ...subs.map((s) => ({
-    id: `r${s.k}`, en: '5', w: 1.6,
-    d: curva({ x: s.x, y: SUB_Y + SUB_H / 2 }, { x: revision.x, y: revision.y - revision.h / 2 }),
-  })),
-  { id: 'o', en: '6', w: 2.8, d: curva({ x: 700, y: revision.y + revision.h / 2 }, { x: 700, y: salida.y - salida.h / 2 }) },
-];
-// Lo aprendido vuelve al orquestador por la derecha, por encima de Operar.
-const bucle = 'M835,806 C1150,806 1368,806 1368,660 L1368,372 C1368,314 1290,306 1180,306 C1010,306 930,276 880,244';
-
-function mulberry32(a: number) {
-  return function () {
-    a |= 0; a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-const rnd = mulberry32(4711);
-const fondo = Array.from({ length: 52 }, () => ({
-  x: +(rnd() * W).toFixed(0), y: +(rnd() * H).toFixed(0),
-  r: +(0.6 + rnd() * 1).toFixed(1), o: +(0.15 + rnd() * 0.3).toFixed(2),
-}));
-
-const avatar = (animal: string, cx: number, cy: number, tam: number) => {
+// Un avatar: un círculo de color con la constelación del animal en blanco.
+const figura = (animal: string) => {
   const f = FIGURAS[animal];
-  return { f, t: `translate(${cx - tam / 2}, ${cy - tam / 2}) scale(${tam / 48})` };
+  const lineas = f.e.map(([a, b]) => `<line x1="${f.p[a][0]}" y1="${f.p[a][1]}" x2="${f.p[b][0]}" y2="${f.p[b][1]}"/>`).join('');
+  const puntos = f.p.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join('');
+  return `<svg viewBox="0 0 48 48" aria-hidden="true"><g class="sc-av-lineas">${lineas}</g><g class="sc-av-puntos">${puntos}</g></svg>`;
+};
+const av = (animal: string, color: string) => `<span class="sc-av" style="--c:${color}">${figura(animal)}</span>`;
+const foto = (q: string) => `<span class="sc-av sc-av-foto"><img src="/${q}.jpeg" alt="" width="40" height="40" loading="lazy" decoding="async"></span>`;
+
+const AV: Record<string, string> = {
+  orq: av('pulpo', '#2f5cff'),
+  philippe: foto('philippe'),
+  patrick: foto('patrick'),
+  ...Object.fromEntries(pilares.map((p) => [p.id, av(p.animal, p.color)])),
+  ...Object.fromEntries(agentes.map((a, k) => [`a${k}`, av(a.animal, a.color)])),
 };
 
-const flujoMovil = [
-  { t: 'Philippe y Patrick', s: 'Fijan el objetivo y aprueban el plan', tipo: 'humano', en: '1 2' },
-  { t: 'Agente Orquestador', s: 'Lee, propone y reparte', tipo: 'orq', en: '1 2 3 4 5 6' },
-  { t: 'Captar · Atraer · Operar', s: 'Diez agentes en paralelo', tipo: 'normal', en: '3 4 5' },
-  { t: 'Revisión humana', s: 'Nada sale sin pasar por aquí', tipo: 'humano', en: '5 6' },
-  { t: 'Sale al cliente', s: 'Y lo corregido vuelve como regla', tipo: 'salida', en: '6' },
-];
+const datosGuion = {
+  pasos: pasos.map(({ titulo, texto, reloj, chat }) => ({ titulo, texto, reloj, chat })),
+  agentes: agentes.map(({ nombre, color, tareas, avance, ritmo }) => ({ nombre, color, tareas, avance, ritmo })),
+  pilares: pilares.map(({ color }) => ({ color })),
+  av: AV,
+};
 ---
 
-<section id="como-funciona" class="noche overflow-clip py-28 sm:py-36" data-org>
-  <CieloEstrellado semilla={5} densidad={0.6} brillo={false} />
+<section id="como-funciona" class="sc-seccion py-28 sm:py-36" data-org>
   <div class="mx-auto max-w-6xl px-6">
-    <div class="max-w-2xl" data-revelar-grupo>
+    <div class="mx-auto max-w-2xl text-center" data-revelar-grupo>
       <p class="eyebrow">Cómo funciona</p>
       <h2 class="display-lg mt-4 text-balance">Diez agentes trabajando, y una sola puerta de salida</h2>
-      <p class="lede mt-5">
+      <p class="lede mt-5 text-pretty">
         Así corre un trimestre de punta a punta. Empieza en nosotros, pasa por el
         orquestador y sus diez agentes, y vuelve a nosotros antes de salir.
       </p>
@@ -190,399 +144,594 @@ const flujoMovil = [
       ))}
     </ol>
 
-    <div class="org-reproductor mt-14" data-revelar="escala" data-org-reproductor>
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
-        <div class="org-narracion min-w-0" aria-hidden="true" data-org-narracion>
-          <p class="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-3">
-            <span class="text-accent">Paso <span data-org-num>1</span> de {pasos.length}</span>
-            <span class="mx-1.5">·</span>Ejemplo de un trimestre
-          </p>
-          <p class="mt-2 text-[22px] font-semibold leading-tight tracking-[-0.025em] text-ink sm:text-[26px]" data-org-titulo>{pasos[0].titulo}</p>
-          <p class="mt-1.5 max-w-[72ch] text-[15px] leading-relaxed text-ink-2" data-org-texto>{pasos[0].texto}</p>
-        </div>
-        <div class="org-controles">
-          <button type="button" data-org-anterior aria-label="Paso anterior">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" /></svg>
-          </button>
-          <button type="button" data-org-play aria-label="Pausar">
-            <svg class="org-icono-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
-            <svg class="org-icono-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none" /></svg>
-          </button>
-          <button type="button" data-org-siguiente aria-label="Paso siguiente">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" /></svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Escritorio: el diagrama completo -->
-      <svg
-        viewBox={`0 0 ${W} ${H}`}
-        class="org-svg mt-4 hidden h-auto w-full lg:block"
-        role="img"
-        aria-label="Diagrama: Philippe y Patrick fijan el objetivo, el agente orquestador lo convierte en un plan que ellos aprueban, lo reparte entre Captar, Atraer y Operar y sus diez subagentes, todo vuelve a la revisión humana y lo aprobado sale al cliente. Lo corregido vuelve al orquestador como regla."
-      >
-        <defs>
-          <radialGradient id="orgHaloRev"><stop offset="0" stop-color="#f5c26b" stop-opacity="0.18" /><stop offset="1" stop-color="#f5c26b" stop-opacity="0" /></radialGradient>
-          <radialGradient id="orgHaloOrq"><stop offset="0" stop-color="#5c86ff" stop-opacity="0.32" /><stop offset="1" stop-color="#5c86ff" stop-opacity="0" /></radialGradient>
-          <linearGradient id="orgBarrido" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset="0.5" stop-color="#fff" stop-opacity="0.28" /><stop offset="1" stop-color="#fff" stop-opacity="0" /></linearGradient>
-          <clipPath id="orgAv"><circle cx="0" cy="0" r="19" /></clipPath>
-          <clipPath id="orgOrqCaja"><rect x={orq.x - orq.w / 2} y={orq.y - orq.h / 2} width={orq.w} height={orq.h} rx="18" /></clipPath>
-        </defs>
-
-        {fondo.map((p) => <circle cx={p.x} cy={p.y} r={p.r} fill="#dbe5ff" opacity={p.o} />)}
-        <circle class="org-halo" data-en="1 2 3 6" cx={orq.x} cy={orq.y} r="260" fill="url(#orgHaloOrq)" />
-        <circle class="org-halo" data-en="5 6" cx={revision.x} cy={revision.y} r="280" fill="url(#orgHaloRev)" />
-
-        <!-- Conexiones -->
-        {rutas.map((r) => (
-          <path class="org-arista" data-ruta={r.id} data-en={r.en} d={r.d} stroke-width={r.w} />
-        ))}
-        <path class="org-arista org-bucle" data-ruta="bucle" data-en="6" d={bucle} stroke-width="1.8" />
-        <text class="org-nodo org-t-lema" data-en="6" x="1262" y="292" text-anchor="middle" fill="#93b1ff">Lo aprendido vuelve al plan</text>
-
-        <!-- Las personas: fijan el objetivo y aprueban -->
-        <g class="org-nodo" data-en="1 2" data-org-humanos>
-          <rect x={humanos.x - humanos.w / 2} y={humanos.y - humanos.h / 2} width={humanos.w} height={humanos.h} rx="16" fill="#16233d" stroke="#f5c26b" stroke-width="1.6" />
-          <g transform={`translate(${humanos.x - humanos.w / 2 + 44}, ${humanos.y})`}>
-            <circle r="20" fill="#1b2a48" />
-            <image href="/philippe.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <g transform={`translate(${humanos.x - humanos.w / 2 + 78}, ${humanos.y})`}>
-            <circle r="21" fill="#16233d" />
-            <image href="/patrick.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <text x={humanos.x + 50} y={humanos.y - 4} text-anchor="middle" class="org-t-pilar" fill="#ffffff">Philippe y Patrick</text>
-          <text x={humanos.x + 50} y={humanos.y + 20} text-anchor="middle" class="org-t-lema" fill="#f5c26b">Fijan el objetivo, aprueban el plan</text>
-          <g class="org-check" transform={`translate(${humanos.x + humanos.w / 2 - 4}, ${humanos.y - humanos.h / 2 + 4})`}>
-            <circle r="13" fill="#6fe0a8" />
-            <path d="M-5.5,0.5 L-1.5,4.5 L5.5,-4" fill="none" stroke="#062a1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-          </g>
-        </g>
-
-        <!-- El orquestador -->
-        <g class="org-nodo" data-en="1 2 3 4 5 6" data-org-orq>
-          <rect x={orq.x - orq.w / 2} y={orq.y - orq.h / 2} width={orq.w} height={orq.h} rx="18" fill="#2f5cff" />
-          <g clip-path="url(#orgOrqCaja)">
-            <rect class="org-barrido" x={orq.x - 60} y={orq.y - orq.h / 2} width="120" height={orq.h} fill="url(#orgBarrido)" />
-          </g>
-          {(() => { const a = avatar('pulpo', orq.x - orq.w / 2 + 62, orq.y, 66); return (
-            <g transform={a.t}>
-              <g stroke="#dbe5ff" stroke-width="1" opacity="0.6" fill="none" stroke-linecap="round">
-                {a.f.e.map(([i, j]) => <line x1={a.f.p[i][0]} y1={a.f.p[i][1]} x2={a.f.p[j][0]} y2={a.f.p[j][1]} />)}
-              </g>
-              {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#ffffff" style={`--d:${(k % 6) * 0.35}s`} />)}
-            </g>
-          ); })()}
-          <text x={orq.x + 52} y={orq.y - 24} text-anchor="middle" class="org-t-mono" fill="#cfdcff">Agente</text>
-          <text x={orq.x + 52} y={orq.y + 4} text-anchor="middle" class="org-t-orq" fill="#ffffff">Orquestador</text>
-          <text x={orq.x + 52} y={orq.y + 32} text-anchor="middle" class="org-t-estado" fill="#dbe5ff"><tspan data-org-estado>Esperando el objetivo</tspan><tspan class="org-cursor">▍</tspan></text>
-        </g>
-
-        <!-- Pilares -->
-        {pilares.map((p, i) => (
-          <g class="org-nodo" data-en="3 4" data-pilar={i}>
-            <rect class="org-pilar-caja" x={p.x - PIL_W / 2} y={PILAR_Y - PIL_H / 2} width={PIL_W} height={PIL_H} rx="14" />
-            {(() => { const a = avatar(p.animal, p.x - PIL_W / 2 + 50, PILAR_Y, 58); return (
-              <g transform={a.t}>
-                <g stroke="#7ea0ff" stroke-width="1" opacity="0.55" fill="none" stroke-linecap="round">
-                  {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
-                </g>
-                {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#dbe5ff" style={`--d:${(k % 6) * 0.35 + i * 0.2}s`} />)}
-              </g>
-            ); })()}
-            <text x={p.x + 38} y={PILAR_Y - 6} text-anchor="middle" class="org-t-pilar" fill="#f4f7ff">{p.nombre}</text>
-            <text x={p.x + 38} y={PILAR_Y + 18} text-anchor="middle" class="org-t-lema" fill="#8fa0c4">{p.lema}</text>
-          </g>
-        ))}
-
-        <!-- Subagentes -->
-        {subs.map((s) => (
-          <g class="org-nodo" data-en="3 4 5" data-sub={s.k}>
-            <rect class="org-sub-caja" x={s.x - s.w / 2} y={SUB_Y - SUB_H / 2} width={s.w} height={SUB_H} rx={SUB_H / 2} />
-            {(() => { const a = avatar(s.animal, s.x - s.w / 2 + 24, SUB_Y, 28); return (
-              <g transform={a.t}>
-                <g stroke="#7ea0ff" stroke-width="1.1" opacity="0.5" fill="none" stroke-linecap="round">
-                  {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
-                </g>
-                {a.f.p.map((pt) => <circle cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#b8caff" />)}
-              </g>
-            ); })()}
-            <text x={s.x + 16} y={SUB_Y + 4.5} text-anchor="middle" class="org-t-sub" fill="#c4d0ea">{s.etiqueta}</text>
-          </g>
-        ))}
-
-        <!-- Revisión humana -->
-        <g class="org-nodo" data-en="5 6" data-org-revision>
-          <rect class="org-revision" x={revision.x - revision.w / 2} y={revision.y - revision.h / 2} width={revision.w} height={revision.h} rx="18" fill="#16233d" stroke="#f5c26b" stroke-width="2" />
-          <g transform={`translate(${revision.x - revision.w / 2 + 52}, ${revision.y})`}>
-            <circle r="20" fill="#1b2a48" />
-            <image href="/philippe.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <g transform={`translate(${revision.x - revision.w / 2 + 86}, ${revision.y})`}>
-            <circle r="21" fill="#16233d" />
-            <image href="/patrick.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <text x={revision.x + 10} y={revision.y - 6} text-anchor="middle" class="org-t-rev" fill="#ffffff">Revisión humana</text>
-          <text x={revision.x + 10} y={revision.y + 20} text-anchor="middle" class="org-t-mono" fill="#f5c26b">Nada sale sin pasar por aquí</text>
-          <g transform={`translate(${revision.x + revision.w / 2 - 62}, ${revision.y})`}>
-            <rect x="-44" y="-16" width="88" height="32" rx="16" fill="#f5c26b" fill-opacity="0.14" />
-            <text x="0" y="4.5" text-anchor="middle" class="org-t-mono" fill="#f5c26b"><tspan data-org-cola>3</tspan> en cola</text>
-          </g>
-        </g>
-
-        <!-- Salida -->
-        <g class="org-nodo" data-en="6" data-org-salida>
-          <rect x={salida.x - salida.w / 2} y={salida.y - salida.h / 2} width={salida.w} height={salida.h} rx="12" fill="#6fe0a8" />
-          <text x={salida.x} y={salida.y + 5} text-anchor="middle" class="org-t-nodo" fill="#062a1b">Sale al cliente</text>
-        </g>
-
-        <!-- El trabajo viajando -->
-        <g data-capa-paquetes></g>
-
-        <!-- Las conversaciones, junto a quien habla -->
-        {[
-          { id: 'izq', x: 30, y: 12, w: 450, h: 300 },
-          { id: 'der', x: 920, y: 12, w: 450, h: 300 },
-          { id: 'abajo', x: 30, y: 604, w: 384, h: 270 },
-        ].map((c) => (
-          <foreignObject x={c.x} y={c.y} width={c.w} height={c.h}>
-            <div class:list={['org-hilo', c.id === 'der' ? 'org-hilo-der' : 'org-hilo-izq']}>
-              {mensajes.filter((m) => m.esquina === c.id).map((m) => (
-                <div class="org-msg" data-msg={m.id} data-quien={m.q} data-esquina={m.esquina}>
-                  <p class="org-msg-quien">
-                    {m.q === 'orq' ? <Constelacion animal="pulpo" size={22} claro /> : <img src={`/${m.q}.jpeg`} alt="" width="22" height="22" />}
-                    {NOMBRE[m.q]}
-                  </p>
-                  <p class="org-msg-texto">{m.t}</p>
-                </div>
-              ))}
-              <div class="org-msg org-escribiendo" data-escribiendo={c.id}><span></span><span></span><span></span></div>
-            </div>
-          </foreignObject>
-        ))}
-      </svg>
-
-      <!-- Móvil y tableta: la conversación y un flujo vertical -->
-      <div class="mt-6 lg:hidden" aria-hidden="true">
-        <div class="org-chat-movil">
-          {mensajes.map((m) => (
-            <div class="org-msg" data-msg={m.id} data-quien={m.q}>
-              <p class="org-msg-quien">
-                {m.q === 'orq' ? <Constelacion animal="pulpo" size={20} claro /> : <img src={`/${m.q}.jpeg`} alt="" width="20" height="20" />}
-                {NOMBRE[m.q]}
-              </p>
-              <p class="org-msg-texto">{m.t}</p>
-            </div>
-          ))}
-          <div class="org-msg org-escribiendo" data-escribiendo="movil"><span></span><span></span><span></span></div>
-        </div>
-        <ol class="org-flujo mt-6">
-          {flujoMovil.map((n) => (
-            <li class="org-nodo" data-en={n.en} data-tipo={n.tipo}>
-              <p class="text-[15px] font-semibold">{n.t}</p>
-              <p class="mt-0.5 font-mono text-[11.5px] opacity-80">{n.s}</p>
+    <div class="sc-reproductor mt-12" data-org-reproductor>
+      <!-- Los seis pasos, como pastillas -->
+      <div class="sc-pasos-fila">
+        <ol class="sc-pasos" aria-label="Pasos del trimestre">
+          {pasos.map((p, i) => (
+            <li>
+              <button type="button" class="sc-paso" data-org-ir={i} aria-label={`Paso ${i + 1}: ${p.titulo}`}>
+                <span class="sc-paso-relleno" aria-hidden="true"></span>
+                <span class="sc-paso-num">{i + 1}</span>{p.corto}
+              </button>
             </li>
           ))}
         </ol>
+        <button type="button" class="sc-play" data-org-play aria-label="Pausar">
+          <svg class="sc-icono-pausa" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6v12M15 6v12" /></svg>
+          <svg class="sc-icono-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z" fill="currentColor" stroke="none" /></svg>
+        </button>
       </div>
+      <p class="sc-narracion" aria-hidden="true" data-org-narracion>
+        <strong data-org-titulo>{pasos[0].titulo}.</strong> <span data-org-texto>{pasos[0].texto}</span>
+      </p>
 
-      <ol class="org-pasos mt-5">
-        {pasos.map((p, i) => (
-          <li>
-            <button type="button" class="org-paso" data-org-ir={i} aria-label={`Paso ${i + 1}: ${p.titulo}`}>
-              <span class="org-paso-barra" aria-hidden="true"><i></i></span>
-              <span class="org-paso-nombre"><span class="text-accent">{i + 1}</span> {p.corto}</span>
-            </button>
-          </li>
-        ))}
-      </ol>
+      <!-- La app -->
+      <div class="sc-ventana" aria-hidden="true">
+        <aside class="sc-lateral">
+          <div class="sc-lateral-cab">
+            <span class="sc-marca">
+              <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">
+                <rect width="32" height="32" rx="7.5" fill="#0A1628" />
+                <g stroke="#5C86FF" stroke-width="1.5" stroke-linecap="round" opacity="0.85"><path d="M10 21.5 L9.5 11" /><path d="M9.5 11 L21 8.5" /><path d="M10 21.5 L22 19" /><path d="M9.5 11 L22 19" /><path d="M21 8.5 L22 19" /></g>
+                <circle cx="9.5" cy="11" r="3.1" fill="#2F5CFF" /><circle cx="21" cy="8.5" r="2.3" fill="#93B1FF" /><circle cx="22" cy="19" r="2.6" fill="#FFFFFF" /><circle cx="10" cy="21.5" r="2.1" fill="#93B1FF" />
+              </svg>
+              Organigrama
+            </span>
+            <span class="sc-trimestre">Trimestre Q1</span>
+          </div>
+          <div class="sc-arbol" data-arbol>
+            <svg class="sc-lineas" data-lineas aria-hidden="true">
+              <g data-capa-base></g>
+              <g data-capa-ignicion></g>
+              <g data-capa-estelas></g>
+              <g data-capa-paquetes></g>
+              <g data-capa-ondas></g>
+            </svg>
+            <ol class="sc-nodos">
+              <li class="sc-nodo sc-n0" data-nodo="personas" data-en="1 2">
+                <span class="sc-pareja" data-av><Fragment set:html={AV.philippe} /><Fragment set:html={AV.patrick} /></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Philippe y Patrick</span><span class="sc-nodo-estado">Fijan el objetivo y aprueban</span></span>
+                <span class="sc-visto" aria-hidden="true">✓</span>
+              </li>
+              <li class="sc-nodo sc-n1" data-nodo="orq" data-en="1 2 3 4 5 6">
+                <span data-av><Fragment set:html={AV.orq} /></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Orquestador</span><span class="sc-nodo-estado sc-estado-orq" data-orq-estado>Esperando el objetivo</span></span>
+              </li>
+              {pilares.map((p, i) => (
+                <Fragment>
+                  <li class="sc-nodo sc-n2 sc-nodo-pilar" data-nodo={`pilar-${i}`} data-en="3 4">
+                    <span data-av><Fragment set:html={AV[p.id]} /></span>
+                    <span class="sc-nodo-nombre">{p.nombre}</span>
+                    <span class="sc-nodo-cuenta">{agentes.filter((a) => a.pilar === i).length} agentes</span>
+                  </li>
+                  {agentes.map((a, k) => a.pilar === i && (
+                    <li class="sc-nodo sc-n3 sc-agente" data-nodo={`agente-${k}`} data-agente={k} data-tono="espera" data-en="3 4 5 6">
+                      <span data-av><Fragment set:html={AV[`a${k}`]} /></span>
+                      <span class="min-w-0"><span class="sc-nodo-nombre">{a.nombre}</span><span class="sc-agente-estado" data-agente-estado>Esperando instrucciones</span></span>
+                    </li>
+                  ))}
+                </Fragment>
+              ))}
+              <li class="sc-nodo sc-n0 sc-nodo-rev" data-nodo="revision" data-en="5 6">
+                <span class="sc-pareja" data-av><Fragment set:html={AV.philippe} /><Fragment set:html={AV.patrick} /></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Revisión humana</span><span class="sc-nodo-estado">Nada sale sin pasar por aquí</span></span>
+                <span class="sc-contador sc-contador-ambar"><span data-org-cola>0</span> en cola</span>
+              </li>
+              <li class="sc-nodo sc-n1 sc-nodo-cliente" data-nodo="cliente" data-en="6">
+                <span data-av><span class="sc-av sc-av-cliente"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9" /></svg></span></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Cliente</span><span class="sc-nodo-estado">Recibe lo aprobado</span></span>
+                <span class="sc-contador sc-contador-verde"><span data-org-salidas>0</span> entregas</span>
+              </li>
+            </ol>
+          </div>
+        </aside>
+
+        <div class="sc-chat">
+          <div class="sc-chat-cab">
+            <span class="sc-chat-cab-izq"></span>
+            <span class="sc-chat-titulo"><Fragment set:html={AV.orq} />Orquestador</span>
+            <span class="sc-chat-cab-der"><span class="sc-reloj"><i></i><span data-org-reloj>Lunes 09:00</span></span></span>
+          </div>
+          <div class="sc-hilo" data-org-hilo></div>
+          <div class="sc-composer" data-org-composer>
+            <span class="sc-composer-mas"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg></span>
+            <span class="sc-composer-av" data-composer-av></span>
+            <span class="sc-composer-txt" data-composer-txt><span class="sc-composer-ph">Escribile al Orquestador…</span></span>
+            <span class="sc-composer-enviar"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6" /></svg></span>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <script type="application/json" data-org-pasos set:html={JSON.stringify(pasos.map(({ titulo, texto }) => ({ titulo, texto })))} />
+    <script type="application/json" data-org-datos set:html={JSON.stringify(datosGuion)} />
   </div>
 </section>
 
 <script>
   /**
-   * El guion del instructivo. Cada paso enciende sus nodos, escribe sus
-   * mensajes (con el "escribiendo..." delante) y manda paquetes por las
-   * rutas. Se reproduce solo mientras la sección está en pantalla y se puede
-   * pausar o mover a mano. Con movimiento reducido cada paso aparece ya
-   * terminado y no hay reproducción automática.
+   * El guion de la app. Cada paso escribe en el hilo (alguien teclea en el
+   * campo de mensaje y lo envía, el orquestador piensa y contesta con una
+   * tarjeta) y mueve el organigrama de la izquierda: el trabajo viaja por sus
+   * líneas con el color de quien lo lleva, y cada nodo cambia de estado. Al
+   * saltar a un paso, los anteriores se escriben al instante, ya terminados.
+   * Se reproduce solo mientras la sección está en pantalla. Con movimiento
+   * reducido todo aparece terminado y no hay reproducción automática.
    */
   const NS = 'http://www.w3.org/2000/svg';
   const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const DUR = [6500, 9500, 7000, 6500, 10000, 9000];
+  const DUR = [7600, 10000, 8000, 9000, 12500, 11500];
+
+  type Quien = 'philippe' | 'patrick' | 'orq';
+  type Agente = { nombre: string; color: string; tareas: number; avance: string; ritmo: number };
+  type Datos = {
+    pasos: { titulo: string; texto: string; reloj: string; chat: { q: Quien; t: string }[] }[];
+    agentes: Agente[];
+    pilares: { color: string }[];
+    av: Record<string, string>;
+  };
+  type Paquete = { color?: string; dur?: number; inverso?: boolean; onda?: number; alLlegar?: () => void };
+  // Lo que entrega cada agente en la revisión, en el orden en que llega.
+  const ENTREGAS: [number, string][] = [
+    [0, 'Secuencia de 5 correos'], [4, 'Artículo: pagos B2B'], [7, 'Scoring de cuentas'],
+    [2, '3 anuncios en LinkedIn'], [5, '4 posts de LinkedIn'], [9, 'Flujo de alta de leads'],
+  ];
+  const PLAN: [string, string, string][] = [
+    ['captar', 'Escribir a 300 cuentas con señales de compra', '6 tareas'],
+    ['atraer', 'Cuatro artículos sobre pagos B2B', '4 tareas'],
+    ['operar', 'Scoring de cuentas en el CRM', '4 tareas'],
+  ];
+  const PILARES: Record<string, string> = { captar: 'Captar', atraer: 'Atraer', operar: 'Operar' };
   const SUBS_DE = [[0, 1, 2, 3], [4, 5, 6], [7, 8, 9]];
+  const NEGRO = '#0a0a0a', AZUL = '#2f5cff', ROJO = '#e5484d', AMBAR = '#f5a524', VERDE = '#22c55e';
+  const SUAVE = 'cubic-bezier(.65, 0, .35, 1)';
+  const suave = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+  const T4 = 8; // segundos de ejecución en el paso 4
 
   document.querySelectorAll<HTMLElement>('[data-org]').forEach((raiz) => {
-    const svg = raiz.querySelector<SVGSVGElement>('.org-svg');
-    const capa = raiz.querySelector<SVGGElement>('[data-capa-paquetes]');
+    const hilo = raiz.querySelector<HTMLElement>('[data-org-hilo]')!;
+    const arbol = raiz.querySelector<HTMLElement>('[data-arbol]');
+    const lineas = raiz.querySelector<SVGSVGElement>('[data-lineas]');
+    const capaBase = raiz.querySelector<SVGGElement>('[data-capa-base]');
+    const capaIgnicion = raiz.querySelector<SVGGElement>('[data-capa-ignicion]');
+    const capaEstelas = raiz.querySelector<SVGGElement>('[data-capa-estelas]');
+    const capaPaquetes = raiz.querySelector<SVGGElement>('[data-capa-paquetes]');
+    const capaOndas = raiz.querySelector<SVGGElement>('[data-capa-ondas]');
+    const composerAv = raiz.querySelector<HTMLElement>('[data-composer-av]');
+    const composerTxt = raiz.querySelector<HTMLElement>('[data-composer-txt]');
+    const composer = raiz.querySelector<HTMLElement>('[data-org-composer]');
     const reproductor = raiz.querySelector<HTMLElement>('[data-org-reproductor]')!;
     const narracion = raiz.querySelector<HTMLElement>('[data-org-narracion]');
-    const num = raiz.querySelector('[data-org-num]');
     const titulo = raiz.querySelector('[data-org-titulo]');
     const texto = raiz.querySelector('[data-org-texto]');
+    const reloj = raiz.querySelector('[data-org-reloj]');
     const botones = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-org-ir]'));
     const btnPlay = raiz.querySelector<HTMLButtonElement>('[data-org-play]');
-    const PASOS: { titulo: string; texto: string }[] = JSON.parse(raiz.querySelector('[data-org-pasos]')?.textContent || '[]');
+    const D: Datos = JSON.parse(raiz.querySelector('[data-org-datos]')?.textContent || '{}');
+    const NOMBRE: Record<Quien, string> = { philippe: 'Philippe', patrick: 'Patrick', orq: 'Orquestador' };
+    const placeholder = composerTxt?.innerHTML || '';
 
     let actual = -1;
     let reproduciendo = !reducido;
     let visible = false;
     let tiempos: number[] = [];
     let ciclos: number[] = [];
+    let instantaneo = false;
+    let ahora = 0;          // ms del evento que se está pintando, para la hora
+    let minutoBase = 0;
+    let diaBase = '';
+    let inicioPaso = 0;
     const vuelos = new Set<{ cancelado: boolean }>();
+    const encendidas = new Map<string, SVGGElement>();
 
-    const enEscritorio = () => !!svg && svg.getBoundingClientRect().width > 0;
-    const todos = (sel: string) => raiz.querySelectorAll<HTMLElement | SVGElement>(sel);
-    const marca = (sel: string, attr: string, on = true) => todos(sel).forEach((e) => e.toggleAttribute(attr, on));
-    const estado = (t: string) => todos('[data-org-estado]').forEach((e) => (e.textContent = t));
-    const cola = (n: number) => todos('[data-org-cola]').forEach((e) => (e.textContent = String(n)));
-
-    // Con movimiento reducido todo ocurre al instante y sin bucles.
+    // Con movimiento reducido, o al reconstruir un paso anterior, todo ocurre ya.
     const en = (ms: number, fn: () => void) => {
-      if (reducido) fn();
-      else tiempos.push(window.setTimeout(fn, ms));
+      if (reducido || instantaneo) { ahora = ms; fn(); return; }
+      tiempos.push(window.setTimeout(() => { ahora = ms; fn(); }, ms));
     };
     const cada = (ms: number, fn: () => void) => {
-      if (!reducido) ciclos.push(window.setInterval(fn, ms));
+      if (!reducido && !instantaneo) ciclos.push(window.setInterval(fn, ms));
+    };
+    const animado = () => !reducido && !instantaneo;
+
+    const el = (html: string) => {
+      const t = document.createElement('template');
+      t.innerHTML = html.trim();
+      return t.content.firstElementChild as HTMLElement;
+    };
+    const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
+    const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+    const hora = () => hhmm(minutoBase + Math.floor(ahora / 1000));
+    const pintarReloj = () => {
+      const seg = reducido ? 0 : Math.floor((performance.now() - inicioPaso) / 1000);
+      if (reloj) reloj.textContent = `${diaBase} ${hhmm(minutoBase + seg)}`;
+    };
+    const bajar = () => hilo.scrollTo({ top: hilo.scrollHeight, behavior: animado() ? 'smooth' : 'auto' });
+    const poner = (nodo: HTMLElement) => {
+      if (animado()) nodo.classList.add('sc-entra');
+      hilo.appendChild(nodo);
+      bajar();
+      return nodo;
     };
 
-    function paquete(
-      ruta: string,
-      { color = '#93b1ff', etiqueta = '', dur = 1300, inverso = false, alLlegar }: { color?: string; etiqueta?: string; dur?: number; inverso?: boolean; alLlegar?: () => void } = {}
-    ) {
-      const camino = raiz.querySelector<SVGPathElement>(`[data-ruta="${ruta}"]`);
-      if (reducido || !camino || !capa || !enEscritorio()) { alLlegar?.(); return; }
+    // ── El organigrama: líneas, paquetes y estados ────────────────
+    const nodo = (id: string) => raiz.querySelector<HTMLElement>(`[data-nodo="${id}"]`);
+    // Las líneas se trazan con las posiciones reales de los nodos.
+    function trazar() {
+      if (!arbol || !lineas || !capaBase || arbol.getBoundingClientRect().width === 0) return;
+      const base = arbol.getBoundingClientRect();
+      const W = base.width, H = base.height;
+      lineas.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      const av = (id: string) => {
+        const r = nodo(id)?.querySelector('[data-av]')?.getBoundingClientRect();
+        return r ? { x: r.left - base.left, y: r.top - base.top, w: r.width, h: r.height, cx: r.left - base.left + r.width / 2, cy: r.top - base.top + r.height / 2 } : null;
+      };
+      const fila = (id: string) => {
+        const r = nodo(id)?.getBoundingClientRect();
+        return r ? { der: r.right - base.left, cy: r.top - base.top + r.height / 2 } : null;
+      };
+      // Del avatar del padre baja y entra por la izquierda del hijo, con la esquina redonda.
+      const codo = (de: string, a: string, r = 8) => {
+        const p = av(de), h = av(a);
+        if (!p || !h) return '';
+        const x = p.cx, y0 = p.y + p.h + 2, y1 = h.cy, x1 = h.x - 3;
+        return `M${x},${y0} V${y1 - r} Q${x},${y1} ${x + r},${y1} H${x1}`;
+      };
+      const BUS = W - 12;
+      const rutas: [string, string, string][] = [
+        ['h', '1 2', codo('personas', 'orq')],
+        ...[0, 1, 2].map((i) => [`p${i}`, '3', codo('orq', `pilar-${i}`)] as [string, string, string]),
+        ...SUBS_DE.flatMap((ks, i) => ks.map((k) => [`s${k}`, '3 4', codo(`pilar-${i}`, `agente-${k}`)] as [string, string, string])),
+        // Todo vuelve a la revisión por el bus de la derecha.
+        ...D.agentes.map((_, k) => {
+          const f = fila(`agente-${k}`), rv = fila('revision');
+          const d = f && rv ? `M${f.der - 18},${f.cy} H${BUS - 8} Q${BUS},${f.cy} ${BUS},${f.cy + 8} V${rv.cy - 8} Q${BUS},${rv.cy} ${BUS - 8},${rv.cy} H${rv.der - 8}` : '';
+          return [`r${k}`, '5', d] as [string, string, string];
+        }),
+        ['o', '6', codo('revision', 'cliente')],
+      ];
+      // Lo aprendido sube por la izquierda, del cliente al orquestador.
+      const c = av('cliente'), o = av('orq');
+      if (c && o) rutas.push(['bucle', '6', `M${c.x - 3},${c.cy} H14 Q6,${c.cy} 6,${c.cy - 8} V${o.cy + 8} Q6,${o.cy} 14,${o.cy} H${o.x - 3}`]);
+      capaBase.innerHTML = rutas.map(([id, enP, d]) => `<path class="sc-linea${id === 'bucle' ? ' sc-linea-bucle' : ''}${id.startsWith('r') ? ' sc-linea-bus' : ''}" data-ruta="${id}" data-en="${enP}" d="${d}"/>`).join('');
+      marcarPaso();
+    }
+    const enArbol = () => !!arbol && arbol.getBoundingClientRect().width > 0;
+
+    function encender(ruta: string, camino: SVGPathElement, color: string, dur: number, inverso: boolean) {
+      const clave = `${ruta}|${color}`;
+      if (!capaIgnicion || encendidas.has(clave)) return;
+      const d = camino.getAttribute('d') || '';
       const g = document.createElementNS(NS, 'g');
-      g.setAttribute('class', 'org-paquete');
-      let html = `<circle r="14" fill="${color}" opacity=".16"/><circle r="5.5" fill="${color}"/>`;
-      if (etiqueta) {
-        const ancho = etiqueta.length * 7.6 + 24;
-        html += `<g transform="translate(14,-34)"><rect rx="12" height="24" width="${ancho}" fill="#0b1830" stroke="${color}" stroke-opacity=".7"/><text x="12" y="16.5" class="org-t-paquete" fill="${color}"></text></g>`;
-      }
-      g.innerHTML = html;
-      if (etiqueta) g.querySelector('text')!.textContent = etiqueta;
-      capa.appendChild(g);
+      g.innerHTML = `<path d="${d}" pathLength="1" fill="none" stroke="${color}" stroke-width="5" stroke-opacity=".1"/><path d="${d}" pathLength="1" fill="none" stroke="${color}" stroke-width="1.6" stroke-opacity=".75"/>`;
+      capaIgnicion.appendChild(g);
+      encendidas.set(clave, g);
+      g.querySelectorAll('path').forEach((p) => {
+        p.style.strokeDasharray = '1 1';
+        p.animate([{ strokeDashoffset: inverso ? -1 : 1 }, { strokeDashoffset: 0 }], { duration: dur, easing: SUAVE, fill: 'both' });
+      });
+    }
+    function apagar(ruta: string, color: string) {
+      const g = encendidas.get(`${ruta}|${color}`);
+      if (!g) return;
+      encendidas.delete(`${ruta}|${color}`);
+      g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400 }).onfinish = () => g.remove();
+    }
+    function onda(x: number, y: number, color: string, r = 16) {
+      if (!animado() || !capaOndas) return;
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      g.innerHTML = `<circle class="sc-onda" r="${r}" fill="none" stroke="${color}" stroke-width="1.5"/>`;
+      capaOndas.appendChild(g);
+      (g.firstElementChild as SVGElement).animate([{ transform: 'scale(.2)', opacity: 0.9 }, { transform: 'scale(1)', opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.16, 1, .3, 1)' }).onfinish = () => g.remove();
+    }
+    function paquete(ruta: string, { color = AZUL, dur = 900, inverso = false, onda: radio = 16, alLlegar }: Paquete = {}) {
+      const camino = raiz.querySelector<SVGPathElement>(`[data-ruta="${ruta}"]`);
+      if (!animado() || !camino || !capaPaquetes || !capaEstelas || !enArbol() || !camino.getAttribute('d')) { alLlegar?.(); return; }
+      encender(ruta, camino, color, dur, inverso);
       const largo = camino.getTotalLength();
+      const d = camino.getAttribute('d') || '';
+      const larga = Math.min(70, largo * 0.5);
+      const estela = document.createElementNS(NS, 'g');
+      const capas: [number, number, number][] = [[1, 1.4, 0.25], [0.5, 2.2, 0.6], [0.22, 2.8, 1]];
+      estela.innerHTML = capas.map(([, w, op]) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-opacity="${op}" stroke-linecap="round"/>`).join('');
+      const trazos = Array.from(estela.children as HTMLCollectionOf<SVGPathElement>).map((pt, k) => {
+        const L = larga * capas[k][0];
+        pt.style.strokeDasharray = `${L} ${largo + L + 20}`;
+        pt.style.strokeDashoffset = String(L);
+        return { pt, L };
+      });
+      capaEstelas.appendChild(estela);
+      const g = document.createElementNS(NS, 'g');
+      g.innerHTML = `<circle r="7" fill="${color}" opacity=".18"/><circle r="3.6" fill="${color}"/><circle r="1.4" fill="#fff"/>`;
+      capaPaquetes.appendChild(g);
       const t0 = performance.now();
       const vuelo = { cancelado: false };
       vuelos.add(vuelo);
       const cuadro = (t: number) => {
-        if (vuelo.cancelado) { g.remove(); vuelos.delete(vuelo); return; }
+        if (vuelo.cancelado) { g.remove(); estela.remove(); vuelos.delete(vuelo); return; }
         const k = Math.min(1, (t - t0) / dur);
-        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        const p = camino.getPointAtLength((inverso ? 1 - e : e) * largo);
-        g.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+        const pos = (inverso ? 1 - suave(k) : suave(k)) * largo;
+        const pnt = camino.getPointAtLength(pos);
+        g.setAttribute('transform', `translate(${pnt.x.toFixed(1)} ${pnt.y.toFixed(1)})`);
+        trazos.forEach(({ pt, L }) => (pt.style.strokeDashoffset = String(inverso ? -pos : L - pos)));
         if (k < 1) { requestAnimationFrame(cuadro); return; }
         vuelos.delete(vuelo);
-        g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260 }).onfinish = () => g.remove();
+        onda(pnt.x, pnt.y, color, radio);
+        g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250 }).onfinish = () => g.remove();
+        estela.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380 }).onfinish = () => estela.remove();
         alLlegar?.();
       };
       requestAnimationFrame(cuadro);
     }
-
-    // Un mensaje: primero "escribiendo..." en su sitio, luego el texto.
-    function decir(id: string, ms: number) {
-      en(ms, () => {
-        const sitio = raiz.querySelector<HTMLElement>(`.org-svg [data-msg="${id}"]`)?.dataset.esquina;
-        const escribiendo = todos(`[data-escribiendo="${sitio}"], [data-escribiendo="movil"]`);
-        escribiendo.forEach((e) => e.setAttribute('data-visible', ''));
-        en(reducido ? 0 : 800, () => {
-          escribiendo.forEach((e) => e.removeAttribute('data-visible'));
-          todos(`[data-msg="${id}"]`).forEach((m) => m.setAttribute('data-visible', ''));
-        });
-      });
+    const recibe = (id: string) => {
+      const n = nodo(id);
+      if (!n || !animado()) return;
+      n.removeAttribute('data-recibe'); void n.offsetWidth; n.setAttribute('data-recibe', '');
+    };
+    const sacude = (id: string) => {
+      const n = nodo(id);
+      if (!n || !animado()) return;
+      n.removeAttribute('data-sacude'); void n.offsetWidth; n.setAttribute('data-sacude', '');
+    };
+    const orqEstado = (t: string) => raiz.querySelectorAll('[data-orq-estado]').forEach((e) => (e.textContent = t));
+    const salidas = (n: number) => raiz.querySelectorAll('[data-org-salidas]').forEach((e) => (e.textContent = String(n)));
+    function marcarPaso() {
+      if (actual < 0) return;
+      raiz.querySelectorAll<HTMLElement | SVGElement>('[data-en]').forEach((e) => e.classList.toggle('on', (e.dataset.en || '').split(' ').includes(String(actual + 1))));
     }
 
-    const recibe = (sel: string) => {
-      marca(sel, 'data-recibe');
-      en(700, () => marca(sel, 'data-recibe', false));
+    // ── Mensajes ──────────────────────────────────────────────────
+    function separador(t: string) { poner(el(`<p class="sc-sep"><span>${esc(t)}</span></p>`)); }
+    function orq(textoMsg: string, tarjeta?: HTMLElement) {
+      const m = el(`<div class="sc-m sc-m-orq">${D.av.orq}<div class="sc-m-cuerpo"><p class="sc-m-quien">Orquestador <time>${hora()}</time></p><p class="sc-burbuja">${esc(textoMsg)}</p></div></div>`);
+      if (tarjeta) m.querySelector('.sc-m-cuerpo')!.appendChild(tarjeta);
+      poner(m);
+      return m;
+    }
+    function humano(q: Quien, textoMsg: string) {
+      poner(el(`<div class="sc-m sc-m-humano"><p class="sc-m-quien"><time>${hora()}</time> ${NOMBRE[q]} ${D.av[q]}</p><p class="sc-burbuja">${esc(textoMsg)}</p></div>`));
+    }
+    function pensar(desde: number, hasta: number) {
+      let n: HTMLElement | null = null;
+      en(desde, () => {
+        if (!animado()) return;
+        n = poner(el(`<div class="sc-pensando">${D.av.orq}<span class="sc-puntos"><i></i><i></i><i></i></span><span class="sc-brillo">Pensando</span></div>`));
+      });
+      en(hasta, () => n?.remove());
+    }
+    function escribir(q: Quien, textoMsg: string, ms: number) {
+      const dur = Math.min(2400, textoMsg.length * 24);
+      en(ms, () => {
+        if (!animado() || !composerTxt || !composerAv) return;
+        composer?.setAttribute('data-escribiendo', '');
+        composerAv.innerHTML = D.av[q];
+        const t0 = performance.now();
+        const id = window.setInterval(() => {
+          const n = Math.min(textoMsg.length, Math.round(((performance.now() - t0) / dur) * textoMsg.length));
+          composerTxt.textContent = textoMsg.slice(0, n);
+          if (n >= textoMsg.length) clearInterval(id);
+        }, 30);
+        ciclos.push(id);
+      });
+      en(ms + dur + 300, () => { vaciar(); humano(q, textoMsg); });
+      return ms + dur + 300;
+    }
+    function vaciar() {
+      composer?.removeAttribute('data-escribiendo');
+      if (composerAv) composerAv.innerHTML = '';
+      if (composerTxt) composerTxt.innerHTML = placeholder;
+    }
+    function aviso(k: number, t: string) {
+      poner(el(`<p class="sc-aviso">${D.av[`a${k}`]}<span>${esc(t)}</span><time>${hora()}</time></p>`));
+    }
+
+    // ── Estados de los agentes ────────────────────────────────────
+    function agente(k: number, estadoTxt: string, tono: string) {
+      const li = raiz.querySelector<HTMLElement>(`[data-agente="${k}"]`);
+      if (!li) return;
+      li.dataset.tono = tono;
+      const s = li.querySelector('[data-agente-estado]');
+      if (s) s.textContent = estadoTxt;
+    }
+    const todosAgentes = (estadoTxt: string, tono: string) => D.agentes.forEach((_, k) => agente(k, estadoTxt, tono));
+
+    // ── Tarjetas ──────────────────────────────────────────────────
+    function tarjetaPlan() {
+      return el(`<div class="sc-card" data-estado="borrador">
+        <div class="sc-card-cab"><span>Plan del trimestre</span><span class="sc-tag" data-tag-borrador>Borrador</span><span class="sc-tag sc-tag-ok" data-tag-ok>Aprobado</span></div>
+        ${PLAN.map(([id, que, n]) => `<div class="sc-fila">${D.av[id]}<span class="sc-fila-txt"><b>${PILARES[id]}</b><span>${esc(que)}</span></span><span class="sc-fila-der">${n}</span></div>`).join('')}
+        <div class="sc-card-pie"><span class="sc-btn sc-btn-negro" data-boton-aprobar>Aprobar plan</span><span class="sc-btn">Pedir cambios</span><span class="sc-aprobado">${D.av.patrick} Aprobado por Patrick</span></div>
+      </div>`);
+    }
+    function tarjetaReparto() {
+      return el(`<div class="sc-card">
+        <div class="sc-card-cab"><span>Tareas repartidas</span><span class="sc-tag sc-tag-azul"><span data-total>0</span> de 14</span></div>
+        <div class="sc-chips">${D.agentes.map((a, k) => `<span class="sc-chip" data-chip="${k}">${D.av[`a${k}`]}${esc(a.nombre)}<b>${a.tareas}</b></span>`).join('')}</div>
+      </div>`);
+    }
+    function tarjetaAvance() {
+      return el(`<div class="sc-card">
+        <div class="sc-card-cab"><span>En marcha</span><span class="sc-tag sc-tag-azul"><span class="sc-punto-vivo"></span>10 agentes</span></div>
+        <div class="sc-avances">${D.agentes.map((a, k) => `<div class="sc-avance" data-avance="${k}" style="--c:${a.color}">${D.av[`a${k}`]}<span class="sc-avance-txt"><b>${esc(a.nombre)}</b><span>${esc(a.avance)}</span></span><span class="sc-barra"><i></i></span><span class="sc-pct" data-pct>0%</span></div>`).join('')}</div>
+      </div>`);
+    }
+    function tarjetaRevision() {
+      return el(`<div class="sc-card">
+        <div class="sc-card-cab"><span>Para revisar</span><span class="sc-tag sc-tag-ambar"><span data-cola>0</span> en cola</span></div>
+        ${ENTREGAS.map(([k, que], j) => `<div class="sc-fila sc-entrega" data-entrega="${j}" data-estado="oculta">${D.av[`a${k}`]}<span class="sc-fila-txt"><b>${esc(que)}</b><span>${esc(D.agentes[k].nombre)}</span></span>
+          <span class="sc-fila-der"><span class="sc-estado" data-e="pendiente">Pendiente</span><span class="sc-estado" data-e="devuelto">Devuelto</span><span class="sc-estado" data-e="corrigiendo">Corrigiendo</span><span class="sc-estado" data-e="corregido">Corregido</span><span class="sc-estado" data-e="enviado">Enviado</span></span>
+          ${j === 0 ? `<p class="sc-comentario">${D.av.patrick}<span>«El asunto del correo 3 suena a plantilla.»</span></p>` : ''}</div>`).join('')}
+      </div>`);
+    }
+    function tarjetaEnvio() {
+      return el(`<div class="sc-card">
+        <div class="sc-card-cab"><span>Enviado al cliente</span><span class="sc-tag sc-tag-ok"><span data-enviadas>0</span> de 6</span></div>
+        ${ENTREGAS.map(([k, que], j) => `<div class="sc-fila sc-envio" data-envio="${j}">${D.av[`a${k}`]}<span class="sc-fila-txt"><b>${esc(que)}</b><span>${esc(D.agentes[k].nombre)}${j === 0 ? ' · versión corregida' : ''}</span></span><span class="sc-fila-der"><span class="sc-giro"></span><span class="sc-ok">✓</span></span></div>`).join('')}
+      </div>`);
+    }
+    function tarjetaRegla() {
+      return el(`<div class="sc-card sc-card-regla">
+        <div class="sc-card-cab"><span>Regla nueva</span><span class="sc-tag sc-tag-violeta">Memoria</span></div>
+        <p class="sc-regla">${D.av.a0}<span><b>Outbound</b> · asuntos cortos y sin fórmulas.</span></p>
+        <p class="sc-regla-pie">Aprendida del comentario de Patrick. Se aplica desde el próximo envío.</p>
+      </div>`);
+    }
+
+    const ultima = (sel: string) => Array.from(hilo.querySelectorAll<HTMLElement>(sel)).pop();
+    const estadoEntrega = (j: number, e: string) => {
+      const f = ultima(`[data-entrega="${j}"]`);
+      if (f) f.dataset.estado = e;
+    };
+    const contarCola = () => {
+      const filas = Array.from(hilo.querySelectorAll<HTMLElement>('[data-entrega]')).slice(-6);
+      const n = filas.filter((f) => ['pendiente', 'corregido'].includes(f.dataset.estado || '')).length;
+      const card = ultima('[data-cola]');
+      if (card) card.textContent = String(n);
+      raiz.querySelectorAll('[data-org-cola]').forEach((e) => (e.textContent = String(n)));
     };
 
+    // ── El guion, paso a paso ─────────────────────────────────────
     const guion: (() => void)[] = [
       // 1. Fijamos el objetivo
       () => {
-        estado('Esperando el objetivo');
-        decir('0-0', 300);
-        en(1700, () => paquete('h', { color: '#f5c26b', etiqueta: 'Objetivo', dur: 1500, alLlegar: () => {
-          estado('Leyendo el objetivo');
-          marca('[data-org-orq]', 'data-leyendo');
-        } }));
+        separador('Lunes');
+        orqEstado('Esperando el objetivo');
+        const fin = escribir('philippe', D.pasos[0].chat[0].t, 500);
+        en(fin + 100, () => paquete('h', { color: NEGRO, dur: 900, alLlegar: () => { recibe('orq'); orqEstado('Leyendo el objetivo…'); } }));
+        pensar(fin + 500, fin + 2000);
+        en(fin + 2000, () => orq(D.pasos[0].chat[1].t));
       },
       // 2. Lo lee y propone un plan
       () => {
-        estado('Preparando el plan');
-        marca('[data-org-orq]', 'data-leyendo');
-        en(900, () => paquete('h', { etiqueta: 'Plan', inverso: true, dur: 1400, alLlegar: () => {
-          marca('[data-org-orq]', 'data-leyendo', false);
-          estado('Esperando aprobación');
-          recibe('[data-org-humanos]');
-        } }));
-        decir('1-0', 1800);
-        decir('1-1', 5400);
-        en(6700, () => paquete('h', { color: '#f5c26b', etiqueta: 'Aprobado', dur: 1300, alLlegar: () => {
-          marca('[data-org-humanos]', 'data-aprobado');
-          estado('Plan aprobado');
-        } }));
+        orqEstado('Preparando el plan…');
+        pensar(200, 1500);
+        let plan: HTMLElement;
+        en(1500, () => {
+          plan = tarjetaPlan();
+          orq(D.pasos[1].chat[0].t, plan);
+          orqEstado('Esperando aprobación');
+          paquete('h', { color: AZUL, inverso: true, dur: 900, alLlegar: () => recibe('personas') });
+        });
+        en(4200, () => plan?.querySelector('[data-boton-aprobar]')?.setAttribute('data-hover', ''));
+        const fin = escribir('patrick', D.pasos[1].chat[1].t, 4400);
+        en(fin + 300, () => {
+          plan?.querySelector('[data-boton-aprobar]')?.removeAttribute('data-hover');
+          if (plan) plan.dataset.estado = 'aprobado';
+          nodo('personas')?.setAttribute('data-aprobado', '');
+          paquete('h', { color: NEGRO, dur: 900, alLlegar: () => { recibe('orq'); orqEstado('Plan aprobado'); } });
+        });
       },
       // 3. Reparte el trabajo
       () => {
-        estado('Repartiendo 14 tareas');
-        decir('2-0', 400);
-        ['6 tareas', '4 tareas', '4 tareas'].forEach((et, i) =>
-          en(500 + i * 260, () => paquete(`p${i}`, { etiqueta: et, dur: 1500, alLlegar: () => {
-            recibe(`[data-pilar="${i}"]`);
-            SUBS_DE[i].forEach((k, j) => en(150 + j * 130, () => paquete(`s${k}`, { dur: 1000, alLlegar: () => recibe(`[data-sub="${k}"]`) })));
-          } }))
-        );
+        nodo('personas')?.setAttribute('data-aprobado', '');
+        orqEstado('Repartiendo 14 tareas');
+        pensar(200, 1200);
+        let rep: HTMLElement;
+        en(1200, () => { rep = tarjetaReparto(); orq(D.pasos[2].chat[0].t, rep); });
+        let total = 0;
+        [0, 1, 2].forEach((i) => en(1500 + i * 350, () => paquete(`p${i}`, { color: AZUL, dur: 800, alLlegar: () => {
+          recibe(`pilar-${i}`);
+          SUBS_DE[i].forEach((k, j) => en(100 + j * 160, () => paquete(`s${k}`, { color: D.pilares[i].color, dur: 600, onda: 13, alLlegar: () => {
+            const a = D.agentes[k];
+            recibe(`agente-${k}`);
+            rep?.querySelector(`[data-chip="${k}"]`)?.setAttribute('data-on', '');
+            total += a.tareas;
+            const t = rep?.querySelector('[data-total]');
+            if (t) t.textContent = String(total);
+            agente(k, `Recibió ${a.tareas} ${a.tareas === 1 ? 'tarea' : 'tareas'}`, 'recibido');
+          } })));
+        } })));
       },
       // 4. Ejecutan a la vez
       () => {
-        estado('10 agentes en marcha');
-        marca('[data-sub]', 'data-trabajando');
-        decir('3-0', 500);
-        cada(240, () => paquete(`s${Math.floor(Math.random() * 10)}`, { dur: 900 }));
+        orqEstado('10 agentes en marcha');
+        let card: HTMLElement;
+        en(300, () => { card = tarjetaAvance(); orq(D.pasos[3].chat[0].t, card); });
+        const pintar = (seg: number) => card?.querySelectorAll<HTMLElement>('[data-avance]').forEach((fila) => {
+          const k = Number(fila.dataset.avance);
+          const pct = Math.max(0, Math.min(100, Math.round((seg / D.agentes[k].ritmo) * 100)));
+          const p = fila.querySelector('[data-pct]');
+          if (p) p.textContent = `${pct}%`;
+          fila.style.setProperty('--p', String(pct / 100));
+          fila.toggleAttribute('data-ok', pct >= 100);
+          agente(k, `${pct >= 100 ? 'Listo' : `${pct}%`} · ${D.agentes[k].avance}`, pct >= 100 ? 'listo' : 'trabajando');
+        });
+        const t0 = performance.now() + 300;
+        if (animado()) {
+          cada(150, () => pintar((performance.now() - t0) / 1000));
+          // El orquestador y los agentes se hablan mientras trabajan.
+          cada(320, () => {
+            const k = Math.floor(Math.random() * 10);
+            const i = SUBS_DE.findIndex((ks) => ks.includes(k));
+            paquete(`s${k}`, { color: D.agentes[k].color, dur: 650, inverso: Math.random() < 0.5, onda: 11 });
+            if (Math.random() < 0.3) paquete(`p${i}`, { color: AZUL, dur: 700, inverso: Math.random() < 0.5, onda: 11 });
+          });
+        } else en(300, () => pintar(T4));
       },
       // 5. Todo vuelve a nosotros
       () => {
-        estado('Esperando revisión');
-        let n = 0;
-        cola(reducido ? 6 : 0);
-        decir('4-0', 400);
-        cada(380, () => {
-          if (n >= 6) return;
-          paquete(`r${Math.floor(Math.random() * 10)}`, { color: '#f5c26b', dur: 1100, alLlegar: () => { n = Math.min(6, n + 1); cola(n); recibe('[data-org-revision]'); } });
+        orqEstado('Recogiendo entregas');
+        const listos = new Set(ENTREGAS.map(([k]) => k));
+        D.agentes.forEach((a, k) => { if (!listos.has(k)) agente(k, `Trabajando · ${a.avance}`, 'trabajando'); });
+        separador('Martes');
+        pensar(300, 1300);
+        en(1300, () => orq(D.pasos[4].chat[0].t, tarjetaRevision()));
+        ENTREGAS.forEach(([k, que], j) => en(1600 + j * 380, () => paquete(`r${k}`, { color: D.agentes[k].color, dur: 950, alLlegar: () => {
+          estadoEntrega(j, 'pendiente');
+          contarCola();
+          recibe('revision');
+          agente(k, `Entregó: ${que.charAt(0).toLowerCase()}${que.slice(1)}`, 'revision');
+          if (j === ENTREGAS.length - 1) orqEstado('6 entregas en revisión');
+        } })));
+        const fin = escribir('patrick', D.pasos[4].chat[1].t, 4800);
+        en(fin + 300, () => {
+          estadoEntrega(0, 'devuelto');
+          contarCola();
+          paquete('r0', { color: ROJO, inverso: true, dur: 1100, onda: 18, alLlegar: () => {
+            sacude('agente-0');
+            agente(0, 'Devuelto · rehaciendo el correo 3', 'error');
+          } });
         });
-        decir('4-1', 3200);
-        en(4500, () => paquete('r0', { color: '#ff8a7a', etiqueta: 'Corregir', inverso: true, dur: 1500, alLlegar: () => marca('[data-sub="0"]', 'data-corrigiendo') }));
-        decir('4-2', 5400);
-        en(7600, () => {
-          marca('[data-sub="0"]', 'data-corrigiendo', false);
-          paquete('r0', { color: '#f5c26b', dur: 1200 });
+        pensar(fin + 700, fin + 1800);
+        en(fin + 1800, () => orq(D.pasos[4].chat[2].t));
+        en(fin + 2600, () => { estadoEntrega(0, 'corrigiendo'); agente(0, 'Corrigiendo el correo 3', 'error'); });
+        en(fin + 4300, () => {
+          apagar('r0', ROJO);
+          paquete('r0', { color: D.agentes[0].color, dur: 950, alLlegar: () => {
+            estadoEntrega(0, 'corregido');
+            contarCola();
+            recibe('revision');
+            agente(0, 'Corregido · en revisión', 'revision');
+            aviso(0, 'Outbound rehízo el asunto del correo 3 y lo devolvió a la cola');
+          } });
         });
       },
       // 6. Sale y el sistema aprende
       () => {
-        estado('Esperando aprobación');
-        let n = 5;
-        cola(reducido ? 0 : n);
-        decir('5-0', 300);
-        en(1300, () => {
-          estado('Enviando al cliente');
-          cada(480, () => {
-            if (n <= 0) return;
-            n--;
-            cola(n);
-            paquete('o', { color: '#6fe0a8', dur: 900, alLlegar: () => recibe('[data-org-salida]') });
-          });
+        orqEstado('Esperando aprobación');
+        const fin = escribir('philippe', D.pasos[5].chat[0].t, 400);
+        let envio: HTMLElement;
+        pensar(fin + 200, fin + 1000);
+        en(fin + 1000, () => { envio = tarjetaEnvio(); orq('Perfecto. Salen las seis.', envio); orqEstado('Enviando al cliente'); });
+        let s = 0;
+        ENTREGAS.forEach(([k], j) => en(fin + 1300 + j * 420, () => paquete('o', { color: VERDE, dur: 700, onda: 18, alLlegar: () => {
+          envio?.querySelector(`[data-envio="${j}"]`)?.setAttribute('data-ok', '');
+          s++;
+          const n = envio?.querySelector('[data-enviadas]');
+          if (n) n.textContent = String(s);
+          salidas(s);
+          recibe('cliente');
+          estadoEntrega(j, 'enviado');
+          contarCola();
+          agente(k, 'Enviado al cliente', 'ok');
+        } })));
+        en(fin + 4200, () => paquete('bucle', { color: AZUL, dur: 1500, onda: 22, alLlegar: () => { recibe('orq'); orqEstado('Regla nueva guardada'); } }));
+        pensar(fin + 4400, fin + 5600);
+        en(fin + 5600, () => {
+          orq(D.pasos[5].chat[1].t, tarjetaRegla());
+          agente(0, 'Aprendió una regla nueva', 'ok');
         });
-        en(3600, () => paquete('bucle', { etiqueta: 'Regla nueva', dur: 2600, alLlegar: () => {
-          estado('Regla nueva aplicada');
-          recibe('[data-org-orq]');
-        } }));
-        decir('5-1', 4300);
       },
     ];
 
@@ -592,27 +741,48 @@ const flujoMovil = [
       tiempos = [];
       ciclos = [];
       vuelos.forEach((v) => (v.cancelado = true));
-      todos('[data-msg][data-visible], [data-escribiendo][data-visible]').forEach((e) => e.removeAttribute('data-visible'));
-      ['data-trabajando', 'data-corrigiendo', 'data-leyendo', 'data-recibe'].forEach((a) => marca(`[${a}]`, a, false));
+      encendidas.clear();
+      capaIgnicion?.replaceChildren();
+      capaOndas?.replaceChildren();
+      vaciar();
+    }
+
+    function relojDe(i: number) {
+      const [dia, hm] = D.pasos[i].reloj.split(' ');
+      const [h, m] = hm.split(':').map(Number);
+      diaBase = dia;
+      minutoBase = h * 60 + m;
     }
 
     function irA(i: number) {
       limpiar();
       actual = i;
       raiz.dataset.paso = String(i + 1);
-      todos('[data-en]').forEach((el) => el.classList.toggle('on', (el.dataset.en || '').split(' ').includes(String(i + 1))));
-      marca('[data-org-humanos]', 'data-aprobado', i >= 2);
-      if (i < 4) cola(3);
+      marcarPaso();
 
-      if (num) num.textContent = String(i + 1);
-      if (titulo) titulo.textContent = PASOS[i].titulo;
-      if (texto) texto.textContent = PASOS[i].texto;
+      // Lo anterior queda escrito, ya terminado.
+      hilo.replaceChildren(el(`<div class="sc-intro"><span class="sc-intro-av">${D.av.orq}</span><p class="sc-intro-t">Orquestador</p><p class="sc-intro-s">Coordina a diez agentes en tres pilares. Nada sale sin que lo aprueben Philippe y Patrick.</p><p class="sc-intro-chips"><span>10 agentes</span><span>3 pilares</span><span>Revisión humana</span></p></div>`));
+      todosAgentes('Esperando instrucciones', 'espera');
+      nodo('personas')?.removeAttribute('data-aprobado');
+      raiz.querySelectorAll('[data-org-cola]').forEach((e) => (e.textContent = '0'));
+      salidas(0);
+      instantaneo = true;
+      for (let k = 0; k < i; k++) { relojDe(k); guion[k](); }
+      instantaneo = false;
+      hilo.scrollTop = hilo.scrollHeight;
+
+      relojDe(i);
+      inicioPaso = performance.now();
+      pintarReloj();
+      cada(500, pintarReloj);
+      if (titulo) titulo.textContent = `${D.pasos[i].titulo}.`;
+      if (texto) texto.textContent = D.pasos[i].texto;
       if (!reducido && narracion) {
-        narracion.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+        narracion.animate([{ opacity: 0, transform: 'translateY(4px)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.16, 1, .3, 1)' });
       }
 
       botones.forEach((b) => b.removeAttribute('data-actual'));
-      void reproductor.offsetWidth; // reinicia la barra del paso actual
+      void reproductor.offsetWidth; // reinicia el relleno del paso actual
       botones.forEach((b, k) => {
         b.toggleAttribute('data-hecho', k < i);
         b.toggleAttribute('data-actual', k === i);
@@ -621,20 +791,21 @@ const flujoMovil = [
       });
 
       guion[i]();
-      if (reproduciendo && visible) tiempos.push(window.setTimeout(() => irA((i + 1) % PASOS.length), DUR[i]));
+      if (reproduciendo && visible) tiempos.push(window.setTimeout(() => irA((i + 1) % D.pasos.length), DUR[i]));
     }
 
     const pintarPlay = () => {
       raiz.toggleAttribute('data-reproduciendo', reproduciendo);
       btnPlay?.setAttribute('aria-label', reproduciendo ? 'Pausar' : 'Reproducir');
     };
-
     btnPlay?.addEventListener('click', () => { reproduciendo = !reproduciendo; pintarPlay(); irA(Math.max(0, actual)); });
-    raiz.querySelector('[data-org-anterior]')?.addEventListener('click', () => irA((Math.max(0, actual) + PASOS.length - 1) % PASOS.length));
-    raiz.querySelector('[data-org-siguiente]')?.addEventListener('click', () => irA((Math.max(0, actual) + 1) % PASOS.length));
     botones.forEach((b, k) => b.addEventListener('click', () => irA(k)));
-
     pintarPlay();
+
+    trazar();
+    if (arbol) new ResizeObserver(() => trazar()).observe(arbol);
+    document.fonts?.ready.then(trazar);
+
     // Solo corre mientras se ve. Al volver, el paso empieza de nuevo.
     new IntersectionObserver(([e]) => {
       visible = e.isIntersecting;
