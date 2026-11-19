@@ -118,6 +118,7 @@ const AV: Record<string, string> = {
 const datosGuion = {
   pasos: pasos.map(({ titulo, texto, reloj, chat }) => ({ titulo, texto, reloj, chat })),
   agentes: agentes.map(({ nombre, color, tareas, avance, ritmo }) => ({ nombre, color, tareas, avance, ritmo })),
+  pilares: pilares.map(({ color }) => ({ color })),
   av: AV,
 };
 ---
@@ -169,46 +170,68 @@ const datosGuion = {
       <div class="sc-ventana" aria-hidden="true">
         <aside class="sc-lateral">
           <div class="sc-lateral-cab">
-            <span class="sc-luces"><i></i><i></i><i></i></span>
-            <span class="sc-iconos">
-              <span class="sc-icono"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6" /><path d="M20 20l-4.5-4.5" /></svg></span>
-              <span class="sc-icono"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" /></svg></span>
+            <span class="sc-marca">
+              <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true">
+                <rect width="32" height="32" rx="7.5" fill="#0A1628" />
+                <g stroke="#5C86FF" stroke-width="1.5" stroke-linecap="round" opacity="0.85"><path d="M10 21.5 L9.5 11" /><path d="M9.5 11 L21 8.5" /><path d="M10 21.5 L22 19" /><path d="M9.5 11 L22 19" /><path d="M21 8.5 L22 19" /></g>
+                <circle cx="9.5" cy="11" r="3.1" fill="#2F5CFF" /><circle cx="21" cy="8.5" r="2.3" fill="#93B1FF" /><circle cx="22" cy="19" r="2.6" fill="#FFFFFF" /><circle cx="10" cy="21.5" r="2.1" fill="#93B1FF" />
+              </svg>
+              Organigrama
             </span>
+            <span class="sc-trimestre">Trimestre Q1</span>
           </div>
-          <div class="sc-fijos">
-            <div class="sc-fijo" data-activo>
-              <Fragment set:html={AV.orq} />
-              <span>Orquestador</span>
-            </div>
-            {pilares.map((p) => (
-              <div class="sc-fijo">
-                <Fragment set:html={AV[p.id]} />
-                <span>{p.nombre}</span>
-              </div>
-            ))}
-          </div>
-          <ul class="sc-agentes">
-            {agentes.map((a, k) => (
-              <li class="sc-agente" data-agente={k} data-tono="espera">
-                <Fragment set:html={AV[`a${k}`]} />
-                <span class="min-w-0">
-                  <span class="sc-agente-nombre">{a.nombre}<i class="sc-agente-pilar">{pilares[a.pilar].nombre}</i></span>
-                  <span class="sc-agente-estado" data-agente-estado>Esperando instrucciones</span>
-                </span>
+          <div class="sc-arbol" data-arbol>
+            <svg class="sc-lineas" data-lineas aria-hidden="true">
+              <g data-capa-base></g>
+              <g data-capa-ignicion></g>
+              <g data-capa-estelas></g>
+              <g data-capa-paquetes></g>
+              <g data-capa-ondas></g>
+            </svg>
+            <ol class="sc-nodos">
+              <li class="sc-nodo sc-n0" data-nodo="personas" data-en="1 2">
+                <span class="sc-pareja" data-av><Fragment set:html={AV.philippe} /><Fragment set:html={AV.patrick} /></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Philippe y Patrick</span><span class="sc-nodo-estado">Fijan el objetivo y aprueban</span></span>
+                <span class="sc-visto" aria-hidden="true">✓</span>
               </li>
-            ))}
-          </ul>
-          <div class="sc-lateral-pie">
-            <span class="sc-pie-avs"><Fragment set:html={AV.philippe} /><Fragment set:html={AV.patrick} /></span>
-            Philippe y Patrick
+              <li class="sc-nodo sc-n1" data-nodo="orq" data-en="1 2 3 4 5 6">
+                <span data-av><Fragment set:html={AV.orq} /></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Orquestador</span><span class="sc-nodo-estado sc-estado-orq" data-orq-estado>Esperando el objetivo</span></span>
+              </li>
+              {pilares.map((p, i) => (
+                <Fragment>
+                  <li class="sc-nodo sc-n2 sc-nodo-pilar" data-nodo={`pilar-${i}`} data-en="3 4">
+                    <span data-av><Fragment set:html={AV[p.id]} /></span>
+                    <span class="sc-nodo-nombre">{p.nombre}</span>
+                    <span class="sc-nodo-cuenta">{agentes.filter((a) => a.pilar === i).length} agentes</span>
+                  </li>
+                  {agentes.map((a, k) => a.pilar === i && (
+                    <li class="sc-nodo sc-n3 sc-agente" data-nodo={`agente-${k}`} data-agente={k} data-tono="espera" data-en="3 4 5 6">
+                      <span data-av><Fragment set:html={AV[`a${k}`]} /></span>
+                      <span class="min-w-0"><span class="sc-nodo-nombre">{a.nombre}</span><span class="sc-agente-estado" data-agente-estado>Esperando instrucciones</span></span>
+                    </li>
+                  ))}
+                </Fragment>
+              ))}
+              <li class="sc-nodo sc-n0 sc-nodo-rev" data-nodo="revision" data-en="5 6">
+                <span class="sc-pareja" data-av><Fragment set:html={AV.philippe} /><Fragment set:html={AV.patrick} /></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Revisión humana</span><span class="sc-nodo-estado">Nada sale sin pasar por aquí</span></span>
+                <span class="sc-contador sc-contador-ambar"><span data-org-cola>0</span> en cola</span>
+              </li>
+              <li class="sc-nodo sc-n1 sc-nodo-cliente" data-nodo="cliente" data-en="6">
+                <span data-av><span class="sc-av sc-av-cliente"><svg viewBox="0 0 24 24"><path d="M6 12.5l4 4 8-9" /></svg></span></span>
+                <span class="min-w-0"><span class="sc-nodo-nombre">Cliente</span><span class="sc-nodo-estado">Recibe lo aprobado</span></span>
+                <span class="sc-contador sc-contador-verde"><span data-org-salidas>0</span> entregas</span>
+              </li>
+            </ol>
           </div>
         </aside>
 
         <div class="sc-chat">
           <div class="sc-chat-cab">
-            <span class="sc-chat-cab-izq"><span class="sc-luces sc-luces-movil"><i></i><i></i><i></i></span></span>
+            <span class="sc-chat-cab-izq"></span>
             <span class="sc-chat-titulo"><Fragment set:html={AV.orq} />Orquestador</span>
-            <span class="sc-chat-cab-der"><span class="sc-compartir">Compartir</span></span>
+            <span class="sc-chat-cab-der"><span class="sc-reloj"><i></i><span data-org-reloj>Lunes 09:00</span></span></span>
           </div>
           <div class="sc-hilo" data-org-hilo></div>
           <div class="sc-composer" data-org-composer>
@@ -227,23 +250,27 @@ const datosGuion = {
 
 <script>
   /**
-   * El guion de la app. Cada paso escribe en el hilo: alguien teclea en el
+   * El guion de la app. Cada paso escribe en el hilo (alguien teclea en el
    * campo de mensaje y lo envía, el orquestador piensa y contesta con una
-   * tarjeta, y la lista de agentes cambia de estado. Al saltar a un paso, los
-   * anteriores se escriben al instante, ya terminados. Se reproduce solo
-   * mientras la sección está en pantalla. Con movimiento reducido todo
-   * aparece terminado y no hay reproducción automática.
+   * tarjeta) y mueve el organigrama de la izquierda: el trabajo viaja por sus
+   * líneas con el color de quien lo lleva, y cada nodo cambia de estado. Al
+   * saltar a un paso, los anteriores se escriben al instante, ya terminados.
+   * Se reproduce solo mientras la sección está en pantalla. Con movimiento
+   * reducido todo aparece terminado y no hay reproducción automática.
    */
+  const NS = 'http://www.w3.org/2000/svg';
   const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const DUR = [7600, 10000, 7500, 9000, 12500, 11500];
+  const DUR = [7600, 10000, 8000, 9000, 12500, 11500];
 
   type Quien = 'philippe' | 'patrick' | 'orq';
   type Agente = { nombre: string; color: string; tareas: number; avance: string; ritmo: number };
   type Datos = {
     pasos: { titulo: string; texto: string; reloj: string; chat: { q: Quien; t: string }[] }[];
     agentes: Agente[];
+    pilares: { color: string }[];
     av: Record<string, string>;
   };
+  type Paquete = { color?: string; dur?: number; inverso?: boolean; onda?: number; alLlegar?: () => void };
   // Lo que entrega cada agente en la revisión, en el orden en que llega.
   const ENTREGAS: [number, string][] = [
     [0, 'Secuencia de 5 correos'], [4, 'Artículo: pagos B2B'], [7, 'Scoring de cuentas'],
@@ -255,10 +282,21 @@ const datosGuion = {
     ['operar', 'Scoring de cuentas en el CRM', '4 tareas'],
   ];
   const PILARES: Record<string, string> = { captar: 'Captar', atraer: 'Atraer', operar: 'Operar' };
+  const SUBS_DE = [[0, 1, 2, 3], [4, 5, 6], [7, 8, 9]];
+  const NEGRO = '#0a0a0a', AZUL = '#2f5cff', ROJO = '#e5484d', AMBAR = '#f5a524', VERDE = '#22c55e';
+  const SUAVE = 'cubic-bezier(.65, 0, .35, 1)';
+  const suave = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
   const T4 = 8; // segundos de ejecución en el paso 4
 
   document.querySelectorAll<HTMLElement>('[data-org]').forEach((raiz) => {
     const hilo = raiz.querySelector<HTMLElement>('[data-org-hilo]')!;
+    const arbol = raiz.querySelector<HTMLElement>('[data-arbol]');
+    const lineas = raiz.querySelector<SVGSVGElement>('[data-lineas]');
+    const capaBase = raiz.querySelector<SVGGElement>('[data-capa-base]');
+    const capaIgnicion = raiz.querySelector<SVGGElement>('[data-capa-ignicion]');
+    const capaEstelas = raiz.querySelector<SVGGElement>('[data-capa-estelas]');
+    const capaPaquetes = raiz.querySelector<SVGGElement>('[data-capa-paquetes]');
+    const capaOndas = raiz.querySelector<SVGGElement>('[data-capa-ondas]');
     const composerAv = raiz.querySelector<HTMLElement>('[data-composer-av]');
     const composerTxt = raiz.querySelector<HTMLElement>('[data-composer-txt]');
     const composer = raiz.querySelector<HTMLElement>('[data-org-composer]');
@@ -266,6 +304,7 @@ const datosGuion = {
     const narracion = raiz.querySelector<HTMLElement>('[data-org-narracion]');
     const titulo = raiz.querySelector('[data-org-titulo]');
     const texto = raiz.querySelector('[data-org-texto]');
+    const reloj = raiz.querySelector('[data-org-reloj]');
     const botones = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-org-ir]'));
     const btnPlay = raiz.querySelector<HTMLButtonElement>('[data-org-play]');
     const D: Datos = JSON.parse(raiz.querySelector('[data-org-datos]')?.textContent || '{}');
@@ -280,6 +319,10 @@ const datosGuion = {
     let instantaneo = false;
     let ahora = 0;          // ms del evento que se está pintando, para la hora
     let minutoBase = 0;
+    let diaBase = '';
+    let inicioPaso = 0;
+    const vuelos = new Set<{ cancelado: boolean }>();
+    const encendidas = new Map<string, SVGGElement>();
 
     // Con movimiento reducido, o al reconstruir un paso anterior, todo ocurre ya.
     const en = (ms: number, fn: () => void) => {
@@ -297,9 +340,11 @@ const datosGuion = {
       return t.content.firstElementChild as HTMLElement;
     };
     const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]!));
-    const hora = () => {
-      const m = minutoBase + Math.floor(ahora / 1000);
-      return `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+    const hhmm = (m: number) => `${String(Math.floor(m / 60) % 24).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`;
+    const hora = () => hhmm(minutoBase + Math.floor(ahora / 1000));
+    const pintarReloj = () => {
+      const seg = reducido ? 0 : Math.floor((performance.now() - inicioPaso) / 1000);
+      if (reloj) reloj.textContent = `${diaBase} ${hhmm(minutoBase + seg)}`;
     };
     const bajar = () => hilo.scrollTo({ top: hilo.scrollHeight, behavior: animado() ? 'smooth' : 'auto' });
     const poner = (nodo: HTMLElement) => {
@@ -308,6 +353,133 @@ const datosGuion = {
       bajar();
       return nodo;
     };
+
+    // ── El organigrama: líneas, paquetes y estados ────────────────
+    const nodo = (id: string) => raiz.querySelector<HTMLElement>(`[data-nodo="${id}"]`);
+    // Las líneas se trazan con las posiciones reales de los nodos.
+    function trazar() {
+      if (!arbol || !lineas || !capaBase || arbol.getBoundingClientRect().width === 0) return;
+      const base = arbol.getBoundingClientRect();
+      const W = base.width, H = base.height;
+      lineas.setAttribute('viewBox', `0 0 ${W} ${H}`);
+      const av = (id: string) => {
+        const r = nodo(id)?.querySelector('[data-av]')?.getBoundingClientRect();
+        return r ? { x: r.left - base.left, y: r.top - base.top, w: r.width, h: r.height, cx: r.left - base.left + r.width / 2, cy: r.top - base.top + r.height / 2 } : null;
+      };
+      const fila = (id: string) => {
+        const r = nodo(id)?.getBoundingClientRect();
+        return r ? { der: r.right - base.left, cy: r.top - base.top + r.height / 2 } : null;
+      };
+      // Del avatar del padre baja y entra por la izquierda del hijo, con la esquina redonda.
+      const codo = (de: string, a: string, r = 8) => {
+        const p = av(de), h = av(a);
+        if (!p || !h) return '';
+        const x = p.cx, y0 = p.y + p.h + 2, y1 = h.cy, x1 = h.x - 3;
+        return `M${x},${y0} V${y1 - r} Q${x},${y1} ${x + r},${y1} H${x1}`;
+      };
+      const BUS = W - 12;
+      const rutas: [string, string, string][] = [
+        ['h', '1 2', codo('personas', 'orq')],
+        ...[0, 1, 2].map((i) => [`p${i}`, '3', codo('orq', `pilar-${i}`)] as [string, string, string]),
+        ...SUBS_DE.flatMap((ks, i) => ks.map((k) => [`s${k}`, '3 4', codo(`pilar-${i}`, `agente-${k}`)] as [string, string, string])),
+        // Todo vuelve a la revisión por el bus de la derecha.
+        ...D.agentes.map((_, k) => {
+          const f = fila(`agente-${k}`), rv = fila('revision');
+          const d = f && rv ? `M${f.der - 18},${f.cy} H${BUS - 8} Q${BUS},${f.cy} ${BUS},${f.cy + 8} V${rv.cy - 8} Q${BUS},${rv.cy} ${BUS - 8},${rv.cy} H${rv.der - 8}` : '';
+          return [`r${k}`, '5', d] as [string, string, string];
+        }),
+        ['o', '6', codo('revision', 'cliente')],
+      ];
+      // Lo aprendido sube por la izquierda, del cliente al orquestador.
+      const c = av('cliente'), o = av('orq');
+      if (c && o) rutas.push(['bucle', '6', `M${c.x - 3},${c.cy} H14 Q6,${c.cy} 6,${c.cy - 8} V${o.cy + 8} Q6,${o.cy} 14,${o.cy} H${o.x - 3}`]);
+      capaBase.innerHTML = rutas.map(([id, enP, d]) => `<path class="sc-linea${id === 'bucle' ? ' sc-linea-bucle' : ''}${id.startsWith('r') ? ' sc-linea-bus' : ''}" data-ruta="${id}" data-en="${enP}" d="${d}"/>`).join('');
+      marcarPaso();
+    }
+    const enArbol = () => !!arbol && arbol.getBoundingClientRect().width > 0;
+
+    function encender(ruta: string, camino: SVGPathElement, color: string, dur: number, inverso: boolean) {
+      const clave = `${ruta}|${color}`;
+      if (!capaIgnicion || encendidas.has(clave)) return;
+      const d = camino.getAttribute('d') || '';
+      const g = document.createElementNS(NS, 'g');
+      g.innerHTML = `<path d="${d}" pathLength="1" fill="none" stroke="${color}" stroke-width="5" stroke-opacity=".1"/><path d="${d}" pathLength="1" fill="none" stroke="${color}" stroke-width="1.6" stroke-opacity=".75"/>`;
+      capaIgnicion.appendChild(g);
+      encendidas.set(clave, g);
+      g.querySelectorAll('path').forEach((p) => {
+        p.style.strokeDasharray = '1 1';
+        p.animate([{ strokeDashoffset: inverso ? -1 : 1 }, { strokeDashoffset: 0 }], { duration: dur, easing: SUAVE, fill: 'both' });
+      });
+    }
+    function apagar(ruta: string, color: string) {
+      const g = encendidas.get(`${ruta}|${color}`);
+      if (!g) return;
+      encendidas.delete(`${ruta}|${color}`);
+      g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400 }).onfinish = () => g.remove();
+    }
+    function onda(x: number, y: number, color: string, r = 16) {
+      if (!animado() || !capaOndas) return;
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      g.innerHTML = `<circle class="sc-onda" r="${r}" fill="none" stroke="${color}" stroke-width="1.5"/>`;
+      capaOndas.appendChild(g);
+      (g.firstElementChild as SVGElement).animate([{ transform: 'scale(.2)', opacity: 0.9 }, { transform: 'scale(1)', opacity: 0 }], { duration: 700, easing: 'cubic-bezier(.16, 1, .3, 1)' }).onfinish = () => g.remove();
+    }
+    function paquete(ruta: string, { color = AZUL, dur = 900, inverso = false, onda: radio = 16, alLlegar }: Paquete = {}) {
+      const camino = raiz.querySelector<SVGPathElement>(`[data-ruta="${ruta}"]`);
+      if (!animado() || !camino || !capaPaquetes || !capaEstelas || !enArbol() || !camino.getAttribute('d')) { alLlegar?.(); return; }
+      encender(ruta, camino, color, dur, inverso);
+      const largo = camino.getTotalLength();
+      const d = camino.getAttribute('d') || '';
+      const larga = Math.min(70, largo * 0.5);
+      const estela = document.createElementNS(NS, 'g');
+      const capas: [number, number, number][] = [[1, 1.4, 0.25], [0.5, 2.2, 0.6], [0.22, 2.8, 1]];
+      estela.innerHTML = capas.map(([, w, op]) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-opacity="${op}" stroke-linecap="round"/>`).join('');
+      const trazos = Array.from(estela.children as HTMLCollectionOf<SVGPathElement>).map((pt, k) => {
+        const L = larga * capas[k][0];
+        pt.style.strokeDasharray = `${L} ${largo + L + 20}`;
+        pt.style.strokeDashoffset = String(L);
+        return { pt, L };
+      });
+      capaEstelas.appendChild(estela);
+      const g = document.createElementNS(NS, 'g');
+      g.innerHTML = `<circle r="7" fill="${color}" opacity=".18"/><circle r="3.6" fill="${color}"/><circle r="1.4" fill="#fff"/>`;
+      capaPaquetes.appendChild(g);
+      const t0 = performance.now();
+      const vuelo = { cancelado: false };
+      vuelos.add(vuelo);
+      const cuadro = (t: number) => {
+        if (vuelo.cancelado) { g.remove(); estela.remove(); vuelos.delete(vuelo); return; }
+        const k = Math.min(1, (t - t0) / dur);
+        const pos = (inverso ? 1 - suave(k) : suave(k)) * largo;
+        const pnt = camino.getPointAtLength(pos);
+        g.setAttribute('transform', `translate(${pnt.x.toFixed(1)} ${pnt.y.toFixed(1)})`);
+        trazos.forEach(({ pt, L }) => (pt.style.strokeDashoffset = String(inverso ? -pos : L - pos)));
+        if (k < 1) { requestAnimationFrame(cuadro); return; }
+        vuelos.delete(vuelo);
+        onda(pnt.x, pnt.y, color, radio);
+        g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250 }).onfinish = () => g.remove();
+        estela.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 380 }).onfinish = () => estela.remove();
+        alLlegar?.();
+      };
+      requestAnimationFrame(cuadro);
+    }
+    const recibe = (id: string) => {
+      const n = nodo(id);
+      if (!n || !animado()) return;
+      n.removeAttribute('data-recibe'); void n.offsetWidth; n.setAttribute('data-recibe', '');
+    };
+    const sacude = (id: string) => {
+      const n = nodo(id);
+      if (!n || !animado()) return;
+      n.removeAttribute('data-sacude'); void n.offsetWidth; n.setAttribute('data-sacude', '');
+    };
+    const orqEstado = (t: string) => raiz.querySelectorAll('[data-orq-estado]').forEach((e) => (e.textContent = t));
+    const salidas = (n: number) => raiz.querySelectorAll('[data-org-salidas]').forEach((e) => (e.textContent = String(n)));
+    function marcarPaso() {
+      if (actual < 0) return;
+      raiz.querySelectorAll<HTMLElement | SVGElement>('[data-en]').forEach((e) => e.classList.toggle('on', (e.dataset.en || '').split(' ').includes(String(actual + 1))));
+    }
 
     // ── Mensajes ──────────────────────────────────────────────────
     function separador(t: string) { poner(el(`<p class="sc-sep"><span>${esc(t)}</span></p>`)); }
@@ -320,16 +492,14 @@ const datosGuion = {
     function humano(q: Quien, textoMsg: string) {
       poner(el(`<div class="sc-m sc-m-humano"><p class="sc-m-quien"><time>${hora()}</time> ${NOMBRE[q]} ${D.av[q]}</p><p class="sc-burbuja">${esc(textoMsg)}</p></div>`));
     }
-    // "Pensando", con los puntos. Solo se ve cuando hay animación.
     function pensar(desde: number, hasta: number) {
-      let nodo: HTMLElement | null = null;
+      let n: HTMLElement | null = null;
       en(desde, () => {
         if (!animado()) return;
-        nodo = poner(el(`<div class="sc-pensando">${D.av.orq}<span class="sc-puntos"><i></i><i></i><i></i></span><span class="sc-brillo">Pensando</span></div>`));
+        n = poner(el(`<div class="sc-pensando">${D.av.orq}<span class="sc-puntos"><i></i><i></i><i></i></span><span class="sc-brillo">Pensando</span></div>`));
       });
-      en(hasta, () => nodo?.remove());
+      en(hasta, () => n?.remove());
     }
-    // Alguien escribe en el campo de mensaje y lo envía.
     function escribir(q: Quien, textoMsg: string, ms: number) {
       const dur = Math.min(2400, textoMsg.length * 24);
       en(ms, () => {
@@ -344,10 +514,7 @@ const datosGuion = {
         }, 30);
         ciclos.push(id);
       });
-      en(ms + dur + 300, () => {
-        vaciar();
-        humano(q, textoMsg);
-      });
+      en(ms + dur + 300, () => { vaciar(); humano(q, textoMsg); });
       return ms + dur + 300;
     }
     function vaciar() {
@@ -355,15 +522,17 @@ const datosGuion = {
       if (composerAv) composerAv.innerHTML = '';
       if (composerTxt) composerTxt.innerHTML = placeholder;
     }
+    function aviso(k: number, t: string) {
+      poner(el(`<p class="sc-aviso">${D.av[`a${k}`]}<span>${esc(t)}</span><time>${hora()}</time></p>`));
+    }
 
-    // ── Lista de agentes ──────────────────────────────────────────
+    // ── Estados de los agentes ────────────────────────────────────
     function agente(k: number, estadoTxt: string, tono: string) {
       const li = raiz.querySelector<HTMLElement>(`[data-agente="${k}"]`);
       if (!li) return;
       li.dataset.tono = tono;
       const s = li.querySelector('[data-agente-estado]');
       if (s) s.textContent = estadoTxt;
-      if (animado()) { li.removeAttribute('data-cambia'); void li.offsetWidth; li.setAttribute('data-cambia', ''); }
     }
     const todosAgentes = (estadoTxt: string, tono: string) => D.agentes.forEach((_, k) => agente(k, estadoTxt, tono));
 
@@ -372,7 +541,7 @@ const datosGuion = {
       return el(`<div class="sc-card" data-estado="borrador">
         <div class="sc-card-cab"><span>Plan del trimestre</span><span class="sc-tag" data-tag-borrador>Borrador</span><span class="sc-tag sc-tag-ok" data-tag-ok>Aprobado</span></div>
         ${PLAN.map(([id, que, n]) => `<div class="sc-fila">${D.av[id]}<span class="sc-fila-txt"><b>${PILARES[id]}</b><span>${esc(que)}</span></span><span class="sc-fila-der">${n}</span></div>`).join('')}
-        <div class="sc-card-pie"><span class="sc-btn sc-btn-negro" data-boton-aprobar>Aprobar plan</span><span class="sc-btn" data-boton-cambios>Pedir cambios</span><span class="sc-aprobado" data-aprobado>${D.av.patrick} Aprobado por Patrick</span></div>
+        <div class="sc-card-pie"><span class="sc-btn sc-btn-negro" data-boton-aprobar>Aprobar plan</span><span class="sc-btn">Pedir cambios</span><span class="sc-aprobado">${D.av.patrick} Aprobado por Patrick</span></div>
       </div>`);
     }
     function tarjetaReparto() {
@@ -384,7 +553,7 @@ const datosGuion = {
     function tarjetaAvance() {
       return el(`<div class="sc-card">
         <div class="sc-card-cab"><span>En marcha</span><span class="sc-tag sc-tag-azul"><span class="sc-punto-vivo"></span>10 agentes</span></div>
-        <div class="sc-avances">${D.agentes.map((a, k) => `<div class="sc-avance" data-avance="${k}" style="--c:${a.color};--t:${a.ritmo}s">${D.av[`a${k}`]}<span class="sc-avance-txt"><b>${esc(a.nombre)}</b><span>${esc(a.avance)}</span></span><span class="sc-barra"><i></i></span><span class="sc-pct" data-pct>0%</span></div>`).join('')}</div>
+        <div class="sc-avances">${D.agentes.map((a, k) => `<div class="sc-avance" data-avance="${k}" style="--c:${a.color}">${D.av[`a${k}`]}<span class="sc-avance-txt"><b>${esc(a.nombre)}</b><span>${esc(a.avance)}</span></span><span class="sc-barra"><i></i></span><span class="sc-pct" data-pct>0%</span></div>`).join('')}</div>
       </div>`);
     }
     function tarjetaRevision() {
@@ -401,10 +570,6 @@ const datosGuion = {
         ${ENTREGAS.map(([k, que], j) => `<div class="sc-fila sc-envio" data-envio="${j}">${D.av[`a${k}`]}<span class="sc-fila-txt"><b>${esc(que)}</b><span>${esc(D.agentes[k].nombre)}${j === 0 ? ' · versión corregida' : ''}</span></span><span class="sc-fila-der"><span class="sc-giro"></span><span class="sc-ok">✓</span></span></div>`).join('')}
       </div>`);
     }
-    // Un aviso del sistema en el hilo, centrado y pequeño.
-    function aviso(k: number, t: string) {
-      poner(el(`<p class="sc-aviso">${D.av[`a${k}`]}<span>${esc(t)}</span><time>${hora()}</time></p>`));
-    }
     function tarjetaRegla() {
       return el(`<div class="sc-card sc-card-regla">
         <div class="sc-card-cab"><span>Regla nueva</span><span class="sc-tag sc-tag-violeta">Memoria</span></div>
@@ -413,17 +578,17 @@ const datosGuion = {
       </div>`);
     }
 
-    // Busca en el hilo la última tarjeta de un tipo, aunque se haya pintado en otro paso.
     const ultima = (sel: string) => Array.from(hilo.querySelectorAll<HTMLElement>(sel)).pop();
     const estadoEntrega = (j: number, e: string) => {
       const f = ultima(`[data-entrega="${j}"]`);
       if (f) f.dataset.estado = e;
     };
     const contarCola = () => {
-      const card = ultima('[data-cola]');
-      if (!card) return;
       const filas = Array.from(hilo.querySelectorAll<HTMLElement>('[data-entrega]')).slice(-6);
-      card.textContent = String(filas.filter((f) => ['pendiente', 'corregido'].includes(f.dataset.estado || '')).length);
+      const n = filas.filter((f) => ['pendiente', 'corregido'].includes(f.dataset.estado || '')).length;
+      const card = ultima('[data-cola]');
+      if (card) card.textContent = String(n);
+      raiz.querySelectorAll('[data-org-cola]').forEach((e) => (e.textContent = String(n)));
     };
 
     // ── El guion, paso a paso ─────────────────────────────────────
@@ -431,46 +596,58 @@ const datosGuion = {
       // 1. Fijamos el objetivo
       () => {
         separador('Lunes');
+        orqEstado('Esperando el objetivo');
         const fin = escribir('philippe', D.pasos[0].chat[0].t, 500);
-        pensar(fin + 300, fin + 1900);
-        en(fin + 1900, () => orq(D.pasos[0].chat[1].t));
+        en(fin + 100, () => paquete('h', { color: NEGRO, dur: 900, alLlegar: () => { recibe('orq'); orqEstado('Leyendo el objetivo…'); } }));
+        pensar(fin + 500, fin + 2000);
+        en(fin + 2000, () => orq(D.pasos[0].chat[1].t));
       },
       // 2. Lo lee y propone un plan
       () => {
+        orqEstado('Preparando el plan…');
         pensar(200, 1500);
         let plan: HTMLElement;
-        en(1500, () => { plan = tarjetaPlan(); orq(D.pasos[1].chat[0].t, plan); });
+        en(1500, () => {
+          plan = tarjetaPlan();
+          orq(D.pasos[1].chat[0].t, plan);
+          orqEstado('Esperando aprobación');
+          paquete('h', { color: AZUL, inverso: true, dur: 900, alLlegar: () => recibe('personas') });
+        });
         en(4200, () => plan?.querySelector('[data-boton-aprobar]')?.setAttribute('data-hover', ''));
         const fin = escribir('patrick', D.pasos[1].chat[1].t, 4400);
-        en(fin + 400, () => {
+        en(fin + 300, () => {
           plan?.querySelector('[data-boton-aprobar]')?.removeAttribute('data-hover');
           if (plan) plan.dataset.estado = 'aprobado';
+          nodo('personas')?.setAttribute('data-aprobado', '');
+          paquete('h', { color: NEGRO, dur: 900, alLlegar: () => { recibe('orq'); orqEstado('Plan aprobado'); } });
         });
       },
       // 3. Reparte el trabajo
       () => {
-        pensar(200, 1300);
+        nodo('personas')?.setAttribute('data-aprobado', '');
+        orqEstado('Repartiendo 14 tareas');
+        pensar(200, 1200);
         let rep: HTMLElement;
-        en(1300, () => { rep = tarjetaReparto(); orq(D.pasos[2].chat[0].t, rep); });
+        en(1200, () => { rep = tarjetaReparto(); orq(D.pasos[2].chat[0].t, rep); });
         let total = 0;
-        D.agentes.forEach((a, k) => en(2100 + k * 260, () => {
-          rep?.querySelector(`[data-chip="${k}"]`)?.setAttribute('data-on', '');
-          total += a.tareas;
-          const t = rep?.querySelector('[data-total]');
-          if (t) t.textContent = String(total);
-          agente(k, `Recibió ${a.tareas} ${a.tareas === 1 ? 'tarea' : 'tareas'} · leyendo límites`, 'recibido');
-        }));
+        [0, 1, 2].forEach((i) => en(1500 + i * 350, () => paquete(`p${i}`, { color: AZUL, dur: 800, alLlegar: () => {
+          recibe(`pilar-${i}`);
+          SUBS_DE[i].forEach((k, j) => en(100 + j * 160, () => paquete(`s${k}`, { color: D.pilares[i].color, dur: 600, onda: 13, alLlegar: () => {
+            const a = D.agentes[k];
+            recibe(`agente-${k}`);
+            rep?.querySelector(`[data-chip="${k}"]`)?.setAttribute('data-on', '');
+            total += a.tareas;
+            const t = rep?.querySelector('[data-total]');
+            if (t) t.textContent = String(total);
+            agente(k, `Recibió ${a.tareas} ${a.tareas === 1 ? 'tarea' : 'tareas'}`, 'recibido');
+          } })));
+        } })));
       },
       // 4. Ejecutan a la vez
       () => {
+        orqEstado('10 agentes en marcha');
         let card: HTMLElement;
-        en(300, () => {
-          card = tarjetaAvance();
-          orq(D.pasos[3].chat[0].t, card);
-        });
-        D.agentes.forEach((a, k) => en(900 + k * 180, () => agente(k, a.avance, 'trabajando')));
-        // El porcentaje de cada barra, al ritmo de su animación.
-        const t0 = performance.now() + 300;
+        en(300, () => { card = tarjetaAvance(); orq(D.pasos[3].chat[0].t, card); });
         const pintar = (seg: number) => card?.querySelectorAll<HTMLElement>('[data-avance]').forEach((fila) => {
           const k = Number(fila.dataset.avance);
           const pct = Math.max(0, Math.min(100, Math.round((seg / D.agentes[k].ritmo) * 100)));
@@ -478,54 +655,80 @@ const datosGuion = {
           if (p) p.textContent = `${pct}%`;
           fila.style.setProperty('--p', String(pct / 100));
           fila.toggleAttribute('data-ok', pct >= 100);
+          agente(k, `${pct >= 100 ? 'Listo' : `${pct}%`} · ${D.agentes[k].avance}`, pct >= 100 ? 'listo' : 'trabajando');
         });
-        if (animado()) cada(120, () => pintar((performance.now() - t0) / 1000));
-        else en(300, () => pintar(T4));
+        const t0 = performance.now() + 300;
+        if (animado()) {
+          cada(150, () => pintar((performance.now() - t0) / 1000));
+          // El orquestador y los agentes se hablan mientras trabajan.
+          cada(320, () => {
+            const k = Math.floor(Math.random() * 10);
+            const i = SUBS_DE.findIndex((ks) => ks.includes(k));
+            paquete(`s${k}`, { color: D.agentes[k].color, dur: 650, inverso: Math.random() < 0.5, onda: 11 });
+            if (Math.random() < 0.3) paquete(`p${i}`, { color: AZUL, dur: 700, inverso: Math.random() < 0.5, onda: 11 });
+          });
+        } else en(300, () => pintar(T4));
       },
       // 5. Todo vuelve a nosotros
       () => {
+        orqEstado('Recogiendo entregas');
         const listos = new Set(ENTREGAS.map(([k]) => k));
-        D.agentes.forEach((a, k) => { if (!listos.has(k)) agente(k, a.avance, 'trabajando'); });
+        D.agentes.forEach((a, k) => { if (!listos.has(k)) agente(k, `Trabajando · ${a.avance}`, 'trabajando'); });
         separador('Martes');
         pensar(300, 1300);
         en(1300, () => orq(D.pasos[4].chat[0].t, tarjetaRevision()));
-        ENTREGAS.forEach(([k, que], j) => en(1900 + j * 320, () => {
+        ENTREGAS.forEach(([k, que], j) => en(1600 + j * 380, () => paquete(`r${k}`, { color: D.agentes[k].color, dur: 950, alLlegar: () => {
           estadoEntrega(j, 'pendiente');
           contarCola();
+          recibe('revision');
           agente(k, `Entregó: ${que.charAt(0).toLowerCase()}${que.slice(1)}`, 'revision');
-        }));
-        const fin = escribir('patrick', D.pasos[4].chat[1].t, 4600);
+          if (j === ENTREGAS.length - 1) orqEstado('6 entregas en revisión');
+        } })));
+        const fin = escribir('patrick', D.pasos[4].chat[1].t, 4800);
         en(fin + 300, () => {
           estadoEntrega(0, 'devuelto');
           contarCola();
-          agente(0, 'Devuelto · rehaciendo el asunto del correo 3', 'error');
+          paquete('r0', { color: ROJO, inverso: true, dur: 1100, onda: 18, alLlegar: () => {
+            sacude('agente-0');
+            agente(0, 'Devuelto · rehaciendo el correo 3', 'error');
+          } });
         });
         pensar(fin + 700, fin + 1800);
         en(fin + 1800, () => orq(D.pasos[4].chat[2].t));
         en(fin + 2600, () => { estadoEntrega(0, 'corrigiendo'); agente(0, 'Corrigiendo el correo 3', 'error'); });
-        en(fin + 4600, () => {
-          estadoEntrega(0, 'corregido');
-          contarCola();
-          agente(0, 'Corregido · esperando revisión', 'revision');
-          aviso(0, 'Outbound rehízo el asunto del correo 3 y lo devolvió a la cola');
+        en(fin + 4300, () => {
+          apagar('r0', ROJO);
+          paquete('r0', { color: D.agentes[0].color, dur: 950, alLlegar: () => {
+            estadoEntrega(0, 'corregido');
+            contarCola();
+            recibe('revision');
+            agente(0, 'Corregido · en revisión', 'revision');
+            aviso(0, 'Outbound rehízo el asunto del correo 3 y lo devolvió a la cola');
+          } });
         });
       },
       // 6. Sale y el sistema aprende
       () => {
+        orqEstado('Esperando aprobación');
         const fin = escribir('philippe', D.pasos[5].chat[0].t, 400);
         let envio: HTMLElement;
         pensar(fin + 200, fin + 1000);
-        en(fin + 1000, () => { envio = tarjetaEnvio(); orq('Perfecto. Salen las seis.', envio); });
-        ENTREGAS.forEach(([k], j) => en(fin + 1500 + j * 420, () => {
+        en(fin + 1000, () => { envio = tarjetaEnvio(); orq('Perfecto. Salen las seis.', envio); orqEstado('Enviando al cliente'); });
+        let s = 0;
+        ENTREGAS.forEach(([k], j) => en(fin + 1300 + j * 420, () => paquete('o', { color: VERDE, dur: 700, onda: 18, alLlegar: () => {
           envio?.querySelector(`[data-envio="${j}"]`)?.setAttribute('data-ok', '');
+          s++;
           const n = envio?.querySelector('[data-enviadas]');
-          if (n) n.textContent = String(j + 1);
+          if (n) n.textContent = String(s);
+          salidas(s);
+          recibe('cliente');
           estadoEntrega(j, 'enviado');
           contarCola();
           agente(k, 'Enviado al cliente', 'ok');
-        }));
-        pensar(fin + 4300, fin + 5400);
-        en(fin + 5400, () => {
+        } })));
+        en(fin + 4200, () => paquete('bucle', { color: AZUL, dur: 1500, onda: 22, alLlegar: () => { recibe('orq'); orqEstado('Regla nueva guardada'); } }));
+        pensar(fin + 4400, fin + 5600);
+        en(fin + 5600, () => {
           orq(D.pasos[5].chat[1].t, tarjetaRegla());
           agente(0, 'Aprendió una regla nueva', 'ok');
         });
@@ -537,12 +740,17 @@ const datosGuion = {
       ciclos.forEach(clearInterval);
       tiempos = [];
       ciclos = [];
+      vuelos.forEach((v) => (v.cancelado = true));
+      encendidas.clear();
+      capaIgnicion?.replaceChildren();
+      capaOndas?.replaceChildren();
       vaciar();
     }
 
     function relojDe(i: number) {
-      const [, hm] = D.pasos[i].reloj.split(' ');
+      const [dia, hm] = D.pasos[i].reloj.split(' ');
       const [h, m] = hm.split(':').map(Number);
+      diaBase = dia;
       minutoBase = h * 60 + m;
     }
 
@@ -550,17 +758,23 @@ const datosGuion = {
       limpiar();
       actual = i;
       raiz.dataset.paso = String(i + 1);
+      marcarPaso();
 
       // Lo anterior queda escrito, ya terminado.
       hilo.replaceChildren(el(`<div class="sc-intro"><span class="sc-intro-av">${D.av.orq}</span><p class="sc-intro-t">Orquestador</p><p class="sc-intro-s">Coordina a diez agentes en tres pilares. Nada sale sin que lo aprueben Philippe y Patrick.</p><p class="sc-intro-chips"><span>10 agentes</span><span>3 pilares</span><span>Revisión humana</span></p></div>`));
       todosAgentes('Esperando instrucciones', 'espera');
+      nodo('personas')?.removeAttribute('data-aprobado');
+      raiz.querySelectorAll('[data-org-cola]').forEach((e) => (e.textContent = '0'));
+      salidas(0);
       instantaneo = true;
       for (let k = 0; k < i; k++) { relojDe(k); guion[k](); }
       instantaneo = false;
-      hilo.querySelectorAll('.sc-entra').forEach((n) => n.classList.remove('sc-entra'));
       hilo.scrollTop = hilo.scrollHeight;
 
       relojDe(i);
+      inicioPaso = performance.now();
+      pintarReloj();
+      cada(500, pintarReloj);
       if (titulo) titulo.textContent = `${D.pasos[i].titulo}.`;
       if (texto) texto.textContent = D.pasos[i].texto;
       if (!reducido && narracion) {
@@ -587,6 +801,10 @@ const datosGuion = {
     btnPlay?.addEventListener('click', () => { reproduciendo = !reproduciendo; pintarPlay(); irA(Math.max(0, actual)); });
     botones.forEach((b, k) => b.addEventListener('click', () => irA(k)));
     pintarPlay();
+
+    trazar();
+    if (arbol) new ResizeObserver(() => trazar()).observe(arbol);
+    document.fonts?.ready.then(trazar);
 
     // Solo corre mientras se ve. Al volver, el paso empieza de nuevo.
     new IntersectionObserver(([e]) => {
