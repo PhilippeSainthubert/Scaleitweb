@@ -159,6 +159,28 @@ const avatar = (animal: string, cx: number, cy: number, tam: number) => {
   return { f, t: `translate(${cx - tam / 2}, ${cy - tam / 2}) scale(${tam / 48})` };
 };
 
+// Un rectángulo redondeado como trazo, para la luz que lo recorre.
+const rr = (x: number, y: number, w: number, h: number, r: number) =>
+  `M${x + w / 2},${y} H${x + w - r} A${r},${r} 0 0 1 ${x + w},${y + r} V${y + h - r} A${r},${r} 0 0 1 ${x + w - r},${y + h} H${x + r} A${r},${r} 0 0 1 ${x},${y + h - r} V${y + r} A${r},${r} 0 0 1 ${x + r},${y} Z`;
+
+// La cámara de cada paso: [escala, foco x, foco y, dónde cae el foco x, y].
+// En los dos primeros pasos se acerca a las personas y al orquestador; al
+// repartir se abre para enseñar a los diez agentes, y ya no se cierra.
+const CAMARAS: [number, number, number, number, number][] = [
+  [1.12, 700, 136, 700, 214],
+  [1.12, 700, 136, 700, 214],
+  [1, 700, 440, 700, 440],
+  [1, 700, 440, 700, 440],
+  [1, 700, 440, 700, 440],
+  [1, 700, 440, 700, 440],
+];
+const encuadre = ([s, fx, fy, sx, sy]: [number, number, number, number, number], fuerza = 1) => {
+  const e = 1 + (s - 1) * fuerza;
+  return `transform: translate(${((sx - fx * s) * fuerza).toFixed(1)}px, ${((sy - fy * s) * fuerza).toFixed(1)}px) scale(${e})`;
+};
+const camaraInicial = encuadre(CAMARAS[0]);
+const camaraCielo = encuadre(CAMARAS[0], 0.4);
+
 const flujoMovil = [
   { t: 'Philippe y Patrick', s: 'Fijan el objetivo y aprueban el plan', tipo: 'humano', en: '1 2' },
   { t: 'Agente Orquestador', s: 'Lee, propone y reparte', tipo: 'orq', en: '1 2 3 4 5 6' },
@@ -222,124 +244,157 @@ const flujoMovil = [
         aria-label="Diagrama: Philippe y Patrick fijan el objetivo, el agente orquestador lo convierte en un plan que ellos aprueban, lo reparte entre Captar, Atraer y Operar y sus diez subagentes, todo vuelve a la revisión humana y lo aprobado sale al cliente. Lo corregido vuelve al orquestador como regla."
       >
         <defs>
-          <radialGradient id="orgHaloRev"><stop offset="0" stop-color="#f5c26b" stop-opacity="0.18" /><stop offset="1" stop-color="#f5c26b" stop-opacity="0" /></radialGradient>
-          <radialGradient id="orgHaloOrq"><stop offset="0" stop-color="#5c86ff" stop-opacity="0.32" /><stop offset="1" stop-color="#5c86ff" stop-opacity="0" /></radialGradient>
+          <radialGradient id="orgHaloRev"><stop offset="0" stop-color="#f5c26b" stop-opacity="0.2" /><stop offset="1" stop-color="#f5c26b" stop-opacity="0" /></radialGradient>
+          <radialGradient id="orgHaloOrq"><stop offset="0" stop-color="#5c86ff" stop-opacity="0.34" /><stop offset="1" stop-color="#5c86ff" stop-opacity="0" /></radialGradient>
+          <radialGradient id="orgHaloSal"><stop offset="0" stop-color="#6fe0a8" stop-opacity="0.22" /><stop offset="1" stop-color="#6fe0a8" stop-opacity="0" /></radialGradient>
           <linearGradient id="orgBarrido" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0" /><stop offset="0.5" stop-color="#fff" stop-opacity="0.28" /><stop offset="1" stop-color="#fff" stop-opacity="0" /></linearGradient>
+          <linearGradient id="orgBordesG" x1="0" x2="1">
+            <stop offset="0" stop-color="#000" /><stop offset="0.014" stop-color="#fff" /><stop offset="0.986" stop-color="#fff" /><stop offset="1" stop-color="#000" />
+          </linearGradient>
+          <mask id="orgBordes" maskUnits="userSpaceOnUse" x="0" y="0" width={W} height={H}><rect width={W} height={H} fill="url(#orgBordesG)" /></mask>
           <clipPath id="orgAv"><circle cx="0" cy="0" r="19" /></clipPath>
           <clipPath id="orgOrqCaja"><rect x={orq.x - orq.w / 2} y={orq.y - orq.h / 2} width={orq.w} height={orq.h} rx="18" /></clipPath>
         </defs>
 
-        {fondo.map((p) => <circle cx={p.x} cy={p.y} r={p.r} fill="#dbe5ff" opacity={p.o} />)}
-        <circle class="org-halo" data-en="1 2 3 6" cx={orq.x} cy={orq.y} r="260" fill="url(#orgHaloOrq)" />
-        <circle class="org-halo" data-en="5 6" cx={revision.x} cy={revision.y} r="280" fill="url(#orgHaloRev)" />
-
-        <!-- Conexiones -->
-        {rutas.map((r) => (
-          <path class="org-arista" data-ruta={r.id} data-en={r.en} d={r.d} stroke-width={r.w} />
-        ))}
-        <path class="org-arista org-bucle" data-ruta="bucle" data-en="6" d={bucle} stroke-width="1.8" />
-        <text class="org-nodo org-t-lema" data-en="6" x="1262" y="292" text-anchor="middle" fill="#93b1ff">Lo aprendido vuelve al plan</text>
-
-        <!-- Las personas: fijan el objetivo y aprueban -->
-        <g class="org-nodo" data-en="1 2" data-org-humanos>
-          <rect x={humanos.x - humanos.w / 2} y={humanos.y - humanos.h / 2} width={humanos.w} height={humanos.h} rx="16" fill="#16233d" stroke="#f5c26b" stroke-width="1.6" />
-          <g transform={`translate(${humanos.x - humanos.w / 2 + 44}, ${humanos.y})`}>
-            <circle r="20" fill="#1b2a48" />
-            <image href="/philippe.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <g transform={`translate(${humanos.x - humanos.w / 2 + 78}, ${humanos.y})`}>
-            <circle r="21" fill="#16233d" />
-            <image href="/patrick.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <text x={humanos.x + 50} y={humanos.y - 4} text-anchor="middle" class="org-t-pilar" fill="#ffffff">Philippe y Patrick</text>
-          <text x={humanos.x + 50} y={humanos.y + 20} text-anchor="middle" class="org-t-lema" fill="#f5c26b">Fijan el objetivo, aprueban el plan</text>
-          <g class="org-check" transform={`translate(${humanos.x + humanos.w / 2 - 4}, ${humanos.y - humanos.h / 2 + 4})`}>
-            <circle r="13" fill="#6fe0a8" />
-            <path d="M-5.5,0.5 L-1.5,4.5 L5.5,-4" fill="none" stroke="#062a1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
-          </g>
+        <!-- El cielo se mueve menos que el diagrama: da profundidad -->
+        <g class="org-camara" data-org-cielo style={camaraCielo}>
+          {fondo.map((p) => <circle cx={p.x} cy={p.y} r={p.r} fill="#dbe5ff" opacity={p.o} />)}
         </g>
 
-        <!-- El orquestador -->
-        <g class="org-nodo" data-en="1 2 3 4 5 6" data-org-orq>
-          <rect x={orq.x - orq.w / 2} y={orq.y - orq.h / 2} width={orq.w} height={orq.h} rx="18" fill="#2f5cff" />
-          <g clip-path="url(#orgOrqCaja)">
-            <rect class="org-barrido" x={orq.x - 60} y={orq.y - orq.h / 2} width="120" height={orq.h} fill="url(#orgBarrido)" />
-          </g>
-          {(() => { const a = avatar('pulpo', orq.x - orq.w / 2 + 62, orq.y, 66); return (
-            <g transform={a.t}>
-              <g stroke="#dbe5ff" stroke-width="1" opacity="0.6" fill="none" stroke-linecap="round">
-                {a.f.e.map(([i, j]) => <line x1={a.f.p[i][0]} y1={a.f.p[i][1]} x2={a.f.p[j][0]} y2={a.f.p[j][1]} />)}
+        <g mask="url(#orgBordes)">
+          <g class="org-camara" data-org-camara style={camaraInicial}>
+            <g class="org-respira">
+              <circle class="org-halo" data-en="1 2 3 6" cx={orq.x} cy={orq.y} r="270" fill="url(#orgHaloOrq)" />
+              <circle class="org-halo" data-en="5 6" cx={revision.x} cy={revision.y} r="300" fill="url(#orgHaloRev)" />
+              <circle class="org-halo" data-en="6" cx={salida.x} cy={salida.y} r="200" fill="url(#orgHaloSal)" />
+
+              <!-- Conexiones. Se encienden cuando el trabajo pasa por ellas. -->
+              {rutas.map((r) => (
+                <path class="org-arista" data-ruta={r.id} data-en={r.en} d={r.d} stroke-width={r.w} />
+              ))}
+              <path class="org-arista org-bucle" data-ruta="bucle" data-en="6" d={bucle} stroke-width="1.8" />
+              <g data-capa-ignicion></g>
+              <text class="org-nodo org-solo org-t-lema" data-en="6" x="1262" y="292" text-anchor="middle" fill="#93b1ff">Lo aprendido vuelve al plan</text>
+
+              <!-- Las personas: fijan el objetivo y aprueban -->
+              <g class="org-nodo" data-en="1 2" data-org-humanos>
+                <rect x={humanos.x - humanos.w / 2} y={humanos.y - humanos.h / 2} width={humanos.w} height={humanos.h} rx="16" fill="#16233d" stroke="#f5c26b" stroke-width="1.6" />
+                <path class="org-energia org-energia-oro" d={rr(humanos.x - humanos.w / 2, humanos.y - humanos.h / 2, humanos.w, humanos.h, 16)} pathLength="1" />
+                <g transform={`translate(${humanos.x - humanos.w / 2 + 44}, ${humanos.y})`}>
+                  <circle r="20" fill="#1b2a48" />
+                  <image href="/philippe.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
+                </g>
+                <g transform={`translate(${humanos.x - humanos.w / 2 + 78}, ${humanos.y})`}>
+                  <circle r="21" fill="#16233d" />
+                  <image href="/patrick.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
+                </g>
+                <text x={humanos.x + 50} y={humanos.y - 4} text-anchor="middle" class="org-t-pilar" fill="#ffffff">Philippe y Patrick</text>
+                <text x={humanos.x + 50} y={humanos.y + 20} text-anchor="middle" class="org-t-lema" fill="#f5c26b">Fijan el objetivo, aprueban el plan</text>
+                <g class="org-check" transform={`translate(${humanos.x + humanos.w / 2 - 4}, ${humanos.y - humanos.h / 2 + 4})`}>
+                  <circle r="13" fill="#6fe0a8" />
+                  <path d="M-5.5,0.5 L-1.5,4.5 L5.5,-4" fill="none" stroke="#062a1b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
               </g>
-              {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#ffffff" style={`--d:${(k % 6) * 0.35}s`} />)}
+
+              <!-- El orquestador -->
+              <g class="org-nodo" data-en="1 2 3 4 5 6" data-org-orq>
+                <rect class="org-orq-caja" x={orq.x - orq.w / 2} y={orq.y - orq.h / 2} width={orq.w} height={orq.h} rx="18" fill="#2f5cff" />
+                <g clip-path="url(#orgOrqCaja)">
+                  <rect class="org-barrido" x={orq.x - 60} y={orq.y - orq.h / 2} width="120" height={orq.h} fill="url(#orgBarrido)" />
+                </g>
+                <path class="org-energia org-energia-glow" d={rr(orq.x - orq.w / 2, orq.y - orq.h / 2, orq.w, orq.h, 18)} pathLength="1" />
+                <path class="org-energia" d={rr(orq.x - orq.w / 2, orq.y - orq.h / 2, orq.w, orq.h, 18)} pathLength="1" />
+                {(() => { const a = avatar('pulpo', orq.x - orq.w / 2 + 62, orq.y, 66); return (
+                  <g transform={a.t}>
+                    <g stroke="#dbe5ff" stroke-width="1" opacity="0.6" fill="none" stroke-linecap="round">
+                      {a.f.e.map(([i, j]) => <line x1={a.f.p[i][0]} y1={a.f.p[i][1]} x2={a.f.p[j][0]} y2={a.f.p[j][1]} />)}
+                    </g>
+                    {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#ffffff" style={`--d:${(k % 6) * 0.35}s`} />)}
+                  </g>
+                ); })()}
+                <text x={orq.x + 52} y={orq.y - 24} text-anchor="middle" class="org-t-mono" fill="#cfdcff">Agente</text>
+                <text x={orq.x + 52} y={orq.y + 4} text-anchor="middle" class="org-t-orq" fill="#ffffff">Orquestador</text>
+                <text x={orq.x + 52} y={orq.y + 32} text-anchor="middle" class="org-t-estado" fill="#dbe5ff"><tspan data-org-estado>Esperando el objetivo</tspan><tspan class="org-cursor">▍</tspan></text>
+              </g>
+
+              <!-- Pilares -->
+              {pilares.map((p, i) => (
+                <g class="org-nodo" data-en="3 4" data-pilar={i}>
+                  <rect class="org-pilar-caja" x={p.x - PIL_W / 2} y={PILAR_Y - PIL_H / 2} width={PIL_W} height={PIL_H} rx="14" />
+                  {(() => { const a = avatar(p.animal, p.x - PIL_W / 2 + 50, PILAR_Y, 58); return (
+                    <g transform={a.t}>
+                      <g stroke="#7ea0ff" stroke-width="1" opacity="0.55" fill="none" stroke-linecap="round">
+                        {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
+                      </g>
+                      {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#dbe5ff" style={`--d:${(k % 6) * 0.35 + i * 0.2}s`} />)}
+                    </g>
+                  ); })()}
+                  <text x={p.x + 38} y={PILAR_Y - 6} text-anchor="middle" class="org-t-pilar" fill="#f4f7ff">{p.nombre}</text>
+                  <text x={p.x + 38} y={PILAR_Y + 18} text-anchor="middle" class="org-t-lema" fill="#8fa0c4">{p.lema}</text>
+                </g>
+              ))}
+
+              <!-- Subagentes, con su barra de avance mientras trabajan -->
+              {subs.map((s) => (
+                <g class="org-nodo" data-en="3 4 5" data-sub={s.k}>
+                  <rect class="org-sub-caja" x={s.x - s.w / 2} y={SUB_Y - SUB_H / 2} width={s.w} height={SUB_H} rx={SUB_H / 2} />
+                  {(() => { const a = avatar(s.animal, s.x - s.w / 2 + 24, SUB_Y, 28); return (
+                    <g transform={a.t}>
+                      <g stroke="#7ea0ff" stroke-width="1.1" opacity="0.5" fill="none" stroke-linecap="round">
+                        {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
+                      </g>
+                      {a.f.p.map((pt) => <circle cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#b8caff" />)}
+                    </g>
+                  ); })()}
+                  <text x={s.x + 16} y={SUB_Y + 3} text-anchor="middle" class="org-t-sub" fill="#c4d0ea">{s.etiqueta}</text>
+                  <rect class="org-progreso-pista" x={s.x - s.w / 2 + 44} y={SUB_Y + 10} width={s.w - 62} height="2" rx="1" />
+                  <rect class="org-progreso" x={s.x - s.w / 2 + 44} y={SUB_Y + 10} width={s.w - 62} height="2" rx="1" style={`--t:${(3.1 + ((s.k * 0.618) % 1) * 2.6).toFixed(2)}s`} />
+                </g>
+              ))}
+
+              <!-- Revisión humana: las entregas se apilan aquí -->
+              <g class="org-nodo" data-en="5 6" data-org-revision>
+                <rect class="org-revision" x={revision.x - revision.w / 2} y={revision.y - revision.h / 2} width={revision.w} height={revision.h} rx="18" fill="#16233d" stroke="#f5c26b" stroke-width="2" />
+                <path class="org-energia org-energia-oro org-energia-glow" d={rr(revision.x - revision.w / 2, revision.y - revision.h / 2, revision.w, revision.h, 18)} pathLength="1" />
+                <path class="org-energia org-energia-oro" d={rr(revision.x - revision.w / 2, revision.y - revision.h / 2, revision.w, revision.h, 18)} pathLength="1" />
+                <g transform={`translate(${revision.x - revision.w / 2 + 52}, ${revision.y})`}>
+                  <circle r="20" fill="#1b2a48" />
+                  <image href="/philippe.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
+                </g>
+                <g transform={`translate(${revision.x - revision.w / 2 + 86}, ${revision.y})`}>
+                  <circle r="21" fill="#16233d" />
+                  <image href="/patrick.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
+                </g>
+                <text x={revision.x - 6} y={revision.y - 6} text-anchor="middle" class="org-t-rev" fill="#ffffff">Revisión humana</text>
+                <text x={revision.x - 6} y={revision.y + 20} text-anchor="middle" class="org-t-mono" fill="#f5c26b">Nada sale sin pasar por aquí</text>
+                <g transform={`translate(${revision.x + revision.w / 2 - 74}, ${revision.y})`}>
+                  {Array.from({ length: 6 }, (_, k) => (
+                    <g transform={`translate(${k * 8 - 31}, ${-36 + (k % 2) * 1.5}) rotate(${(k - 2.5) * 2.4} 10.5 14)`}>
+                      <g class="org-carta" data-carta={k}>
+                        <rect width="21" height="28" rx="3.5" />
+                        <path d="M5.5,9 H15.5 M5.5,14 H15.5 M5.5,19 H12" />
+                      </g>
+                    </g>
+                  ))}
+                  <text x="0" y="26" text-anchor="middle" class="org-t-mono" fill="#f5c26b"><tspan data-org-cola>0</tspan> en cola</text>
+                </g>
+              </g>
+
+              <!-- Salida -->
+              <g class="org-nodo" data-en="6" data-org-salida>
+                <rect x={salida.x - salida.w / 2} y={salida.y - salida.h / 2} width={salida.w} height={salida.h} rx="12" fill="#6fe0a8" />
+                <text x={salida.x} y={salida.y + 5} text-anchor="middle" class="org-t-nodo" fill="#062a1b">Sale al cliente</text>
+              </g>
+
+              <!-- El trabajo viajando: estelas debajo, paquetes encima, ondas al llegar -->
+              <g data-capa-estelas></g>
+              <g data-capa-paquetes></g>
+              <g data-capa-ondas></g>
             </g>
-          ); })()}
-          <text x={orq.x + 52} y={orq.y - 24} text-anchor="middle" class="org-t-mono" fill="#cfdcff">Agente</text>
-          <text x={orq.x + 52} y={orq.y + 4} text-anchor="middle" class="org-t-orq" fill="#ffffff">Orquestador</text>
-          <text x={orq.x + 52} y={orq.y + 32} text-anchor="middle" class="org-t-estado" fill="#dbe5ff"><tspan data-org-estado>Esperando el objetivo</tspan><tspan class="org-cursor">▍</tspan></text>
-        </g>
-
-        <!-- Pilares -->
-        {pilares.map((p, i) => (
-          <g class="org-nodo" data-en="3 4" data-pilar={i}>
-            <rect class="org-pilar-caja" x={p.x - PIL_W / 2} y={PILAR_Y - PIL_H / 2} width={PIL_W} height={PIL_H} rx="14" />
-            {(() => { const a = avatar(p.animal, p.x - PIL_W / 2 + 50, PILAR_Y, 58); return (
-              <g transform={a.t}>
-                <g stroke="#7ea0ff" stroke-width="1" opacity="0.55" fill="none" stroke-linecap="round">
-                  {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
-                </g>
-                {a.f.p.map((pt, k) => <circle class="const-pt" cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#dbe5ff" style={`--d:${(k % 6) * 0.35 + i * 0.2}s`} />)}
-              </g>
-            ); })()}
-            <text x={p.x + 38} y={PILAR_Y - 6} text-anchor="middle" class="org-t-pilar" fill="#f4f7ff">{p.nombre}</text>
-            <text x={p.x + 38} y={PILAR_Y + 18} text-anchor="middle" class="org-t-lema" fill="#8fa0c4">{p.lema}</text>
-          </g>
-        ))}
-
-        <!-- Subagentes -->
-        {subs.map((s) => (
-          <g class="org-nodo" data-en="3 4 5" data-sub={s.k}>
-            <rect class="org-sub-caja" x={s.x - s.w / 2} y={SUB_Y - SUB_H / 2} width={s.w} height={SUB_H} rx={SUB_H / 2} />
-            {(() => { const a = avatar(s.animal, s.x - s.w / 2 + 24, SUB_Y, 28); return (
-              <g transform={a.t}>
-                <g stroke="#7ea0ff" stroke-width="1.1" opacity="0.5" fill="none" stroke-linecap="round">
-                  {a.f.e.map(([m, n]) => <line x1={a.f.p[m][0]} y1={a.f.p[m][1]} x2={a.f.p[n][0]} y2={a.f.p[n][1]} />)}
-                </g>
-                {a.f.p.map((pt) => <circle cx={pt[0]} cy={pt[1]} r={pt[2]} fill="#b8caff" />)}
-              </g>
-            ); })()}
-            <text x={s.x + 16} y={SUB_Y + 4.5} text-anchor="middle" class="org-t-sub" fill="#c4d0ea">{s.etiqueta}</text>
-          </g>
-        ))}
-
-        <!-- Revisión humana -->
-        <g class="org-nodo" data-en="5 6" data-org-revision>
-          <rect class="org-revision" x={revision.x - revision.w / 2} y={revision.y - revision.h / 2} width={revision.w} height={revision.h} rx="18" fill="#16233d" stroke="#f5c26b" stroke-width="2" />
-          <g transform={`translate(${revision.x - revision.w / 2 + 52}, ${revision.y})`}>
-            <circle r="20" fill="#1b2a48" />
-            <image href="/philippe.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <g transform={`translate(${revision.x - revision.w / 2 + 86}, ${revision.y})`}>
-            <circle r="21" fill="#16233d" />
-            <image href="/patrick.jpeg" x="-19" y="-19" width="38" height="38" clip-path="url(#orgAv)" preserveAspectRatio="xMidYMid slice" />
-          </g>
-          <text x={revision.x + 10} y={revision.y - 6} text-anchor="middle" class="org-t-rev" fill="#ffffff">Revisión humana</text>
-          <text x={revision.x + 10} y={revision.y + 20} text-anchor="middle" class="org-t-mono" fill="#f5c26b">Nada sale sin pasar por aquí</text>
-          <g transform={`translate(${revision.x + revision.w / 2 - 62}, ${revision.y})`}>
-            <rect x="-44" y="-16" width="88" height="32" rx="16" fill="#f5c26b" fill-opacity="0.14" />
-            <text x="0" y="4.5" text-anchor="middle" class="org-t-mono" fill="#f5c26b"><tspan data-org-cola>3</tspan> en cola</text>
           </g>
         </g>
 
-        <!-- Salida -->
-        <g class="org-nodo" data-en="6" data-org-salida>
-          <rect x={salida.x - salida.w / 2} y={salida.y - salida.h / 2} width={salida.w} height={salida.h} rx="12" fill="#6fe0a8" />
-          <text x={salida.x} y={salida.y + 5} text-anchor="middle" class="org-t-nodo" fill="#062a1b">Sale al cliente</text>
-        </g>
-
-        <!-- El trabajo viajando -->
-        <g data-capa-paquetes></g>
-
-        <!-- Las conversaciones, junto a quien habla -->
+        <!-- Las conversaciones, junto a quien habla. No las mueve la cámara. -->
         {[
           { id: 'izq', x: 30, y: 12, w: 450, h: 300 },
           { id: 'der', x: 920, y: 12, w: 450, h: 300 },
@@ -399,25 +454,41 @@ const flujoMovil = [
     </div>
 
     <script type="application/json" data-org-pasos set:html={JSON.stringify(pasos.map(({ titulo, texto }) => ({ titulo, texto })))} />
+    <script type="application/json" data-org-camaras set:html={JSON.stringify(CAMARAS)} />
   </div>
 </section>
 
 <script>
   /**
-   * El guion del instructivo. Cada paso enciende sus nodos, escribe sus
-   * mensajes (con el "escribiendo..." delante) y manda paquetes por las
-   * rutas. Se reproduce solo mientras la sección está en pantalla y se puede
-   * pausar o mover a mano. Con movimiento reducido cada paso aparece ya
-   * terminado y no hay reproducción automática.
+   * El guion del instructivo. Cada paso mueve la cámara, enciende sus nodos,
+   * escribe sus mensajes (con el "escribiendo..." delante) y manda el trabajo
+   * por las rutas: cada paquete deja una estela, enciende la línea por la que
+   * pasa y suelta una onda al llegar. Se reproduce solo mientras la sección
+   * está en pantalla y se puede pausar o mover a mano. Con movimiento reducido
+   * cada paso aparece ya terminado y no hay reproducción automática.
    */
   const NS = 'http://www.w3.org/2000/svg';
   const reducido = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const DUR = [6500, 9500, 7000, 6500, 10000, 9000];
+  const DUR = [6500, 9500, 7000, 6500, 10500, 9000];
   const SUBS_DE = [[0, 1, 2, 3], [4, 5, 6], [7, 8, 9]];
+  const AZUL = '#93b1ff', ORO = '#f5c26b', ROJO = '#ff8a7a', VERDE = '#6fe0a8';
+  // Misma curva que la cámara y los paquetes: arranca y frena suave.
+  const SUAVE = 'cubic-bezier(.65, 0, .35, 1)';
+  const suave = (k: number) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+
+  type Paquete = {
+    color?: string; etiqueta?: string; dur?: number; inverso?: boolean;
+    forma?: 'punto' | 'carta'; onda?: number; alLlegar?: () => void;
+  };
 
   document.querySelectorAll<HTMLElement>('[data-org]').forEach((raiz) => {
     const svg = raiz.querySelector<SVGSVGElement>('.org-svg');
     const capa = raiz.querySelector<SVGGElement>('[data-capa-paquetes]');
+    const capaEstelas = raiz.querySelector<SVGGElement>('[data-capa-estelas]');
+    const capaOndas = raiz.querySelector<SVGGElement>('[data-capa-ondas]');
+    const capaIgnicion = raiz.querySelector<SVGGElement>('[data-capa-ignicion]');
+    const camara = raiz.querySelector<SVGGElement>('[data-org-camara]');
+    const cielo = raiz.querySelector<SVGGElement>('[data-org-cielo]');
     const reproductor = raiz.querySelector<HTMLElement>('[data-org-reproductor]')!;
     const narracion = raiz.querySelector<HTMLElement>('[data-org-narracion]');
     const num = raiz.querySelector('[data-org-num]');
@@ -426,6 +497,7 @@ const flujoMovil = [
     const botones = Array.from(raiz.querySelectorAll<HTMLButtonElement>('[data-org-ir]'));
     const btnPlay = raiz.querySelector<HTMLButtonElement>('[data-org-play]');
     const PASOS: { titulo: string; texto: string }[] = JSON.parse(raiz.querySelector('[data-org-pasos]')?.textContent || '[]');
+    const CAMARAS: number[][] = JSON.parse(raiz.querySelector('[data-org-camaras]')?.textContent || '[]');
 
     let actual = -1;
     let reproduciendo = !reducido;
@@ -433,12 +505,17 @@ const flujoMovil = [
     let tiempos: number[] = [];
     let ciclos: number[] = [];
     const vuelos = new Set<{ cancelado: boolean }>();
+    const encendidas = new Map<string, SVGGElement>();
 
     const enEscritorio = () => !!svg && svg.getBoundingClientRect().width > 0;
     const todos = (sel: string) => raiz.querySelectorAll<HTMLElement | SVGElement>(sel);
     const marca = (sel: string, attr: string, on = true) => todos(sel).forEach((e) => e.toggleAttribute(attr, on));
     const estado = (t: string) => todos('[data-org-estado]').forEach((e) => (e.textContent = t));
-    const cola = (n: number) => todos('[data-org-cola]').forEach((e) => (e.textContent = String(n)));
+    // La cola se ve: una tarjeta por entrega esperando revisión.
+    const cola = (n: number) => {
+      todos('[data-org-cola]').forEach((e) => (e.textContent = String(n)));
+      todos('[data-carta]').forEach((c) => c.toggleAttribute('data-on', Number(c.dataset.carta) < n));
+    };
 
     // Con movimiento reducido todo ocurre al instante y sin bucles.
     const en = (ms: number, fn: () => void) => {
@@ -449,35 +526,104 @@ const flujoMovil = [
       if (!reducido) ciclos.push(window.setInterval(fn, ms));
     };
 
-    function paquete(
-      ruta: string,
-      { color = '#93b1ff', etiqueta = '', dur = 1300, inverso = false, alLlegar }: { color?: string; etiqueta?: string; dur?: number; inverso?: boolean; alLlegar?: () => void } = {}
-    ) {
+    function encuadrar(i: number) {
+      const c = CAMARAS[i];
+      if (!c) return;
+      const [s, fx, fy, sx, sy] = c;
+      const tx = sx - fx * s, ty = sy - fy * s;
+      if (camara) camara.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+      // El cielo se mueve menos: parece que está más lejos.
+      if (cielo) cielo.style.transform = `translate(${tx * 0.4}px, ${ty * 0.4}px) scale(${1 + (s - 1) * 0.4})`;
+    }
+
+    // La línea se enciende a la vez que el paquete la recorre, y queda encendida
+    // el resto del paso. Una vez por ruta y color.
+    function encender(ruta: string, camino: SVGPathElement, color: string, dur: number, inverso: boolean) {
+      const clave = `${ruta}|${color}`;
+      if (!capaIgnicion || encendidas.has(clave)) return;
+      const d = camino.getAttribute('d') || '';
+      const w = parseFloat(camino.getAttribute('stroke-width') || '2');
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('class', 'org-ignicion');
+      g.innerHTML =
+        `<path d="${d}" pathLength="1" fill="none" stroke="${color}" stroke-width="${w * 4.5}" stroke-opacity=".12"/>` +
+        `<path d="${d}" pathLength="1" fill="none" stroke="${color}" stroke-width="${w + 0.5}" stroke-opacity=".9"/>`;
+      capaIgnicion.appendChild(g);
+      encendidas.set(clave, g);
+      g.querySelectorAll('path').forEach((p) => {
+        p.style.strokeDasharray = '1 1';
+        p.animate([{ strokeDashoffset: inverso ? -1 : 1 }, { strokeDashoffset: 0 }], { duration: dur, easing: SUAVE, fill: 'both' });
+      });
+    }
+    function apagar(ruta: string, color: string) {
+      const clave = `${ruta}|${color}`;
+      const g = encendidas.get(clave);
+      if (!g) return;
+      encendidas.delete(clave);
+      g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 500 }).onfinish = () => g.remove();
+    }
+
+    // Una onda que se abre donde llega el trabajo.
+    function onda(x: number, y: number, color: string, r = 30) {
+      if (reducido || !capaOndas) return;
+      const g = document.createElementNS(NS, 'g');
+      g.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
+      g.innerHTML = `<circle class="org-onda" r="${r}" fill="none" stroke="${color}" stroke-width="2"/><circle class="org-onda" r="${r * 0.55}" fill="${color}" fill-opacity=".18"/>`;
+      capaOndas.appendChild(g);
+      const [aro, nucleo] = Array.from(g.children) as SVGElement[];
+      nucleo.animate([{ transform: 'scale(.3)', opacity: 1 }, { transform: 'scale(1)', opacity: 0 }], { duration: 520, easing: 'ease-out' });
+      aro.animate([{ transform: 'scale(.15)', opacity: 0.95 }, { transform: 'scale(1)', opacity: 0 }], { duration: 900, easing: 'cubic-bezier(.16, 1, .3, 1)' }).onfinish = () => g.remove();
+    }
+
+    function paquete(ruta: string, { color = AZUL, etiqueta = '', dur = 1300, inverso = false, forma = 'punto', onda: radio = 30, alLlegar }: Paquete = {}) {
       const camino = raiz.querySelector<SVGPathElement>(`[data-ruta="${ruta}"]`);
-      if (reducido || !camino || !capa || !enEscritorio()) { alLlegar?.(); return; }
+      if (reducido || !camino || !capa || !capaEstelas || !enEscritorio()) { alLlegar?.(); return; }
+      encender(ruta, camino, color, dur, inverso);
+
+      const largo = camino.getTotalLength();
+      const d = camino.getAttribute('d') || '';
+      // La estela: capas cada vez más cortas y brillantes, como un cometa.
+      const larga = Math.min(160, largo * 0.5);
+      const estela = document.createElementNS(NS, 'g');
+      const capas: [number, number, number][] = [[1, 9, 0.08], [1, 2, 0.22], [0.55, 2.6, 0.5], [0.25, 3.2, 0.95]];
+      estela.innerHTML = capas.map(([, w, o]) => `<path d="${d}" fill="none" stroke="${color}" stroke-width="${w}" stroke-opacity="${o}" stroke-linecap="round"/>`).join('');
+      const trazos = Array.from(estela.children as HTMLCollectionOf<SVGPathElement>).map((p, k) => {
+        const L = larga * capas[k][0];
+        p.style.strokeDasharray = `${L} ${largo + L + 20}`;
+        p.style.strokeDashoffset = String(L);
+        return { p, L };
+      });
+      capaEstelas.appendChild(estela);
+
       const g = document.createElementNS(NS, 'g');
       g.setAttribute('class', 'org-paquete');
-      let html = `<circle r="14" fill="${color}" opacity=".16"/><circle r="5.5" fill="${color}"/>`;
+      let html = forma === 'carta'
+        ? `<circle r="22" fill="${color}" opacity=".15"/><rect x="-8.5" y="-11" width="17" height="22" rx="3" fill="#0b1830" stroke="${color}" stroke-width="1.7"/><path d="M-4,-4.5 H4 M-4,0 H4 M-4,4.5 H1.5" stroke="${color}" stroke-width="1.5" stroke-linecap="round"/>`
+        : `<circle r="16" fill="${color}" opacity=".16"/><circle r="5.5" fill="${color}"/><circle r="2.2" fill="#fff"/>`;
       if (etiqueta) {
         const ancho = etiqueta.length * 7.6 + 24;
-        html += `<g transform="translate(14,-34)"><rect rx="12" height="24" width="${ancho}" fill="#0b1830" stroke="${color}" stroke-opacity=".7"/><text x="12" y="16.5" class="org-t-paquete" fill="${color}"></text></g>`;
+        html += `<g transform="translate(16,-36)"><rect rx="12" height="24" width="${ancho}" fill="#0b1830" stroke="${color}" stroke-opacity=".8"/><text x="12" y="16.5" class="org-t-paquete" fill="${color}"></text></g>`;
       }
       g.innerHTML = html;
       if (etiqueta) g.querySelector('text')!.textContent = etiqueta;
       capa.appendChild(g);
-      const largo = camino.getTotalLength();
+
       const t0 = performance.now();
       const vuelo = { cancelado: false };
       vuelos.add(vuelo);
+      const quitar = () => { g.remove(); estela.remove(); vuelos.delete(vuelo); };
       const cuadro = (t: number) => {
-        if (vuelo.cancelado) { g.remove(); vuelos.delete(vuelo); return; }
+        if (vuelo.cancelado) { quitar(); return; }
         const k = Math.min(1, (t - t0) / dur);
-        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
-        const p = camino.getPointAtLength((inverso ? 1 - e : e) * largo);
+        const pos = (inverso ? 1 - suave(k) : suave(k)) * largo;
+        const p = camino.getPointAtLength(pos);
         g.setAttribute('transform', `translate(${p.x.toFixed(1)} ${p.y.toFixed(1)})`);
+        trazos.forEach(({ p: tr, L }) => (tr.style.strokeDashoffset = String(inverso ? -pos : L - pos)));
         if (k < 1) { requestAnimationFrame(cuadro); return; }
         vuelos.delete(vuelo);
-        g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 260 }).onfinish = () => g.remove();
+        onda(p.x, p.y, color, radio);
+        g.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 280 }).onfinish = () => g.remove();
+        estela.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 420, easing: 'ease-out' }).onfinish = () => estela.remove();
         alLlegar?.();
       };
       requestAnimationFrame(cuadro);
@@ -500,31 +646,37 @@ const flujoMovil = [
       marca(sel, 'data-recibe');
       en(700, () => marca(sel, 'data-recibe', false));
     };
+    const sacude = (sel: string) => {
+      marca(sel, 'data-sacude');
+      en(650, () => marca(sel, 'data-sacude', false));
+    };
 
     const guion: (() => void)[] = [
       // 1. Fijamos el objetivo
       () => {
         estado('Esperando el objetivo');
         decir('0-0', 300);
-        en(1700, () => paquete('h', { color: '#f5c26b', etiqueta: 'Objetivo', dur: 1500, alLlegar: () => {
+        en(1700, () => paquete('h', { color: ORO, etiqueta: 'Objetivo', dur: 1500, onda: 60, alLlegar: () => {
           estado('Leyendo el objetivo');
           marca('[data-org-orq]', 'data-leyendo');
+          recibe('[data-org-orq]');
         } }));
       },
       // 2. Lo lee y propone un plan
       () => {
         estado('Preparando el plan');
         marca('[data-org-orq]', 'data-leyendo');
-        en(900, () => paquete('h', { etiqueta: 'Plan', inverso: true, dur: 1400, alLlegar: () => {
+        en(900, () => paquete('h', { etiqueta: 'Plan', inverso: true, dur: 1400, onda: 60, alLlegar: () => {
           marca('[data-org-orq]', 'data-leyendo', false);
           estado('Esperando aprobación');
           recibe('[data-org-humanos]');
         } }));
         decir('1-0', 1800);
         decir('1-1', 5400);
-        en(6700, () => paquete('h', { color: '#f5c26b', etiqueta: 'Aprobado', dur: 1300, alLlegar: () => {
+        en(6700, () => paquete('h', { color: ORO, etiqueta: 'Aprobado', dur: 1300, onda: 60, alLlegar: () => {
           marca('[data-org-humanos]', 'data-aprobado');
           estado('Plan aprobado');
+          recibe('[data-org-orq]');
         } }));
       },
       // 3. Reparte el trabajo
@@ -532,9 +684,9 @@ const flujoMovil = [
         estado('Repartiendo 14 tareas');
         decir('2-0', 400);
         ['6 tareas', '4 tareas', '4 tareas'].forEach((et, i) =>
-          en(500 + i * 260, () => paquete(`p${i}`, { etiqueta: et, dur: 1500, alLlegar: () => {
+          en(700 + i * 260, () => paquete(`p${i}`, { etiqueta: et, dur: 1500, onda: 44, alLlegar: () => {
             recibe(`[data-pilar="${i}"]`);
-            SUBS_DE[i].forEach((k, j) => en(150 + j * 130, () => paquete(`s${k}`, { dur: 1000, alLlegar: () => recibe(`[data-sub="${k}"]`) })));
+            SUBS_DE[i].forEach((k, j) => en(150 + j * 130, () => paquete(`s${k}`, { dur: 1000, onda: 24, alLlegar: () => recibe(`[data-sub="${k}"]`) })));
           } }))
         );
       },
@@ -543,46 +695,64 @@ const flujoMovil = [
         estado('10 agentes en marcha');
         marca('[data-sub]', 'data-trabajando');
         decir('3-0', 500);
-        cada(240, () => paquete(`s${Math.floor(Math.random() * 10)}`, { dur: 900 }));
+        cada(240, () => paquete(`s${Math.floor(Math.random() * 10)}`, { dur: 900, onda: 18 }));
       },
       // 5. Todo vuelve a nosotros
       () => {
         estado('Esperando revisión');
+        marca('[data-sub]', 'data-terminado');
         let n = 0;
         cola(reducido ? 6 : 0);
-        decir('4-0', 400);
-        cada(380, () => {
-          if (n >= 6) return;
-          paquete(`r${Math.floor(Math.random() * 10)}`, { color: '#f5c26b', dur: 1100, alLlegar: () => { n = Math.min(6, n + 1); cola(n); recibe('[data-org-revision]'); } });
+        decir('4-0', 300);
+        // Seis entregas, de seis agentes distintos. La primera es el correo de Outbound.
+        [0, 4, 7, 2, 5, 9].forEach((k, j) =>
+          en(400 + j * 430, () => paquete(`r${k}`, { color: ORO, forma: 'carta', dur: 1250, onda: 46, alLlegar: () => {
+            n = Math.min(6, n + 1);
+            cola(n);
+            recibe('[data-org-revision]');
+          } }))
+        );
+        decir('4-1', 3500);
+        // Patrick marca una, la tarjeta se pone roja y vuelve a quien la hizo.
+        en(4700, () => marca('[data-carta="5"]', 'data-rojo'));
+        en(5200, () => {
+          marca('[data-carta="5"]', 'data-rojo', false);
+          cola(5);
+          paquete('r0', { color: ROJO, etiqueta: 'Corregir', forma: 'carta', inverso: true, dur: 1500, onda: 40, alLlegar: () => {
+            marca('[data-sub="0"]', 'data-corrigiendo');
+            sacude('[data-sub="0"]');
+          } });
         });
-        decir('4-1', 3200);
-        en(4500, () => paquete('r0', { color: '#ff8a7a', etiqueta: 'Corregir', inverso: true, dur: 1500, alLlegar: () => marca('[data-sub="0"]', 'data-corrigiendo') }));
-        decir('4-2', 5400);
-        en(7600, () => {
+        decir('4-2', 6000);
+        en(7900, () => {
           marca('[data-sub="0"]', 'data-corrigiendo', false);
-          paquete('r0', { color: '#f5c26b', dur: 1200 });
+          apagar('r0', ROJO);
+          paquete('r0', { color: ORO, etiqueta: 'Corregido', forma: 'carta', dur: 1300, onda: 46, alLlegar: () => {
+            cola(6);
+            recibe('[data-org-revision]');
+          } });
         });
       },
       // 6. Sale y el sistema aprende
       () => {
         estado('Esperando aprobación');
-        let n = 5;
+        let n = 6;
         cola(reducido ? 0 : n);
         decir('5-0', 300);
         en(1300, () => {
           estado('Enviando al cliente');
-          cada(480, () => {
+          cada(460, () => {
             if (n <= 0) return;
             n--;
             cola(n);
-            paquete('o', { color: '#6fe0a8', dur: 900, alLlegar: () => recibe('[data-org-salida]') });
+            paquete('o', { color: VERDE, forma: 'carta', dur: 900, onda: 70, alLlegar: () => recibe('[data-org-salida]') });
           });
         });
-        en(3600, () => paquete('bucle', { etiqueta: 'Regla nueva', dur: 2600, alLlegar: () => {
+        en(4200, () => paquete('bucle', { etiqueta: 'Regla nueva', dur: 2600, onda: 80, alLlegar: () => {
           estado('Regla nueva aplicada');
           recibe('[data-org-orq]');
         } }));
-        decir('5-1', 4300);
+        decir('5-1', 4600);
       },
     ];
 
@@ -592,23 +762,27 @@ const flujoMovil = [
       tiempos = [];
       ciclos = [];
       vuelos.forEach((v) => (v.cancelado = true));
+      encendidas.clear();
+      capaIgnicion?.replaceChildren();
+      capaOndas?.replaceChildren();
       todos('[data-msg][data-visible], [data-escribiendo][data-visible]').forEach((e) => e.removeAttribute('data-visible'));
-      ['data-trabajando', 'data-corrigiendo', 'data-leyendo', 'data-recibe'].forEach((a) => marca(`[${a}]`, a, false));
+      ['data-trabajando', 'data-terminado', 'data-corrigiendo', 'data-leyendo', 'data-recibe', 'data-sacude', 'data-rojo'].forEach((a) => marca(`[${a}]`, a, false));
     }
 
     function irA(i: number) {
       limpiar();
       actual = i;
       raiz.dataset.paso = String(i + 1);
+      encuadrar(i);
       todos('[data-en]').forEach((el) => el.classList.toggle('on', (el.dataset.en || '').split(' ').includes(String(i + 1))));
       marca('[data-org-humanos]', 'data-aprobado', i >= 2);
-      if (i < 4) cola(3);
+      if (i < 4) cola(0);
 
       if (num) num.textContent = String(i + 1);
       if (titulo) titulo.textContent = PASOS[i].titulo;
       if (texto) texto.textContent = PASOS[i].texto;
       if (!reducido && narracion) {
-        narracion.animate([{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'none' }], { duration: 500, easing: 'cubic-bezier(.16, 1, .3, 1)' });
+        narracion.animate([{ opacity: 0, transform: 'translateY(6px)', filter: 'blur(4px)' }, { opacity: 1, transform: 'none', filter: 'blur(0)' }], { duration: 650, easing: 'cubic-bezier(.16, 1, .3, 1)' });
       }
 
       botones.forEach((b) => b.removeAttribute('data-actual'));
