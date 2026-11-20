@@ -1,17 +1,16 @@
 ---
 title: "Skill de paid media para IA: auditar campañas contra el CRM"
-description: "La skill auditoria-paid-b2b, completa y descargable: cruza Google, Meta y LinkedIn Ads con tu CRM y calcula el coste real por oportunidad cualificada."
+description: "La skill auditoria-paid-b2b, descargable: cruza Google, Meta y LinkedIn Ads con tu CRM, calcula el coste por oportunidad y respeta la ventana de cada plataforma."
 pubDate: 2026-09-15
+updatedDate: 2026-11-20
 author: "Philippe Saint-Hubert"
 cluster: "paid"
 tags: ["skills", "paid media", "Google Ads", "LinkedIn Ads", "Meta Ads"]
 ---
 
-Pásale a una IA un export de Google Ads y pídele una auditoría. Te hablará del CTR, de subir pujas en las campañas con mejor coste por conversión y de probar nuevas extensiones. Todo razonable, y casi todo irrelevante para la única pregunta que importa en B2B: qué campaña trajo los contratos que se firmaron.
+Una skill de paid media para IA es un fichero de instrucciones que el modelo carga cuando le pides auditar una cuenta publicitaria, y aquí abajo está la nuestra entera y descargable: `auditoria-paid-b2b` revisa Google Ads, Meta Ads y LinkedIn Ads cruzando el gasto con lo que pasó después en el CRM, calcula el coste por oportunidad cualificada en lugar del coste por lead y no propone tocar una puja hasta haber validado el seguimiento. Lo que la hace distinta de un prompt de auditoría genérico es que trabaja con los límites reales de cada plataforma: Google acepta una conversión importada hasta 90 días después del clic, LinkedIn exige que el evento sea de los últimos 90 días y Meta solo admite eventos de los últimos 7, y eso cambia qué puedes devolver desde el CRM y cuándo.
 
-La IA no puede contestar eso con lo que le has dado, porque la respuesta no está en la plataforma publicitaria. Está en el CRM.
-
-Esta skill está construida sobre esa idea: no audita campañas contra lo que dice la plataforma, sino contra lo que pasó después.
+Porque si le pasas a una IA un export de Google Ads y nada más, te hablará del CTR, de subir pujas donde el coste por conversión es mejor y de probar extensiones. Todo razonable, y casi todo irrelevante para la única pregunta que importa en B2B: qué campaña trajo los contratos que se firmaron. Esa respuesta no está en la plataforma publicitaria, está en el CRM.
 
 ## ¿Por qué convertir una auditoría de paid en una skill?
 
@@ -29,7 +28,9 @@ Si no le das datos del CRM, lo dice en la primera línea: sin ellos puede revisa
 
 Porque optimizar con datos rotos es acelerar en la dirección equivocada. Lo primero que hace la skill es listar qué cuenta como conversión en cada plataforma. Es muy común encontrar tres acciones marcadas como principales a la vez, por ejemplo la visita a la página de gracias, el clic en el teléfono y el tiempo en página, lo que infla todas las cifras de la cuenta.
 
-Después busca conversiones contadas dos veces, comprueba si el origen del lead llega al CRM sin sobrescribirse y si el CRM devuelve algo a las plataformas. El veredicto es fiable, parcial o roto. Si es roto, la primera recomendación es arreglarlo, y ninguna otra va delante.
+En Google Ads esto se comprueba en un sitio concreto y con una regla clara: una acción marcada como principal se reporta en la columna «Conversiones» y se usa para pujar, mientras que una secundaria solo aparece en «Todas las conv.» y no se usa para pujar, según la [documentación de acciones de conversión principales y secundarias](https://support.google.com/google-ads/answer/11461796). Dos consecuencias prácticas: si el informe que ve dirección sale de «Todas las conv.», está sumando cosas que no son negocio; y si alguien marcó como principal el clic en el teléfono «para dar más señal», la puja automática lleva meses persiguiendo eso.
+
+Después la skill busca conversiones contadas dos veces, comprueba si el origen del lead llega al CRM sin sobrescribirse y si el CRM devuelve algo a las plataformas. El veredicto es fiable, parcial o roto. Si es roto, la primera recomendación es arreglarlo, y ninguna otra va delante. Ese orden es el mismo que seguimos a mano en [cómo optimizar campañas de Google Ads en B2B](/blog/optimizar-campanas-google-ads-b2b) y en [auditar una cuenta de Google Ads heredada](/blog/auditar-cuenta-google-ads-heredada).
 
 ## ¿Por qué coste por oportunidad y no coste por lead?
 
@@ -54,19 +55,40 @@ Si además te preguntas qué canal descubre y cuál cierra, [el último clic te 
 
 ## ¿Qué desperdicio busca en cada plataforma?
 
-El que más se repite en cuentas B2B:
+El que más se repite en cuentas B2B, con una lista por plataforma que tienes entera en el paso 3 de la skill: búsquedas de empleo o formación y concordancia amplia sin negativas en Google, intereses genéricos y formularios sin preguntas de cualificación en Meta, segmentación por sector sin cargo y Audience Network sin revisar en LinkedIn.
 
-- **Google Ads**: búsquedas de empleo, formación o gratuidad ("trabajo", "curso", "gratis", "qué es"), concordancia amplia sin palabras negativas, campañas que pujan entre sí y ubicaciones de Display o Performance Max con clics y sin oportunidades.
-- **Meta Ads**: audiencias B2B definidas solo por intereses genéricos, formularios instantáneos sin ninguna pregunta que cualifique y frecuencia muy alta sobre audiencias pequeñas.
-- **LinkedIn Ads**: segmentación por sector sin cargo ni antigüedad, Audience Network activado sin revisar y formularios con los campos precargados y sin pregunta de cualificación.
-
-Siempre que los datos lo permiten, lo cuantifica en euros. Un "hay desperdicio en búsquedas" no mueve a nadie; "1.400 € en seis meses en búsquedas de empleo" sí.
+Lo importante es que siempre que los datos lo permiten lo cuantifica en euros. Un "hay desperdicio en búsquedas" no mueve a nadie; "1.400 € en seis meses en búsquedas de empleo" sí.
 
 ## ¿Hacia qué evento debería optimizar la plataforma?
 
 Si optimiza hacia leads y tu ciclo es largo, la skill propone un evento intermedio que ocurra con frecuencia razonable y que correlacione con el cierre, como una reunión celebrada o una oportunidad creada, enviado desde el CRM a la plataforma.
 
-Y avisa del límite, que es real: si el evento es demasiado raro, la plataforma no tiene datos suficientes para aprender. Hay que buscar el punto entre frecuencia y relación con el cierre. Para que eso funcione, [el CRM tiene que estar conectado con las plataformas](/blog/conectar-crm-con-plataformas).
+Y avisa del límite, que es real: si el evento es demasiado raro, la plataforma no tiene datos suficientes para aprender. Hay que buscar el punto entre frecuencia y relación con el cierre. Para que eso funcione, [el CRM tiene que estar conectado con las plataformas](/blog/conectar-crm-con-plataformas) y las conversiones tienen que salir [desde servidor y no solo del navegador](/blog/conversiones-desde-servidor-b2b).
+
+## ¿Cuánto tiempo tienes para devolverle un cierre a la plataforma?
+
+Entre 7 y 90 días desde el clic o el evento, según la plataforma. Es el dato que decide si puedes devolver el contrato firmado o solo una etapa intermedia, y ninguna auditoría sirve si lo ignora:
+
+| Plataforma | Límite para subir el evento | Fuente oficial |
+|---|---|---|
+| Google Ads, importación con GCLID | No se importa si se sube más de **90 días** después del último clic asociado | [Guidelines for importing offline conversions](https://support.google.com/google-ads/answer/15081888) |
+| Google Ads, conversiones mejoradas para leads | **63 días** después del último clic | [la misma página](https://support.google.com/google-ads/answer/15081888) |
+| LinkedIn Ads, Conversions API | El evento tiene que ser de los **últimos 90 días**; la ventana post-clic de la regla se elige entre 1, 7, 28, 30 y 90 días, y admite **180 o 365** en los tipos LEAD, QUALIFIED_LEAD, MARKETING_QUALIFIED_LEAD, SALES_QUALIFIED_LEAD, PURCHASE, SUBMIT_APPLICATION y ADD_TO_CART | [Conversions API de LinkedIn](https://learn.microsoft.com/en-us/linkedin/marketing/integrations/ads-reporting/conversions-api) |
+| Meta, Conversions API para CRM | El `event_time` puede estar como máximo **7 días** antes del envío, con `action_source = system_generated` | [Conversions API for CRM](https://developers.facebook.com/documentation/ads-commerce/conversions-api/guides/conversions-api-crm-for-platforms) |
+
+De ahí salen tres decisiones que la auditoría tiene que tomar y que casi nadie toma:
+
+- **En Meta, el cierre no cabe.** Con un ciclo de tres meses, cuando firmas han pasado 90 días y el límite son 7, así que el evento se rechaza. Lo que se devuelve a Meta son etapas tempranas (lead cualificado, reunión agendada) y se envían a diario, no en un volcado trimestral. Meta misma recomienda mandar varias etapas del embudo, empezando por el lead en bruto.
+- **En LinkedIn, el tipo de conversión importa más que el nombre.** Si creas la regla con una ventana post-clic de 30 días, un cierre a tres meses no se atribuye nunca. La ventana larga de 180 o 365 días está disponible en varios tipos, el lead en bruto incluido; lo que añade la versión 202608 de la API son los tipos específicos de lead cualificado de marketing y de ventas, útiles para separar etapas sin inventar nombres.
+- **En Google, la ventana depende de con qué casas.** Si subes por GCLID tienes 90 días; si usas conversiones mejoradas para leads, 63. Y las estadísticas importadas tardan unas 3 horas en aparecer en la cuenta, así que no juzgues una importación a los diez minutos.
+
+Un detalle que ahorra discusiones con legal: no hace falta mandar correos. LinkedIn acepta como identificador la respuesta del formulario de lead gen (`urn:li:leadGenFormResponse:...`) y Meta acepta el `lead_id` de sus formularios, sin enviar datos personales en claro. Si usas formularios nativos, es el camino más limpio, y el que conviene al [promocionar la publicación de un empleado en LinkedIn Ads](/blog/promocionar-publicacion-de-un-empleado-linkedin-ads), donde el lead llega por el formulario y no por la web.
+
+## ¿Y si la cuenta no llega a 30 conversiones al mes?
+
+Entonces la lectura de la plataforma no es fiable y la auditoría tiene que decirlo. Google recomienda, para evaluar una estrategia de CPA objetivo, "medir el rendimiento de los últimos 30 días, incluyendo al menos 30 conversiones" ([documentación de CPA objetivo](https://support.google.com/google-ads/answer/6268632)). Muchas cuentas B2B no llegan a esas 30 conversiones mensuales ni sumando todas sus campañas, así que cualquier comparación entre campañas dentro de ese volumen es ruido.
+
+Qué hace la skill con eso: marca como "sin datos suficientes" cualquier campaña con menos de diez oportunidades en el periodo, en lugar de calcular una tasa con tres casos. Y qué conviene hacer tú: ampliar la ventana de análisis a 90 días, comparar por cohortes en lugar de por mes natural y, si el volumen es tan bajo que ni eso llega, revisar antes [cuánto presupuesto hace falta para que paid funcione en B2B](/blog/presupuesto-minimo-paid-b2b). Una cuenta con cuatro conversiones al mes no tiene un problema de optimización.
 
 ## La skill completa
 
@@ -207,20 +229,31 @@ En Windows, descarga el [.zip](/skills/auditoria-paid-b2b.zip) y descomprímelo 
 | GLM | `~/.claude/skills/auditoria-paid-b2b/`, dentro de Claude Code | Igual que en Claude Code | [guía](/blog/skills-en-glm) |
 | DeepSeek | `~/.claude/skills/auditoria-paid-b2b/`, dentro de Claude Code | Igual que en Claude Code | [guía](/blog/skills-en-deepseek) |
 
-## ¿Qué datos hay que sacar y cómo?
+## ¿Qué hay que exportar y de dónde se saca?
 
-Tres archivos y dos cifras:
+Tres o cuatro ficheros y dos cifras. Dónde está cada uno:
 
-1. **Informe de campañas de cada plataforma** exportado a CSV, de los últimos tres a seis meses: campaña, gasto, clics, conversiones y coste por conversión. Todas las plataformas permiten descargar la vista de campañas.
-2. **Informe del CRM** con los leads del mismo periodo agrupados por campaña u origen, y cuántos pasaron a oportunidad cualificada y a ganado, con importe.
-3. **Informe de términos de búsqueda** de Google Ads, si inviertes ahí. Es donde aparece la mayor parte del desperdicio.
-4. El **ciclo de venta medio** y el **ticket medio**, aunque sean aproximados.
+| Qué | De dónde se saca | Columnas que hacen falta |
+|---|---|---|
+| Campañas de Google Ads | El [editor de informes](https://support.google.com/google-ads/answer/7489070), en el menú de informes y estadísticas; se descarga en `.csv` | Campaña, coste, clics, conversiones, coste por conversión y tipo de campaña |
+| Términos de búsqueda de Google Ads | La tabla de términos de búsqueda, con Exportar, Exportar vista actual | Término, coste, clics, conversiones |
+| Campañas de LinkedIn Ads | El botón Export de Campaign Manager, informe "Ad set performance" a nivel de conjunto de anuncios, con desglose temporal Diario o Mensual ([cómo exportar](https://www.linkedin.com/help/lms/answer/a441785)) | Campaña, gasto, clics, conversiones, leads de formulario |
+| Campañas de Meta Ads | La exportación de la tabla del administrador de anuncios, a nivel de campaña | Campaña, gasto, clics, resultados de formulario |
+| CRM | Un informe agrupado por campaña u origen, del mismo periodo | Leads, oportunidades cualificadas, ganados e importe |
+
+Las dos cifras son el **ciclo de venta medio** y el **ticket medio**, aunque sean aproximados: sin ellas la skill no puede decidir qué periodo leer ni si una campaña cara por lead sale rentable.
+
+Pide los últimos seis meses, no tres, incluso si tu ciclo es corto. Con las ventanas de importación de arriba en la mano, seis meses te permiten ver si los eventos que vuelven del CRM llegan dentro de plazo o si una parte se está cayendo.
 
 Una precaución: del CRM no necesitas datos personales. Exporta cifras agregadas por campaña, no listas de contactos. La skill no los necesita para calcular nada y así no pasan por ningún proveedor de IA.
 
-## ¿Qué herramienta va mejor para esta skill?
+Un ejemplo de petición, con una empresa inventada:
 
-Las que analizan archivos. En la app de Claude y en ChatGPT subes los CSV a la conversación y el modelo los procesa con código. En Claude Code, Codex o Cursor, dejas los archivos en una carpeta y le pides que los lea. Cualquiera sirve; lo que no sirve es pegar tablas de cientos de filas en el chat.
+> Audita nuestro paid. Te adjunto los informes de campañas de Google Ads y LinkedIn Ads de los últimos seis meses, el de términos de búsqueda y un export del CRM con leads, oportunidades y ganados por campaña. Ciclo de venta unos cuatro meses, ticket medio 18.000 €. En Google optimizamos a formulario enviado y en LinkedIn a lead de formulario.
+
+Con esos datos, lo esperable es que señale el formulario como evento de puja demasiado temprano para un ciclo de cuatro meses, que ordene las campañas por coste por oportunidad y no por coste por lead, y que avise de qué campañas tienen tan pocas oportunidades que no se puede concluir nada.
+
+Funciona mejor en las herramientas que ejecutan código sobre archivos: la app de Claude, ChatGPT, Claude Code, Codex o Cursor. Si tu herramienta admite un servidor MCP de la plataforma, puede leer los informes sin que los exportes y la skill funciona igual. Lo que no funciona es pegar tablas de cientos de filas en el chat.
 
 ## ¿Qué conviene adaptar a tu empresa?
 
@@ -228,6 +261,7 @@ Las que analizan archivos. En la app de Claude y en ChatGPT subes los CSV a la c
 - **Tu ciclo de venta y tu ticket**, escritos en la skill si no cambian.
 - **El umbral de datos suficientes.** Diez oportunidades es un mínimo prudente; si tu volumen es muy alto o muy bajo, ajústalo.
 - **Tus plataformas.** Si solo inviertes en una, borra las secciones de las otras para que la skill no pregunte por ellas.
+- **Las ventanas que te afectan.** Escribe en la skill qué evento devuelves a cada plataforma y con qué método, porque de eso depende tu límite: 90 días por GCLID, 63 con conversiones mejoradas para leads, 7 en Meta.
 
 ## Errores habituales al usarla
 
@@ -237,6 +271,8 @@ Las que analizan archivos. En la app de Claude y en ChatGPT subes los CSV a la c
 
 **Aplicar las cinco acciones a la vez.** Si cambias cinco cosas en la misma semana, no sabrás cuál funcionó. Van en orden por algo.
 
+**Subir los datos del CRM una vez al trimestre.** Es el error más caro de todos: una parte de los eventos llega fuera de ventana y se rechaza sin que nadie lo note. La importación va diaria o semanal, y la auditoría tiene que comprobar cuántos eventos se aceptaron, no cuántos se enviaron.
+
 **Cortar campañas de descubrimiento por no cerrar.** Algunas campañas no cierran pero alimentan a las que sí. La lectura por cohortes y la pregunta de "¿cómo nos has conocido?" en el formulario ayudan a no cortarlas por error.
 
 ## Preguntas frecuentes
@@ -244,8 +280,8 @@ Las que analizan archivos. En la app de Claude y en ChatGPT subes los CSV a la c
 **¿Sirve si no tengo CRM?**
 Solo en parte. Puede revisar seguimiento y estructura. Sin saber qué leads se convirtieron en clientes, cualquier conclusión sobre rentabilidad sería una suposición.
 
-**¿Puede conectarse directamente a Google Ads?**
-Con un servidor MCP de la plataforma, en las herramientas que los admiten, sí puede leer los datos sin exportarlos. La skill funciona igual con datos exportados o conectados.
+**¿Puedo devolver a la plataforma un contrato firmado tres meses después?**
+En Google Ads sí, si subes por GCLID dentro de los 90 días siguientes al clic (63 con conversiones mejoradas para leads). En LinkedIn sí, siempre que el evento sea de los últimos 90 días y la regla tenga una ventana post-clic larga. En Meta no: el evento tiene que ser de los últimos 7 días, así que ahí solo caben etapas intermedias enviadas a diario.
 
 **¿Cada cuánto conviene pasarla?**
 Una vez al trimestre para una revisión completa, o después de cualquier cambio grande de estructura o de seguimiento.
@@ -258,7 +294,7 @@ Porque las cifras por sector que circulan mezclan cuentas, países y periodos qu
 
 ## Por dónde empezaríamos
 
-Por conectar el gasto con el pipeline, antes de tocar una sola campaña. Con el origen viajando bien hasta la oportunidad y la lectura por cohortes montada, esta skill convierte cada export en decisiones que se pueden defender ante dirección.
+Por dos cosas, antes de tocar una sola campaña: que el origen viaje sin sobrescribirse hasta la oportunidad, y que el evento que devuelves a cada plataforma entre dentro de su ventana. Con eso y la lectura por cohortes, esta skill convierte cada export en decisiones que se pueden defender ante dirección.
 
 Va entre [paid](/servicios/paid) y [RevOps y datos](/servicios/revops-crm). [Media hora y lo vemos](/#contacto).
 
