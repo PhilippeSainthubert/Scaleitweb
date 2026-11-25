@@ -8,7 +8,7 @@ cluster: "agentes-de-ia"
 tags: ["skills", "habilidades", "Gemini", "Gemini CLI", "Google"]
 ---
 
-Depende de qué Gemini uses, porque hoy son tres sitios distintos. En la app de Gemini, donde Google las llama «habilidades», se suben desde la web, en **Personalizar → Habilidades → Crear → Subir**; en Gemini CLI se copian a `~/.gemini/skills/` o se instalan con `gemini skills install <url>`; y en Gemini Enterprise se instalan desde una biblioteca, en **Skills → + → Browse skills → + Install**.
+Depende de qué Gemini uses, porque hoy son tres sitios distintos. En la app de Gemini, donde Google las llama "habilidades", se suben desde la web, en **Personalizar → Habilidades → Crear → Subir**; en Gemini CLI se copian a `~/.gemini/skills/` o se instalan con `gemini skills install <url>`; y en Gemini Enterprise se instalan desde una biblioteca, en **Skills → + → Browse skills → + Install**.
 
 El archivo es el mismo en los tres: una carpeta con un `SKILL.md`, según el [estándar abierto de agent skills](https://agentskills.io). Una skill escrita para Claude Code o Codex funciona en Gemini sin cambiarle nada.
 
@@ -40,9 +40,9 @@ Tres cosas que conviene saber antes:
 - **El nombre de la carpeta tiene que coincidir con el de la habilidad**, en minúsculas y con guiones.
 - **Los límites son dos**: hasta 100 MB de archivos por habilidad y [100 habilidades activas a la vez](https://support.google.com/gemini/answer/18560919?hl=es). Puedes crear todas las que quieras; para activar una más, desactiva otra.
 
-Para usarla, escribe `/` en cualquier conversación y elígela, o deja que Gemini la active cuando la tarea encaje con su descripción. Google avisa de que el atajo pasará de `/` a `@`. Y un detalle que descoloca: si tienes «Guardar actividad» desactivado puedes usar habilidades, pero no las que necesitan acceso a Drive o Calendar.
+Para usarla, escribe `/` en cualquier conversación y elígela, o deja que Gemini la active cuando la tarea encaje con su descripción. Google avisa de que el atajo pasará de `/` a `@`. Y un detalle que descoloca: si tienes "Guardar actividad" desactivado puedes usar habilidades, pero no las que necesitan acceso a Drive o Calendar.
 
-### ¿Y la sección «Recomendadas»? Ahí no hay nada que instalar
+### ¿Y la sección "Recomendadas"? Ahí no hay nada que instalar
 
 En la página Habilidades de la app hay un apartado **Recomendadas**, y la pregunta habitual es cómo se instala una de esas. La respuesta corta: no se instalan. Son plantillas con el nombre, la descripción y las instrucciones ya rellenadas. Haces clic en una, editas los tres campos y pulsas **Crear**. Lo que queda es una habilidad tuya, no una copia enlazada que se actualice.
 
@@ -179,7 +179,7 @@ Una habilidad le da a Gemini el criterio y el formato de un trabajo, pero sigue 
 ## Preguntas frecuentes
 
 **¿Cómo se instala una skill recomendada en la biblioteca de la app de Gemini?**
-No hay instalación. Las de la sección «Recomendadas» son plantillas: abres una, editas nombre, descripción e instrucciones y pulsas **Crear**. La única biblioteca con botón de instalar es la de Gemini Enterprise, en **Browse skills → + Install**.
+No hay instalación. Las de la sección "Recomendadas" son plantillas: abres una, editas nombre, descripción e instrucciones y pulsas **Crear**. La única biblioteca con botón de instalar es la de Gemini Enterprise, en **Browse skills → + Install**.
 
 **¿Qué diferencia hay entre una habilidad y un Gem?**
 Un Gem era un asistente aparte al que te cambiabas. Una habilidad se usa dentro de la conversación que tienes abierta, se activa sola y se puede combinar con otras. Los Gems de cuentas personales se eliminan el 17 de diciembre de 2026; en cuentas de empresa de Workspace, en marzo de 2027, y en centros educativos, en junio de 2027.

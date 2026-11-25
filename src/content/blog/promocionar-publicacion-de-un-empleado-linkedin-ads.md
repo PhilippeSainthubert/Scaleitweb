@@ -15,7 +15,7 @@ Lo que casi nadie te cuenta es la otra mitad: este formato solo admite objetivos
 
 Es contenido patrocinado cuya creatividad es una publicación que ya existe en el perfil de una persona. No creas un anuncio nuevo: coges un post publicado, pides permiso y le pones presupuesto detrás.
 
-Según la [página de producto de LinkedIn](https://business.linkedin.com/advertise/ads/sponsored-content/thought-leader-ads), puedes patrocinar publicaciones «de empleados y de no empleados, incluidos expertos del sector, clientes, socios y creadores». Ya no está limitado a tu plantilla, que es como nació el formato: la [ayuda oficial](https://www.linkedin.com/help/lms/answer/a1399568/thought-leader-ads) añade que el autor puede ser un contacto de primer, segundo o tercer grado o más.
+Según la [página de producto de LinkedIn](https://business.linkedin.com/advertise/ads/sponsored-content/thought-leader-ads), puedes patrocinar publicaciones "de empleados y de no empleados, incluidos expertos del sector, clientes, socios y creadores". Ya no está limitado a tu plantilla, que es como nació el formato: la [ayuda oficial](https://www.linkedin.com/help/lms/answer/a1399568/thought-leader-ads) añade que el autor puede ser un contacto de primer, segundo o tercer grado o más.
 
 La publicación sigue siendo de la persona. Las reacciones y los comentarios se acumulan en su post, y los contesta ella.
 
@@ -70,7 +70,7 @@ Es una empresa que vende herramientas para este formato, conviene saberlo. Pero 
 
 Y tienen razón, porque es un problema de definición. LinkedIn define los clics como [clics facturables según el objetivo de la campaña](https://www.linkedin.com/help/lms/answer/a445476/) y el CTR medio como esos clics divididos entre las impresiones. Lo que entra en cada caso lo detalla en dos páginas distintas.
 
-Con [objetivo de interacción](https://www.linkedin.com/help/lms/answer/a424254) la lista es larga: cuentan, entre otros, los clics que abren la URL de destino, los clics al logo o al nombre de la empresa, el botón de seguir, la píldora social con los «me gusta» y comentarios, los clics al perfil del autor desde la prueba social, el «ver más» y las propias reacciones, comentarios y veces compartido.
+Con [objetivo de interacción](https://www.linkedin.com/help/lms/answer/a424254) la lista es larga: cuentan, entre otros, los clics que abren la URL de destino, los clics al logo o al nombre de la empresa, el botón de seguir, la píldora social con los "me gusta" y comentarios, los clics al perfil del autor desde la prueba social, el "ver más" y las propias reacciones, comentarios y veces compartido.
 
 Con [objetivo de visitas a la web](https://www.linkedin.com/help/lms/answer/a420937), en cambio, solo cuentan los clics que abren la URL de destino.
 
@@ -101,7 +101,7 @@ Dos avisos antes de montarlo:
 
 **El umbral de 300.** LinkedIn exige un [mínimo de 300 cuentas de miembro](https://www.linkedin.com/help/lms/answer/a424655) para que un conjunto de anuncios se publique. Si tu campaña de arriba es pequeña, la audiencia de retargeting tarda semanas en llenarse y hasta entonces el segundo piso no existe. Cuenta con eso en el calendario y en el presupuesto, en la línea de lo que ya vimos sobre el [presupuesto mínimo para que paid funcione en B2B](/blog/presupuesto-minimo-paid-b2b).
 
-**Un «me gusta» no es intención.** Alguien puede aplaudir un post buenísimo sin tener el problema que resuelves. Ordena las audiencias por fuerza de la señal: comentario y clic a la landing valen; reacción, poco. Y para saber qué acabó en oportunidad hace falta que el origen llegue al CRM y no se sobrescriba, que es [el trabajo de fontanería de siempre](/blog/conectar-crm-con-plataformas).
+**Un "me gusta" no es intención.** Alguien puede aplaudir un post buenísimo sin tener el problema que resuelves. Ordena las audiencias por fuerza de la señal: comentario y clic a la landing valen; reacción, poco. Y para saber qué acabó en oportunidad hace falta que el origen llegue al CRM y no se sobrescriba, que es [el trabajo de fontanería de siempre](/blog/conectar-crm-con-plataformas).
 
 ## Qué publicación conviene promocionar
 
@@ -109,7 +109,7 @@ No la que más gustó a tus compañeros. La que explica algo que tu comprador no
 
 Lo que suele funcionar: una decisión técnica contada con criterio, un error caro explicado sin adornos, una comparación entre dos formas de hacer algo. Contenido donde la persona demuestra que ha hecho el trabajo.
 
-Lo que no: el post de aniversario de la empresa, el anuncio de la nueva funcionalidad y el que termina en «escríbeme para saber más». Si el texto ya era un anuncio en orgánico, patrocinarlo solo lo hace un anuncio caro.
+Lo que no: el post de aniversario de la empresa, el anuncio de la nueva funcionalidad y el que termina en "escríbeme para saber más". Si el texto ya era un anuncio en orgánico, patrocinarlo solo lo hace un anuncio caro.
 
 Un criterio práctico: promociona lo que ya rindió por encima de su media en orgánico. No garantiza nada, pero evita pagar por averiguar que la idea no interesaba.
 

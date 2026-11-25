@@ -35,7 +35,7 @@ En cuatro ámbitos, que la documentación llama REPO, USER, ADMIN y SYSTEM:
 | ADMIN | `/etc/codex/skills` | Skills de la máquina o del contenedor |
 | SYSTEM | Incluidas en Codex | `skill-creator` y `skill-installer`, activas por defecto |
 
-La regla es que Codex «recorre `.agents/skills` en cada directorio desde tu carpeta de trabajo hasta la raíz del repositorio». Y hay un detalle que casi ninguna guía cuenta: **esa lista no es un orden de prioridad**. Si dos skills se llaman igual, Codex no las fusiona ni gana una, sino que las dos aparecen en el selector. Si te salen duplicados, es eso, y tendrás que renombrar o desactivar una.
+La regla es que Codex "recorre `.agents/skills` en cada directorio desde tu carpeta de trabajo hasta la raíz del repositorio". Y hay un detalle que casi ninguna guía cuenta: **esa lista no es un orden de prioridad**. Si dos skills se llaman igual, Codex no las fusiona ni gana una, sino que las dos aparecen en el selector. Si te salen duplicados, es eso, y tendrás que renombrar o desactivar una.
 
 Codex también sigue los enlaces simbólicos, así que puedes dejar las skills en un repositorio y enlazarlas desde `~/.agents/skills` en lugar de duplicarlas.
 
@@ -60,7 +60,7 @@ Como en cualquier herramienta compatible, la descripción decide cuándo se acti
 
 ## ¿Cuántas skills caben antes de que estorben?
 
-Esta es la parte que nadie mira hasta que falla. Codex carga al principio solo el nombre, la descripción y la ruta de cada skill, y ese listado tiene un techo: «como máximo el 2 % de la ventana de contexto del modelo, u 8.000 caracteres cuando no se conoce».
+Esta es la parte que nadie mira hasta que falla. Codex carga al principio solo el nombre, la descripción y la ruta de cada skill, y ese listado tiene un techo: "como máximo el 2 % de la ventana de contexto del modelo, u 8.000 caracteres cuando no se conoce".
 
 Cuando te pasas, Codex primero recorta las descripciones, y si aún no caben, **deja skills fuera del listado y avisa**. Con la opción `skills.max_context_tokens` puedes subir el presupuesto hasta 10.000 tokens. El límite solo afecta al listado inicial: cuando una skill se activa, se lee entera.
 
@@ -78,7 +78,7 @@ Si el proceso es más fácil de enseñar que de explicar, hay otra vía: [Record
 
 `$skill-installer` instala skills curadas sin buscar la carpeta, por ejemplo `$skill-installer linear`. También puedes pedirle que descargue skills de otros repositorios.
 
-Aquí hubo un cambio importante. El repositorio `openai/skills` **está deprecado**: su README dice literalmente «This repository is deprecated» y manda al [repositorio de plugins](https://github.com/openai/plugins). Un [plugin](https://learn.chatgpt.com/docs/plugins) empaqueta una o varias skills, y puede traer además servidores MCP, hooks y extensiones de navegador. Se instalan con `/plugins` dentro de Codex CLI.
+Aquí hubo un cambio importante. El repositorio `openai/skills` **está deprecado**: su README dice literalmente "This repository is deprecated" y manda al [repositorio de plugins](https://github.com/openai/plugins). Un [plugin](https://learn.chatgpt.com/docs/plugins) empaqueta una o varias skills, y puede traer además servidores MCP, hooks y extensiones de navegador. Se instalan con `/plugins` dentro de Codex CLI.
 
 El criterio oficial es claro:
 
@@ -161,7 +161,7 @@ for s in brief-seo-b2b secuencia-outbound seleccion-creadores auditoria-paid-b2b
 done
 ```
 
-Al quedar en `~/.agents/skills`, también estarán disponibles en Gemini CLI, Cursor y GitHub Copilot, por lo que se explica con las fuentes oficiales en el apartado «¿Dónde busca Codex las skills?».
+Al quedar en `~/.agents/skills`, también estarán disponibles en Gemini CLI, Cursor y GitHub Copilot, por lo que se explica con las fuentes oficiales en el apartado "¿Dónde busca Codex las skills?".
 
 Una skill le da a Codex el criterio y el formato de un trabajo, pero sigue haciendo falta que alguien abra la sesión y lo pida. Si lo que quieres es algo que corra solo, eso es otra cosa, y empieza por decidir [qué procesos conviene dar a un agente y cuáles no](/blog/que-procesos-dar-a-un-agente). Un ejemplo montado de principio a fin está en [el agente de prospección en LinkedIn](/blog/agente-ia-prospeccion-linkedin), y es parte de lo que hacemos en [agentes de IA](/servicios/agentes-de-ia).
 

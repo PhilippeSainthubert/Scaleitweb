@@ -11,7 +11,7 @@ Si lo que quieres es mandar volumen desde muchos buzones y pagar por email envia
 
 Pero la decisión importante no es la marca. Es **qué unidad te cobran** (emails enviados, puestos o plan plano) y **cuántos buzones vas a necesitar**, porque los buzones y los dominios acaban costando más que la herramienta.
 
-Los precios de abajo los saqué hoy, 25 de noviembre de 2026, de las páginas oficiales de cada una. Aviso: es semana de Black Friday y hay ofertas encima de la mesa. Smartlead anuncia «50% off on your first month on any plan» sin fecha de caducidad publicada ([precios](https://www.smartlead.ai/pricing)), Saleshandy hasta un 40 % con el código BFCM26 ([precios](https://www.saleshandy.com/pricing/)) y Woodpecker un 40 % en los planes anuales ([precios](https://woodpecker.co/pricing/)). Las tablas recogen la tarifa normal, que es la que vas a pagar el mes 13.
+Los precios de abajo los saqué hoy, 25 de noviembre de 2026, de las páginas oficiales de cada una. Aviso: es semana de Black Friday y hay ofertas encima de la mesa. Smartlead anuncia "50% off on your first month on any plan" sin fecha de caducidad publicada ([precios](https://www.smartlead.ai/pricing)), Saleshandy hasta un 40 % con el código BFCM26 ([precios](https://www.saleshandy.com/pricing/)) y Woodpecker un 40 % en los planes anuales ([precios](https://woodpecker.co/pricing/)). Las tablas recogen la tarifa normal, que es la que vas a pagar el mes 13.
 
 ## Tabla comparativa
 
@@ -28,11 +28,11 @@ Los precios de abajo los saqué hoy, 25 de noviembre de 2026, de las páginas of
 
 No son las funciones. Las seis mandan secuencias, rotan buzones y hacen calentamiento. Lo que cambia es **la unidad que te facturan**, y eso decide cuál es barata en tu caso.
 
-**Por emails enviados.** Instantly, Smartlead, Saleshandy y Woodpecker. Los buzones son gratis e ilimitados; lo que mides es volumen. Smartlead lo dice por escrito: «All Smartlead plans include unlimited email accounts at no extra cost» ([precios](https://www.smartlead.ai/pricing)). Woodpecker va más lejos y cobra directamente por emails enviados al mes, con usuarios y cuentas ilimitados gratis.
+**Por emails enviados.** Instantly, Smartlead, Saleshandy y Woodpecker. Los buzones son gratis e ilimitados; lo que mides es volumen. Smartlead lo dice por escrito: "All Smartlead plans include unlimited email accounts at no extra cost" ([precios](https://www.smartlead.ai/pricing)). Woodpecker va más lejos y cobra directamente por emails enviados al mes, con usuarios y cuentas ilimitados gratis.
 
-**Por puesto.** Lemlist Multichannel y Apollo. Tiene sentido si cada comercial trabaja su propia cartera, y no lo tiene si lo que haces es volumen desde veinte buzones: pagarías por personas que no existen. Ojo al detalle de Lemlist: su plan Email es por volumen con «Unlimited users & Email senders», y solo el Multichannel pasa a ser por usuario con 5 remitentes cada uno ([precios](https://www.lemlist.com/pricing)).
+**Por puesto.** Lemlist Multichannel y Apollo. Tiene sentido si cada comercial trabaja su propia cartera, y no lo tiene si lo que haces es volumen desde veinte buzones: pagarías por personas que no existen. Ojo al detalle de Lemlist: su plan Email es por volumen con "Unlimited users & Email senders", y solo el Multichannel pasa a ser por usuario con 5 remitentes cada uno ([precios](https://www.lemlist.com/pricing)).
 
-**Por crédito.** Apollo mezcla las dos cosas: pagas el puesto y además consumes créditos para datos, teléfonos, calentamiento y compra de dominios y buzones. Su página de precios avisa de que los créditos «expire at the end of each billing cycle and do not carry over».
+**Por crédito.** Apollo mezcla las dos cosas: pagas el puesto y además consumes créditos para datos, teléfonos, calentamiento y compra de dominios y buzones. Su página de precios avisa de que los créditos "expire at the end of each billing cycle and do not carry over".
 
 La consecuencia práctica: si tu cuello de botella es el número de buzones, cualquier herramienta que te los cobre por separado parte con desventaja. Si tu cuello de botella es la lista, la cuenta cambia y entra Apollo.
 
@@ -40,7 +40,7 @@ La consecuencia práctica: si tu cuello de botella es el número de buzones, cua
 
 Aquí es donde casi todas las comparativas se quedan cortas. El límite real no es el plan, es cuántos emails aguanta un buzón al día, y es un número bajo.
 
-Instantly recomienda en su documentación «30 campaign emails per account per day» para buzones normales, y un máximo de 20 al día para sus propios buzones AirMail ([límites de cuenta y campaña](https://help.instantly.ai/en/articles/6248612-account-and-campaign-limits), actualizado el 22 de octubre de 2026). Smartlead, para sus buzones precalentados, recomienda empezar con 20 o 30 emails al día por buzón y subir de 5 en 5, con un ratio de «up to 3 mailboxes» por dominio ([centro de ayuda](https://helpcenter.smartlead.ai/en/articles/429-pre-warmed-mailboxes-by-smartlead)). Para su stock de Outlook baja todavía más: de 10 a 15 emails al día, con un máximo de 20 ([guía de Infrainbox](https://helpcenter.smartlead.ai/en/articles/258-microsoft-outlook-mailboxes-by-infrainbox-setup-pricing-and-deliverability-guide)).
+Instantly recomienda en su documentación "30 campaign emails per account per day" para buzones normales, y un máximo de 20 al día para sus propios buzones AirMail ([límites de cuenta y campaña](https://help.instantly.ai/en/articles/6248612-account-and-campaign-limits), actualizado el 22 de octubre de 2026). Smartlead, para sus buzones precalentados, recomienda empezar con 20 o 30 emails al día por buzón y subir de 5 en 5, con un ratio de "up to 3 mailboxes" por dominio ([centro de ayuda](https://helpcenter.smartlead.ai/en/articles/429-pre-warmed-mailboxes-by-smartlead)). Para su stock de Outlook baja todavía más: de 10 a 15 emails al día, con un máximo de 20 ([guía de Infrainbox](https://helpcenter.smartlead.ai/en/articles/258-microsoft-outlook-mailboxes-by-infrainbox-setup-pricing-and-deliverability-guide)).
 
 Haz la división con tu plan. 1.000 prospectos al mes por [tres toques](/blog/cuantos-toques-en-outbound) son 3.000 emails. A 30 al día y 22 días laborables, un buzón te da 660. Necesitas **cinco buzones y dos dominios**, no uno.
 
